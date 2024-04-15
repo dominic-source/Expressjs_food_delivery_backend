@@ -17,5 +17,5 @@ const orderSchema = new Schema({
   payment: [paymentSchema]
 });
 
-const Order = mongoose.Model('Order', orderSchema);
+const Order = mongoose.model('Order', orderSchema);
 module.exports = Order;

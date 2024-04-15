@@ -2,14 +2,14 @@ import mongoose from  "mongoose";
 
 const { Schema } = mongoose;
 
-const continentSchema = new Schema({
+const locationschema = new Schema({
   name: String,
-  country: [countrySchema]
+  longitude: String,
+  latitude: String
 });
 
-const countrySchema = new Schema({
+const lgaSchema = new Schema({
   name: String,
-  state: [stateSchema]
 });
 
 const stateSchema = new Schema({
@@ -17,19 +17,20 @@ const stateSchema = new Schema({
   lga: [lgaSchema]
 });
 
-const lgaSchema = new Schema({
+const countrySchema = new Schema({
   name: String,
+  state: [stateSchema]
 });
 
-const locationschema = new Schema({
+const continentSchema = new Schema({
   name: String,
-  longitude: String,
-  latitude: String
+  country: [countrySchema]
 });
+
 
 export const locationSchema = locationschema;
-export const address = mongoose.Model('Location', locationschema);
-export const lga = mongoose.Model('Lga', lgaSchema);
-export const State = mongoose.Model('State', stateSchema);
-export const Country = mongoose.Model('Country', countrySchema);
-export const Continent= mongoose.Model('Continent', continentSchema);
+export const address = mongoose.model('Location', locationschema);
+export const lga = mongoose.model('Lga', lgaSchema);
+export const State = mongoose.model('State', stateSchema);
+export const Country = mongoose.model('Country', countrySchema);
+export const Continent= mongoose.model('Continent', continentSchema);

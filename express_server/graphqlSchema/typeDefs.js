@@ -1,22 +1,23 @@
-import { gql } from 'graphql';
+import { buildSchema } from 'graphql';
 
-const typeDefs = gql`
-  type Post {
+const typeDefs = buildSchema(`#graphql
+  type User {
     id: ID!
-    title: String!
-    content: String!
+    username: String!
+    email: String!
+    created_at: String!
   }
 
   type Query {
-    posts: [Post!]!
-    post(id: ID!): Post
+    users: [User]!
+    user(id: ID!): User
   }
 
   type Mutation {
-    createPost(title: String!, content: String!): Post!
-    updatePost(id: ID!, title: String, content: String): Post
-    deletePost(id: ID!): String!
+    createUser(username: String!, email: String!): User!
+    updateUser(id: ID!, username: String, email: String): User
+    deleteUser(id: ID!): String!
   }
-`;
+`);
 
-module.exports = typeDefs;
+export default typeDefs;

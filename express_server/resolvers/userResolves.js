@@ -1,29 +1,34 @@
-const Post = require('./models/post');
+import User from '../models/user';
 
 const resolvers = {
   Query: {
-    posts: async () => {
-      const posts = await Post.find();
-      return posts;
+    users: async () => {
+      const users = await User.find();
+      return users;
     },
-    post: async (_parent, { id }) => {
-      return await Post.findById(id);
+    user: async (_parent, { id }) => {
+      return await User.findById(id);
     },
   },
   Mutation: {
-    createPost: async (_parent, args) => {
-      const newPost = new Post(args);
-      return await newPost.save();
+    createUser: async (_parent, args) => {
+      try {
+        const { username, email } = args; // Destructure username and email from args
+        const newUser = new User({ username, email }); // Create a new User object with mapped fields
+        const savedUser = await newUser.save(); // Save the user to the database
+        return savedUser; // Return the saved user object
+      } catch (error) {
+        throw new Error('Error creating user: ' + error.message);
+      }
     },
-    updatePost: async (_parent, { id, title, content }) => {
-      const updatedPost = await Post.findByIdAndUpdate(id, { title, content }, { new: true });
-      return updatedPost;
+    updateUser: async (_parent, { id, username, email }) => {
+      const updatedUser = await User.findByIdAndUpdate(id, { username, email }, { new: true });
+      return updatedUser;
     },
-    deletePost: async (_parent, { id }) => {
-      await Post.findByIdAndDelete(id);
-      return 'Post deleted successfully!';
+    deleteUser: async (_parent, { id }) => {
+      await User.findByIdAndDelete(id);
+      return 'User deleted successfully!';
     },
   },
 };
-
 module.exports = resolvers;
