@@ -6,7 +6,7 @@ const orderItemschema = new Schema({
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   dispatcher: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  orderDateTime: { type: Date, default: Date.now },
+  orderDateTime: { type: Date, default: new Date().toString() },
   deliveryAddress: String,
   currency: String,
   totalAmount: Number,

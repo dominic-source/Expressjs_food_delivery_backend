@@ -3,9 +3,11 @@ const fetch = require('node-fetch');
 const query = `
   mutation createUser {
     createUser(username: "chinonso", email: "chinonso@gmail.com") {
+      id
       username
       email
-      created_at
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -23,3 +25,4 @@ fetch(url, {
 .catch(error => console.error('Error sending request:', error));
 
 console.log('Query sent successfully!');
+console.log(new Date().toString());

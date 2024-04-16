@@ -45,7 +45,13 @@ const server = new ApolloServer({
   resolvers,
 });
 
-server.applyMiddleware({ app });
+server.start()
+  .then(() => {
+    server.applyMiddleware({ app });
+  })
+  .catch(error => {
+    console.error('Error starting Apollo Server:', error);
+  });
 
 // app.use('/graphql', graphqlHTTP({
 //   schema: typeDefs,

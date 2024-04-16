@@ -6,6 +6,8 @@ const productschema = new Schema({
   name: String,
   description: String,
   price: Number,
+  createdAt: { type: Date, default: new Date().toString() },
+  updatedAt: { type: Date, default: new Date().toString() },
   currency: { enum: currency, type: String, default: currency[1] },
   photo: String,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }

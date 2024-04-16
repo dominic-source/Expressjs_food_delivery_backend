@@ -5,7 +5,8 @@ const typeDefs = buildSchema(`#graphql
     id: ID!
     username: String!
     email: String!
-    created_at: String!
+    createdAt: String!
+    updatedAt: String!
   }
 
   type Query {
