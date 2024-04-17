@@ -8,7 +8,6 @@ const userSchema = new Schema({
   passwordHash: String,
   email: String,
   phoneNumber: String,
-  address: locationSchema,
   createdAt: { type: Date, default: new Date().toString() },
   updatedAt: { type: Date, default: new Date().toString() },
   lgaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
@@ -16,6 +15,9 @@ const userSchema = new Schema({
   userType: { enum: ['seller', 'buyer', 'dispatcher'], type: String },
   status: { type: String, enum: ['available', 'busy']},
   photo: String,
+	address_seller: locationSchema,
+	address_buyer: locationSchema,
+	address_dispatcher: locationSchema
 });
 
 const User = mongoose.model('User', userSchema);

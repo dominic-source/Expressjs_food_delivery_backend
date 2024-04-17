@@ -22,15 +22,9 @@ const countrySchema = new Schema({
   state: [stateSchema]
 });
 
-const continentSchema = new Schema({
-  name: String,
-  country: [countrySchema]
-});
-
 
 export const locationSchema = locationschema;
 export const address = mongoose.model('Location', locationschema);
 export const lga = mongoose.model('Lga', lgaSchema);
 export const State = mongoose.model('State', stateSchema);
 export const Country = mongoose.model('Country', countrySchema);
-export const Continent= mongoose.model('Continent', continentSchema);
