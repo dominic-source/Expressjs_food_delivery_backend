@@ -8,6 +8,7 @@ const userSchema = new Schema({
   passwordHash: String,
   email: String,
   phoneNumber: String,
+  reset_password_token: String,
   createdAt: { type: Date, default: new Date().toString() },
   updatedAt: { type: Date, default: new Date().toString() },
   lgaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
