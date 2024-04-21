@@ -1,15 +1,14 @@
 const fetch = require('node-fetch');
 
 const query = `
-  mutation createUser {
-    createUser(username: "chinonso", email: "chinonso@gmail.com") {
-      id
+  query {
+    user(username: "dominic") {
       username
-      email
-      createdAt
-      updatedAt
+      passwordHash
     }
   }
+  
+  
 `;
 
 const url = 'http://localhost:5000/graphql';

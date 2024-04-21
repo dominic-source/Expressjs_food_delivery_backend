@@ -1,4 +1,4 @@
-import User from '../models/user';
+import { User } from '../models/user';
 
 const resolvers = {
   Query: {
@@ -13,10 +13,10 @@ const resolvers = {
   Mutation: {
     createUser: async (_parent, args) => {
       try {
-        const { username, email } = args; // Destructure username and email from args
-        const newUser = new User({ username, email }); // Create a new User object with mapped fields
-        const savedUser = await newUser.save(); // Save the user to the database
-        return savedUser; // Return the saved user object
+        const { username, email, passwordHash, phoneNumber, userType, status } = args;
+        const newUser = new User({ username, email, passwordHash, phoneNumber, userType, status}); // Create a new User object with mapped fields
+        const savedUser = await newUser.save(); 
+        return savedUser;
       } catch (error) {
         throw new Error('Error creating user: ' + error.message);
       }
