@@ -1,12 +1,10 @@
 import express from 'express';
 // import { graphqlHTTP } from 'express-graphql';
 import { ApolloServer } from 'apollo-server-express';
-// import { makeExecutableSchema } from '@graphql-tools/schema';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-// import router from './routes/index';
 import typeDefs from './graphqlSchema/typeDefs';
 import resolvers from './resolvers/userResolves';
 

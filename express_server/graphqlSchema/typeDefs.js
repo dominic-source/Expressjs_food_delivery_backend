@@ -35,7 +35,6 @@ const typeDefs = buildSchema(`#graphql
     createUser(
       username: String!,
       email: String!,
-      passwordHash: String!,
       phoneNumber: String!,
       userType: String!
       status: String!

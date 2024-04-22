@@ -1,14 +1,31 @@
 const fetch = require('node-fetch');
 
+// const query = `
+// mutation createUser {
+//   createUser(
+//     username: "chinonso",
+//     email: "chinonso@gmail.com",
+//     userType: "seller",
+//     status: "busy",
+//     passwordHash: "mypsas",
+//     phoneNumber: "3252526") {
+//     id
+//     username
+//     email
+//     passwordHash
+//     createdAt
+//     updatedAt
+//   }
+// } 
+// `;
+
 const query = `
-  query {
-    user(username: "dominic") {
-      username
-      passwordHash
-    }
+query {
+  user(username: "chinonso") {
+    username
+    email
   }
-  
-  
+}
 `;
 
 const url = 'http://localhost:5000/graphql';

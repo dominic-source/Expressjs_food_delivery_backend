@@ -23,13 +23,12 @@ const userschema = new Schema({
 });
 
 const SALT_ROUNDS = 10
-
 userschema.pre('save', async function(next) {
     if (!this.isModified('passwordHash')) {
         return next();
     }
     const salt = await bcrypt.genSalt()
-    this.password = bcrypt.hash(this.passwordHash, salt);
+    this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
     next();
 });
 

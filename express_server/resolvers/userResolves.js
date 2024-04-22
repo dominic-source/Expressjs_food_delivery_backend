@@ -6,8 +6,8 @@ const resolvers = {
       const users = await User.find();
       return users;
     },
-    user: async (_parent, { id }) => {
-      return await User.findById(id);
+    user: async (_parent, args) => {
+      return await User.findOne({ ...args });
     },
   },
   Mutation: {
