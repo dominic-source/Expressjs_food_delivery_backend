@@ -14,7 +14,8 @@ const orderSchema = new Schema({
   totalAmount: Number,
   status: { enum: ['complete', 'incomplete', 'pending'], type: String, default: 'incomplete' },
   orderItems: [orderItemSchema],
-  payment: [paymentSchema]
+  payment: [paymentSchema],
+  paymentToken: String
 });
 
 const Order = mongoose.model('Order', orderSchema);

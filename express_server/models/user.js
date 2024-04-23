@@ -5,6 +5,8 @@ import { locationSchema } from "./location";
 const { Schema } = mongoose;
 
 const userschema = new Schema({
+  firstName: String,
+  lastName: String,
   username: String,
   passwordHash: String,
   email: String,
@@ -15,7 +17,7 @@ const userschema = new Schema({
   lgaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
   vehicleNumber: String,
   userType: { enum: ['seller', 'buyer', 'dispatcher'], type: String },
-  status: { type: String, enum: ['available', 'busy']},
+  status: { type: String, enum: ['available', 'busy', 'deleted']},
   photo: String,
 	address_seller: locationSchema,
 	address_buyer: locationSchema,
