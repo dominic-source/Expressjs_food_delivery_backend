@@ -10,19 +10,20 @@ const typeDefs = buildSchema(`#graphql
 
   type User {
     id: ID!
+    firstName: String!
+    lastName: String!
     username: String!
     email: String!
     createdAt: String!
     updatedAt: String!
-    passwordHash: String!
-    phoneNumber: String,
-    lgaId: String,
-    vehicleNumber: String,
-    userType: String,
+    phoneNumber: String
+    lgaId: String
+    vehicleNumber: String
+    userType: String
     status: String
-    photo: String,
-    address_seller: [Location],
-    address_buyer: [Location],
+    photo: String
+    address_seller: [Location]
+    address_buyer: [Location]
     address_dispatcher: [Location]
   }
 
@@ -33,12 +34,17 @@ const typeDefs = buildSchema(`#graphql
 
   type Mutation {
     createUser(
-      username: String!,
-      email: String!,
-      phoneNumber: String!,
-      userType: String!
-      status: String!
+      firstName: String!
+      lastName: String!
+      username: String!
+      email: String!
+      passwordHash: String!
+      phoneNumber: String!
+      userType: String
+      status: String
       lgaId: String
+      vehicleNumber: String
+      photo: String
     ): User!
     updateUser(id: ID!, username: String, email: String): User
     deleteUser(id: ID!): String!

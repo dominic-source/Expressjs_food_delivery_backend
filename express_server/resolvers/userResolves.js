@@ -13,8 +13,32 @@ const resolvers = {
   Mutation: {
     createUser: async (_parent, args) => {
       try {
-        const { username, email, passwordHash, phoneNumber, userType, status } = args;
-        const newUser = new User({ username, email, passwordHash, phoneNumber, userType, status}); // Create a new User object with mapped fields
+        const { 
+          username,
+          email,
+          passwordHash,
+          phoneNumber,
+          userType,
+          status,
+          firstName,
+          lastName,
+          lgaId, 
+          vehicleNumber,
+          photo,
+         } = args;
+        const newUser = new User({ 
+          username,
+          email,
+          passwordHash,
+          phoneNumber,
+          userType,
+          status,
+          firstName,
+          lastName,
+          lgaId, 
+          vehicleNumber,
+          photo
+         });
         const savedUser = await newUser.save(); 
         return savedUser;
       } catch (error) {
