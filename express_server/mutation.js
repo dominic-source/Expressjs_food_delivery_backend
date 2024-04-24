@@ -1,32 +1,33 @@
 const fetch = require('node-fetch');
 
-// const query = `
-// mutation createUser {
-//   createUser(
-//     username: "chinonso",
-//     email: "chinonso@gmail.com",
-//     userType: "seller",
-//     status: "busy",
-//     passwordHash: "mypsas",
-//     phoneNumber: "3252526") {
-//     id
-//     username
-//     email
-//     passwordHash
-//     createdAt
-//     updatedAt
-//   }
-// } 
-// `;
-
 const query = `
-query {
-  user(username: "chinonso") {
+mutation createUser {
+  createUser(
+    lastName: "morba",
+    firstName: "Linus",
+    username: "chinonso",
+    email: "chinonso@gmail.com",
+    userType: "seller",
+    status: "busy",
+    passwordHash: "mypsas",
+    phoneNumber: "3252526") {
+    id
     username
     email
+    createdAt
+    updatedAt
   }
-}
+} 
 `;
+
+// const query = `
+// query {
+//   user(username: "chinonso") {
+//     username
+//     email
+//   }
+// }
+// `;
 
 const url = 'http://localhost:5000/graphql';
 fetch(url, {

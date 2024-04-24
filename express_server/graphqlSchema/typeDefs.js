@@ -2,6 +2,8 @@ import { buildSchema } from 'graphql';
 
 const typeDefs = buildSchema(`#graphql
 
+  scalar Upload
+
   type Location {
     name: String,
     longitude: String,
@@ -44,7 +46,7 @@ const typeDefs = buildSchema(`#graphql
       status: String
       lgaId: String
       vehicleNumber: String
-      photo: String
+      file: Upload
     ): User!
     updateUser(id: ID!, username: String, email: String): User
     deleteUser(id: ID!): String!

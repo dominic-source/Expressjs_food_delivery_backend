@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This script is used to read from the .env variables and load the
+# environmental for any service running in the shell background such as
+# the mongodb docker file 
+# any other service 
 # Specify the file to read
 file=".env"
 
