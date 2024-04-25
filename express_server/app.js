@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import typeDefs from './graphqlSchema/typeDefs';
 import resolvers from './resolvers/userResolves';
-import multer from 'multer';
+import router from './routes/upload';
 
 // initialize express server
 const app = express();
@@ -28,27 +28,11 @@ export function allowedExtensions(filename, mimetype) {
   const allowed_extentions = ['png', 'jpg', 'jpeg', 'gif', 'image/png', 'image/jpeg', 'image/gif'];
   const name = filename.split('.');
   if (allowed_extentions.includes(name[name.length-1].toLowerCase()) ||
-    allowedExtensions.includes(mimetype.toLowerCase())) {
+    allowed_extentions.includes(mimetype.toLowerCase())) {
     return true;
   }
   return false;
 }
-
-// Setup storage for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './static/uploads')
-  },
-  filename: function (req, file, cb) {
-    if (allowedExtensions(file.fieldname, file.mimetype)) {
-      const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, uniquePrefix + '-' + file.fieldname);
-    } else cb(null, file.fieldname+uniquePrefix);
-  }
-});
-
-export const upload = multer({ storage: storage })
-
 // Setup mongodb server
 // const uri = `mongodb://${DELIVER_MONGODB_USER}:${DELIVER_MONGODB_PWD}@${DELIVER_MONGODB_HOST}:${DELIVER_MONGODB_PORT}/${DELIVER_MONGODB_DB}`;
 // const uri = `mongodb://${DELIVER_MONGODB_HOST}:${DELIVER_MONGODB_PORT}/${DELIVER_MONGODB_DB}`;
@@ -58,15 +42,22 @@ mongoose.connect(uri)
 .catch(err => console.error('Error connecting to MongoDB:', err));
 
 // Configure CORS
-// app.use(cors());
+const corsOptions = {
+  origin: 'https://studio.apollographql.com',
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'PUT', 'POST'],
+}
+
+app.use(cors(corsOptions));
 
 // Parse incoming request bodies
 app.use(bodyParser.json());
+app.use('/uploads', router)
 
+// Start Apollo server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  uploads: false, // Disable Apollo Server's built-in file uploads handling
   context: ({ req, res }) => ({ req, res }),
 });
 
@@ -74,6 +65,7 @@ server.start()
   .then(() => {
     // apply middleware for fileuploads using express from graphql
     app.use('/graphql', expressMiddleware(server));
+    console.log('Graphql server has started!')
   })
   .catch(error => {
     console.error('Error starting Apollo Server:', error);
@@ -83,4 +75,4 @@ server.start()
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
-})
+});

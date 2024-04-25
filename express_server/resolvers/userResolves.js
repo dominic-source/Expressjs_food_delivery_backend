@@ -1,6 +1,4 @@
 import { User } from '../models/user';
-import { allowedExtensions } from '../app';
-import { createWriteStream, unlinkSync} from 'fs';
 
 const resolvers = {
   Query: {
@@ -9,11 +7,17 @@ const resolvers = {
       return users;
     },
     user: async (_parent, args) => {
-      return await User.findOne({ ...args });
+      const { id } = args;
+      try {
+        const user = await User.findById(id).exec();
+        return user;
+      } catch (error) {
+        throw new Error('Error fetching user: ' + error.message);
+      }
     },
   },
 
-  
+
   Mutation: {
     createUser: async (_parent, args) => {
       try {
@@ -28,29 +32,10 @@ const resolvers = {
           lastName,
           lgaId, 
           vehicleNumber,
-          file
          } = args;
 
         // Handle the file upload
-        const { createReadStream, filename, mimetype, encoding } = await file;
 
-        // Renames the file
-        const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        if (allowedExtensions(filename, mimetype)) {
-          filename = uniquePrefix + '-' + file.fieldname;
-        } else filename = file.fieldname + '-' + uniquePrefix;
-
-        const stream = createReadStream();
-        const path = './static/uploads';
-        
-        await Promise(resolve => stream.pipe(createWriteStream(path, encoding=encoding))
-          .on('finish', resolve)
-          .on('error', error => {
-            unlinkSync(path);
-              return 'Cannot upload file for now'
-          })
-        );
-  
         const newUser = new User({
           firstName,
           lastName,
@@ -64,7 +49,6 @@ const resolvers = {
           lastName,
           lgaId, 
           vehicleNumber,
-          photo: filename
          });
         const savedUser = await newUser.save(); 
         return savedUser;
