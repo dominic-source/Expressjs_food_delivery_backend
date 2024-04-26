@@ -63,7 +63,7 @@ fs.readFile("/home/dominic-source/Pictures/Screenshots/dash.png", (err, data) =>
   formData.append('toUploadFile', data, 'paystack.png');
   formData.append('id', query2.id);
   
-  axios.post('http://localhost:5000/uploads/', formData, {
+  axios.post('http://localhost:5000/api/uploads/', formData, {
     headers: {
       ...formData.getHeaders(),
     }

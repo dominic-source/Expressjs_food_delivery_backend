@@ -7,7 +7,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import typeDefs from './graphqlSchema/typeDefs';
 import resolvers from './resolvers/userResolves';
-import router from './routes/upload';
+import router from './routes';
+import cookieParser from 'cookie-parser';
 
 // initialize express server
 const app = express();
@@ -50,21 +51,25 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Integrate cookie parser
+app.use(cookieParser())
+
 // Parse incoming request bodies
 app.use(bodyParser.json());
-app.use('/uploads', router)
+app.use('/api', router)
 
 // Start Apollo server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req, res }) => ({ req, res }),
 });
 
 server.start()
   .then(() => {
-    // apply middleware for fileuploads using express from graphql
-    app.use('/graphql', expressMiddleware(server));
+    // apply middleware for graphql endpoint
+    app.use('/graphql', expressMiddleware(server, {
+      context: ({ req, res }) => ({ req, res }),
+    }));
     console.log('Graphql server has started!')
   })
   .catch(error => {

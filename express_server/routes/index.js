@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from 'multer';
-import UploadsControllers from "../controllers/UploadsControllers";
+import UserControllers from "../controllers/userControllers";
 import { allowedExtensions } from "../app";
 
 // Setup storage for file uploads
@@ -18,6 +18,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
   
 const router = Router();
- 
-router.post('/', upload.single('toUploadFile'), UploadsControllers.upload);
+
+router.post('/login', UserControllers.login); 
+router.post('/uploads', upload.single('toUploadFile'), UserControllers.upload);
 module.exports = router;

@@ -47,6 +47,7 @@ const typeDefs = buildSchema(`#graphql
     ): User!
     updateUser(id: ID!, username: String, email: String): User
     deleteUser(id: ID!): String!
+    login(email: String!, password: String!): String!
   }
 `);
 
