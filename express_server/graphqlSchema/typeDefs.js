@@ -2,6 +2,11 @@ import { buildSchema } from 'graphql';
 
 const typeDefs = buildSchema(`#graphql
 
+  type Message {
+    message: String!,
+    token: String
+  }
+
   type Location {
     name: String,
     longitude: String,
@@ -45,9 +50,9 @@ const typeDefs = buildSchema(`#graphql
       lgaId: String
       vehicleNumber: String
     ): User!
-    updateUser(id: ID!, username: String, email: String): User
+    updateUser(id: ID!, username: String, email: String): Message!
     deleteUser(id: ID!): String!
-    login(email: String!, password: String!): String!
+    login(email: String!, password: String!): Message!
   }
 `);
 

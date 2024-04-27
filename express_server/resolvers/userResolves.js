@@ -76,16 +76,21 @@ const resolvers = {
       const loginData = await loginResponse.json();
       const token = loginData.token;
       // Set the JWT in a cookie
-      res.cookie('jwt', token, { httpOnly: true, secure: true });
-      return 'User logged in successfully';
+      // res.cookie('jwt', token, { httpOnly: true, secure: true, sameSite: true });
+      return {'message': 'User logged in successfully', 'token': token};
     },
 
     updateUser: async (_parent, { id, username }, { req, res}) => {
-      jwt.verify(req.cookies, process.env.SECRET_KEY, async function(err, decoded) {
-        if (err) return 'User is not logged In';
-        const updatedUser = await User.findByIdAndUpdate(id, { username }, { new: true });
-        return updatedUser;
+      // console.log(req.headers.authorization);
+      const verified = jwt.verify(req.headers.authorization || '', process.env.SECRET_KEY, async function(err, decoded) {
+        if (err || !decoded) {
+          return false;
+        }
+        const updatedUser = await User.findByIdAndUpdate(id, { username });
+        return true
       });
+      if (verified) return {'message': 'Updated successfully'};
+      else return {'message': 'User is not logged In'};
     },
 
     deleteUser: async (_parent, { id }) => {
