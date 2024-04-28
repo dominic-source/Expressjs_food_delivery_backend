@@ -8,7 +8,6 @@ import dotenv from 'dotenv';
 import typeDefs from './graphqlSchema/typeDefs';
 import resolvers from './resolvers/userResolves';
 import router from './routes';
-import cookieParser from 'cookie-parser';
 
 // initialize express server
 const app = express();
@@ -50,9 +49,6 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions));
-
-// Integrate cookie parser
-app.use(cookieParser())
 
 // Parse incoming request bodies
 app.use(bodyParser.json());

@@ -24,6 +24,7 @@ const typeDefs = buildSchema(`#graphql
     phoneNumber: String
     lgaId: String
     vehicleNumber: String
+    isLoggedIn: Boolean
     userType: String
     status: String
     photo: String
@@ -53,6 +54,7 @@ const typeDefs = buildSchema(`#graphql
     updateUser(id: ID!, username: String, email: String): Message!
     deleteUser(id: ID!): String!
     login(email: String!, password: String!): Message!
+    logout: Message!
   }
 `);
 

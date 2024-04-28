@@ -15,7 +15,9 @@ class UserControllers {
       if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
-
+      // Update user information to be loggedIn
+      const user2 =  await User.findByIdAndUpdate(user.id, {isLoggedIn: true});
+      // console.log(user2.isLoggedIn, user2.email, user.id);
       // Generate JWT with user ID and expiration time 
       const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
           expiresIn: "24h", // 1 hour in seconds

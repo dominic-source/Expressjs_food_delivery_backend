@@ -16,6 +16,7 @@ const userschema = new Schema({
   updatedAt: { type: Date, default: new Date().toString() },
   lgaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
   vehicleNumber: String,
+  isLoggedIn: Boolean,
   userType: { enum: ['seller', 'buyer', 'dispatcher'], type: String },
   status: { type: String, enum: ['available', 'busy', 'deleted']},
   photo: String,

@@ -17,7 +17,8 @@ const resolvers = {
       } catch (error) {
         throw new Error('Error fetching user: ' + error.message);
       }
-    },
+    }
+
   },
 
 
@@ -62,6 +63,7 @@ const resolvers = {
 
     login: async (_parent, args, {req, res}) => {
       const { email, password } = args;
+
       // Login logic using the RESTful API (already implemented)
       const loginResponse = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
@@ -76,21 +78,46 @@ const resolvers = {
       const loginData = await loginResponse.json();
       const token = loginData.token;
       // Set the JWT in a cookie
-      // res.cookie('jwt', token, { httpOnly: true, secure: true, sameSite: true });
       return {'message': 'User logged in successfully', 'token': token};
     },
 
-    updateUser: async (_parent, { id, username }, { req, res}) => {
-      // console.log(req.headers.authorization);
-      const verified = jwt.verify(req.headers.authorization || '', process.env.SECRET_KEY, async function(err, decoded) {
+    logout: async (_parent, arg, { req, res}) => {
+      const reqHeader = req.headers.authorization
+      if (!reqHeader || !reqHeader.startsWith('Bearer ')) {
+        return {'message': 'Unauthorized!'};
+      }
+      const verified = jwt.verify(reqHeader.split(' ')[1] || '', process.env.SECRET_KEY, async function(err, decoded) {
         if (err || !decoded) {
           return false;
         }
-        const updatedUser = await User.findByIdAndUpdate(id, { username });
-        return true
+        // console.log(decoded);
+        const id = decoded.userId;
+        const user = await User.findByIdAndUpdate(id, {isLoggedIn: false});
+        if (!user) return false;
+        return true;
+      });
+      if (verified) return {'message': 'Logged out successfully'};
+      else return {'message': 'An error occurred!'};
+    },
+
+    updateUser: async (_parent, { id, username }, { req, res}) => {
+      const reqHeader = req.headers.authorization
+      if (!reqHeader || !reqHeader.startsWith('Bearer ')) {
+        return {'message': 'Unauthorized!'};
+      }
+      const verified = jwt.verify(reqHeader.split(' ')[1] || '', process.env.SECRET_KEY, async function(err, decoded) {
+        if (err || !decoded) {
+          return false;
+        }
+        const user = await User.findById(id);
+        if (!user || !user.isLoggedIn) {
+          return false;
+        }
+        await User.findByIdAndUpdate(id, { username });
+        return true;
       });
       if (verified) return {'message': 'Updated successfully'};
-      else return {'message': 'User is not logged In'};
+      else return {'message': 'Unauthorized'};
     },
 
     deleteUser: async (_parent, { id }) => {
