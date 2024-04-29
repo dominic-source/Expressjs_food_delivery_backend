@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 
 const resolvers = {
   Query: {
-    users: async () => {
+    users: async (_parent, args, { user }) => {
       return await User.find();
     },
 
@@ -59,7 +59,6 @@ const resolvers = {
 
     login: async (_parent, args, {req, res}) => {
       const { email, password } = args;
-
       // Login logic using the RESTful API (already implemented)
       const loginResponse = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
@@ -92,7 +91,7 @@ const resolvers = {
 
     deleteUser: async (_parent, _, { user, role }) => {
       try {
-        await User.findByIdAndDelete(user.id);
+        await User.findByIdAndUpdate(user.id, { isDeleted: true });
       } catch {
         return {'message': 'An error occurred!'};
       }

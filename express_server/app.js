@@ -97,9 +97,9 @@ server.start()
           },
         });
 
-        // if decoded find the user and check if the user is logged In
+        // if decoded find the user and check if the user is logged In and not deleted
         const user = await User.findById(decoded.userId);
-        if (!user || !user.isLoggedIn) throw new GraphQLError('User is not authenticated', {
+        if (!user || !user.isLoggedIn || user.isDeleted) throw new GraphQLError('User is not authenticated', {
           extensions: {
             code: 'UNAUTHENTICATED',
             http: { status: 401 },

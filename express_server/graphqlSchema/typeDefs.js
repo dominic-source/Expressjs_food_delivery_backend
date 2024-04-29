@@ -25,6 +25,7 @@ const typeDefs = buildSchema(`#graphql
     lgaId: String
     vehicleNumber: String
     isLoggedIn: Boolean
+    isDeleted: Boolean
     userType: String
     status: String
     photo: String
