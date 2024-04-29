@@ -1,24 +1,20 @@
 import { User } from '../models/user';
 import fetch from 'node-fetch';
-import jwt from 'jsonwebtoken';
 
 
 const resolvers = {
   Query: {
     users: async () => {
-      const users = await User.find();
-      return users;
+      return await User.find();
     },
-    user: async (_parent, args) => {
-      const { id } = args;
+
+    user: async (_parent, args, { user }) => {
       try {
-        const user = await User.findById(id).exec();
-        return user;
+        return await User.findById(user.id);
       } catch (error) {
         throw new Error('Error fetching user: ' + error.message);
       }
     }
-
   },
 
 
@@ -72,45 +68,24 @@ const resolvers = {
       });
 
       if (!loginResponse.ok) {
-        return 'Login failed';
+        return {'message': 'Login failed'};
       }
 
       const loginData = await loginResponse.json();
       const token = loginData.token;
-      // Set the JWT in a cookie
+
       return {'message': 'User logged in successfully', 'token': token};
     },
 
-    logout: async (_parent, arg, { req, res}) => {
-      // extract the authorization header and verify it
-      const reqHeader = req.headers.authorization
-      if (!reqHeader || !reqHeader.startsWith('Bearer ')) {
-        return {'message': 'Unauthorized!'};
-      }
-      const decoded = jwt.verify(reqHeader.split(' ')[1] || '', process.env.SECRET_KEY);
-      if (!decoded) return {'message': 'An error occurred!'};
-
-      // Extract the users id if verified successfully
-      const id = decoded.userId;
-
+    logout: async (_parent, arg, { user, role}) => {
       // Update the user information to be logged out
-      const user = await User.findByIdAndUpdate(id, {isLoggedIn: false});
-      if (!user) return {'message': 'An error occurred!'};
-      return {'message': 'Logged out successfully'};
+      const updated = await User.findByIdAndUpdate(user.id, { isLoggedIn: false });
+      if (updated) return {'message': 'Logged out successfully'};
+      else return {'message': 'An error occured'};
     },
 
-    updateUser: async (_parent, { id, username }, { req, res}) => {
-      const reqHeader = req.headers.authorization
-      if (!reqHeader || !reqHeader.startsWith('Bearer ')) {
-        return {'message': 'Unauthorized!'};
-      }
-      const decoded = jwt.verify(reqHeader.split(' ')[1] || '', process.env.SECRET_KEY)
-      if (!decoded) return {'message': 'Unauthorized'};
-      // if decoded find the user and check if the user is logged In
-      const user = await User.findById(id);
-      if (!user || !user.isLoggedIn) return {'message': 'Unauthorized'};
-      // Update the user information
-      const updated = await User.findByIdAndUpdate(id, { username });
+    updateUser: async (_parent, { username }, { user, role}) => {
+      const updated = await User.findByIdAndUpdate(user.id, { username });
       if (updated) return {'message': 'Updated successfully'};
       else return {'message': 'An error occured'};
     },

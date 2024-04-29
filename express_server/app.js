@@ -8,6 +8,9 @@ import dotenv from 'dotenv';
 import typeDefs from './graphqlSchema/typeDefs';
 import resolvers from './resolvers/userResolves';
 import router from './routes';
+import { User } from './models/user';
+import jwt from 'jsonwebtoken';
+import { GraphQLError } from 'graphql';
 
 // initialize express server
 const app = express();
@@ -64,7 +67,47 @@ server.start()
   .then(() => {
     // apply middleware for graphql endpoint
     app.use('/graphql', expressMiddleware(server, {
-      context: ({ req, res }) => ({ req, res }),
+      context: async ({ req, res }) => {
+
+        const publicResolvers = ['createUser', 'Login']; 
+
+        // Determine the resolver being called
+        const resolverName = req.body.operationName;
+        // If it's a public resolver, return an empty context
+        if (publicResolvers.includes(resolverName)) {
+          return { req, res };
+        }
+
+        // Check the authorization header of the user
+        const reqHeader = req.headers.authorization;
+        if (!reqHeader || !reqHeader.startsWith('Bearer ')) throw new GraphQLError('User is not authenticated', {
+          extensions: {
+            code: 'UNAUTHENTICATED',
+            http: { status: 401 },
+          },
+        });
+
+        // Verify the token if it is authentic
+        const token = reqHeader.split(' ')[1] || '';
+        const decoded = await jwt.verify(token, process.env.SECRET_KEY);
+        if (!decoded) throw new GraphQLError('User is not authenticated', {
+          extensions: {
+            code: 'UNAUTHENTICATED',
+            http: { status: 401 },
+          },
+        });
+
+        // if decoded find the user and check if the user is logged In
+        const user = await User.findById(decoded.userId);
+        if (!user || !user.isLoggedIn) throw new GraphQLError('User is not authenticated', {
+          extensions: {
+            code: 'UNAUTHENTICATED',
+            http: { status: 401 },
+          },
+        });
+        return { req, res, user, roles: ["user"] }
+      }
+      ,
     }));
     console.log('Graphql server has started!')
   })

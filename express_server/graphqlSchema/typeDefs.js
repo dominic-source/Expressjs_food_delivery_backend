@@ -35,7 +35,7 @@ const typeDefs = buildSchema(`#graphql
 
   type Query {
     users: [User]!
-    user(id: ID!): User
+    user: User
   }
 
   type Mutation {
@@ -51,7 +51,7 @@ const typeDefs = buildSchema(`#graphql
       lgaId: String
       vehicleNumber: String
     ): User!
-    updateUser(id: ID!, username: String, email: String): Message!
+    updateUser(username: String, email: String): Message!
     deleteUser(id: ID!): String!
     login(email: String!, password: String!): Message!
     logout: Message!
