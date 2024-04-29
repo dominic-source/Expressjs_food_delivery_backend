@@ -52,7 +52,7 @@ const typeDefs = buildSchema(`#graphql
       vehicleNumber: String
     ): User!
     updateUser(username: String, email: String): Message!
-    deleteUser(id: ID!): String!
+    deleteUser: Message!
     login(email: String!, password: String!): Message!
     logout: Message!
   }

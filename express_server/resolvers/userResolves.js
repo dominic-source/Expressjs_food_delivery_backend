@@ -90,9 +90,13 @@ const resolvers = {
       else return {'message': 'An error occured'};
     },
 
-    deleteUser: async (_parent, { id }) => {
-      await User.findByIdAndDelete(id);
-      return 'User deleted successfully!';
+    deleteUser: async (_parent, _, { user, role }) => {
+      try {
+        await User.findByIdAndDelete(user.id);
+      } catch {
+        return {'message': 'An error occurred!'};
+      }
+      return {'message': 'User deleted successfully!'};
     },
   },
 };
