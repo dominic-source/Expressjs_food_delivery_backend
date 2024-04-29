@@ -82,22 +82,21 @@ const resolvers = {
     },
 
     logout: async (_parent, arg, { req, res}) => {
+      // extract the authorization header and verify it
       const reqHeader = req.headers.authorization
       if (!reqHeader || !reqHeader.startsWith('Bearer ')) {
         return {'message': 'Unauthorized!'};
       }
-      const verified = jwt.verify(reqHeader.split(' ')[1] || '', process.env.SECRET_KEY, async function(err, decoded) {
-        if (err || !decoded) {
-          return false;
-        }
-        // console.log(decoded);
-        const id = decoded.userId;
-        const user = await User.findByIdAndUpdate(id, {isLoggedIn: false});
-        if (!user) return false;
-        return true;
-      });
-      if (verified) return {'message': 'Logged out successfully'};
-      else return {'message': 'An error occurred!'};
+      const decoded = jwt.verify(reqHeader.split(' ')[1] || '', process.env.SECRET_KEY);
+      if (!decoded) return {'message': 'An error occurred!'};
+
+      // Extract the users id if verified successfully
+      const id = decoded.userId;
+
+      // Update the user information to be logged out
+      const user = await User.findByIdAndUpdate(id, {isLoggedIn: false});
+      if (!user) return {'message': 'An error occurred!'};
+      return {'message': 'Logged out successfully'};
     },
 
     updateUser: async (_parent, { id, username }, { req, res}) => {
@@ -105,19 +104,15 @@ const resolvers = {
       if (!reqHeader || !reqHeader.startsWith('Bearer ')) {
         return {'message': 'Unauthorized!'};
       }
-      const verified = jwt.verify(reqHeader.split(' ')[1] || '', process.env.SECRET_KEY, async function(err, decoded) {
-        if (err || !decoded) {
-          return false;
-        }
-        const user = await User.findById(id);
-        if (!user || !user.isLoggedIn) {
-          return false;
-        }
-        await User.findByIdAndUpdate(id, { username });
-        return true;
-      });
-      if (verified) return {'message': 'Updated successfully'};
-      else return {'message': 'Unauthorized'};
+      const decoded = jwt.verify(reqHeader.split(' ')[1] || '', process.env.SECRET_KEY)
+      if (!decoded) return {'message': 'Unauthorized'};
+      // if decoded find the user and check if the user is logged In
+      const user = await User.findById(id);
+      if (!user || !user.isLoggedIn) return {'message': 'Unauthorized'};
+      // Update the user information
+      const updated = await User.findByIdAndUpdate(id, { username });
+      if (updated) return {'message': 'Updated successfully'};
+      else return {'message': 'An error occured'};
     },
 
     deleteUser: async (_parent, { id }) => {

@@ -5,19 +5,25 @@ import jwt from 'jsonwebtoken';
 
 class UserControllers {
   static async login(req, res) {
+    // this login route is used to login user from the graphql endpoint
+
+    // Extract the email and password
     const email = req.body.email || '';
     const password = req.body.password || '';
+    // Verify if the email and password are authentic
     if (email == '' || password == '') {
       return res.status(401).json({'error': 'provide more information'});
     }
     try {
+      // find the user based on the email and return error if the user does not exist
+      // Verify if the password is not correct and return error
       const user = await User.findOne({ email });
       if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
+
       // Update user information to be loggedIn
       const user2 =  await User.findByIdAndUpdate(user.id, {isLoggedIn: true});
-      // console.log(user2.isLoggedIn, user2.email, user.id);
       // Generate JWT with user ID and expiration time 
       const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
           expiresIn: "24h", // 1 hour in seconds
