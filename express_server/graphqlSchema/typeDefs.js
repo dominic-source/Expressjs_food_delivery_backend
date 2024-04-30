@@ -52,7 +52,19 @@ const typeDefs = buildSchema(`#graphql
       lgaId: String
       vehicleNumber: String
     ): User!
-    updateUser(username: String, email: String): Message!
+
+    updateUser(
+      firstName: String
+      lastName: String
+      username: String
+      email: String
+      phoneNumber: String
+      userType: String
+      status: String
+      lgaId: String
+      vehicleNumber: String
+    ): Message!
+
     deleteUser: Message!
     login(email: String!, password: String!): Message!
     logout: Message!

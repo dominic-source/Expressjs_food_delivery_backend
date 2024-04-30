@@ -83,10 +83,14 @@ const resolvers = {
       else return {'message': 'An error occured'};
     },
 
-    updateUser: async (_parent, { username }, { user, role}) => {
-      const updated = await User.findByIdAndUpdate(user.id, { username });
-      if (updated) return {'message': 'Updated successfully'};
-      else return {'message': 'An error occured'};
+    updateUser: async (_parent, args, { user, role}) => {
+      try {
+        const updated = await User.findByIdAndUpdate(user.id, args);
+        if (updated) return {'message': 'Updated successfully'};
+        else return {'message': 'An error occurred!'};
+      } catch {
+        return {'message': 'An error occurred!'}
+      }
     },
 
     deleteUser: async (_parent, _, { user, role }) => {
