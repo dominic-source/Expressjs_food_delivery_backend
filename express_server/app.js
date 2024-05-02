@@ -69,7 +69,7 @@ server.start()
     app.use('/graphql', expressMiddleware(server, {
       context: async ({ req, res }) => {
 
-        const publicResolvers = ['createUser', 'Login']; 
+        const publicResolvers = ['createUser', 'Login', 'forgotPassword', 'updatePassword', '']; 
 
         // Determine the resolver being called
         const resolverName = req.body.operationName;

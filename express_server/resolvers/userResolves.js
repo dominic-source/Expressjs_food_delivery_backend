@@ -1,5 +1,7 @@
 import { User } from '../models/user';
 import fetch from 'node-fetch';
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcrypt';
 
 
 const resolvers = {
@@ -89,7 +91,43 @@ const resolvers = {
         if (updated) return {'message': 'Updated successfully'};
         else return {'message': 'An error occurred!'};
       } catch {
-        return {'message': 'An error occurred!'}
+        return {'message': 'An error occurred!'};
+      }
+    },
+
+    forgotPassword: async (_parent, { email }) => {
+      try {
+        const user = await User.find({ email });
+        if (!user[0]) return {'message': 'An error occurred!'};
+        const expiryDate = new Date();
+        const duration = expiryDate.getHours() + 1;
+        expiryDate.setHours(duration);
+        const token = uuidv4() + uuidv4();
+        const resetPasswordToken = token + ' ' + expiryDate.toISOString();
+        await User.findByIdAndUpdate(user[0].id, { resetPasswordToken });
+        return {'message': 'Get the reset token from your email', 'token': token};
+      } catch(err) {
+        console.log(err);
+        return {'message': 'An error occurred!'};
+      }
+    },
+
+    updatePassword: async (_parent, { email, password, token }) => {
+      try {
+        const user = await User.find({ email });
+        if (!user) return {'message': 'An error occurred!'};
+        const resetPasswordToken = user[0].resetPasswordToken.split(' ')[0];
+        const expiryDate = new Date(user[0].resetPasswordToken.split(' ')[1]);
+        const presentDate = new Date();
+        if (expiryDate <= presentDate) return {'message': 'An error occurred!'};
+        if (token != resetPasswordToken) return {'message': 'An error occurred!'};
+        const salt = await bcrypt.genSalt();
+        const passwordHash = await bcrypt.hash(password, salt);
+        await User.findByIdAndUpdate(user[0].id, { passwordHash });
+        return {'message': 'Password updated successfully', 'token': user[0].passwordHash};
+      } catch(err) {
+        console.log(err);
+        return {'message': 'An error occurred!'}; 
       }
     },
 

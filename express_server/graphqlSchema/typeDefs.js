@@ -68,6 +68,8 @@ const typeDefs = buildSchema(`#graphql
     deleteUser: Message!
     login(email: String!, password: String!): Message!
     logout: Message!
+    forgotPassword(email: String!): Message!
+    updatePassword(email: String!, token: String!, password: String!): Message! 
   }
 `);
 
