@@ -1,8 +1,8 @@
-import { User } from '../models/user';
 import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
-
+import { User } from '../models/user';
+import emailClient from '../emailclient';
 
 const resolvers = {
   Query: {
@@ -105,6 +105,13 @@ const resolvers = {
         const token = uuidv4() + uuidv4();
         const resetPasswordToken = token + ' ' + expiryDate.toISOString();
         await User.findByIdAndUpdate(user[0].id, { resetPasswordToken });
+        await emailClient.mailMe({
+          to: email,
+          subject: "Reset token for forgot password",
+          token,
+          uri: undefined
+        });
+
         return {'message': 'Get the reset token from your email', 'token': token};
       } catch(err) {
         console.log(err);
