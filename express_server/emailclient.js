@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+const nodemailer = require('nodemailer');
 
 class EmailClient {
 
@@ -14,7 +14,7 @@ class EmailClient {
       });
     }
 
-    mailMe(args) {
+    async mailMe(args) {
       const { to, subject, token, uri } = args;
       const url = uri || "https://provisionspall-hwvs.onrender.com/dashboard"
 

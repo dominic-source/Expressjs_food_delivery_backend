@@ -11,6 +11,7 @@ import router from './routes';
 import { User } from './models/user';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
+import { createClient } from 'redis';
 
 // initialize express server
 const app = express();
@@ -37,8 +38,6 @@ export function allowedExtensions(filename, mimetype) {
   return false;
 }
 // Setup mongodb server
-// const uri = `mongodb://${DELIVER_MONGODB_USER}:${DELIVER_MONGODB_PWD}@${DELIVER_MONGODB_HOST}:${DELIVER_MONGODB_PORT}/${DELIVER_MONGODB_DB}`;
-// const uri = `mongodb://${DELIVER_MONGODB_HOST}:${DELIVER_MONGODB_PORT}/${DELIVER_MONGODB_DB}`;
 const uri = `mongodb://${DELIVER_MONGODB_USER}:${DELIVER_MONGODB_PWD}@${DELIVER_MONGODB_HOST}:${DELIVER_MONGODB_PORT}/${DELIVER_MONGODB_DB}?directConnection=true&serverSelectionTimeoutMS=2000&authSource=admin&appName=mongosh+2.2.2`
 mongoose.connect(uri)
 .then(() => console.log('Connected to MongoDB'))
@@ -63,22 +62,31 @@ const server = new ApolloServer({
   resolvers,
 });
 
+// start redis server
+export const client = createClient({
+  url: 'redis://localhost:6379'
+})
+  .on('error', err => console.log('Redis Client Error', err))
+  .on('ready', () => console.log('Redis server is connected'))
+  .connect();
+
 server.start()
   .then(() => {
     // apply middleware for graphql endpoint
     app.use('/graphql', expressMiddleware(server, {
       context: async ({ req, res }) => {
 
+        // This are the endpoint does not require authentication
         const publicResolvers = ['createUser', 'Login', 'forgotPassword', 'updatePassword', '']; 
 
         // Determine the resolver being called
         const resolverName = req.body.operationName;
         // If it's a public resolver, return an empty context
         if (publicResolvers.includes(resolverName)) {
-          return { req, res };
+          return { req, res};
         }
 
-        // Check the authorization header of the user
+        // Check the authorization header of the user and return error if None or error
         const reqHeader = req.headers.authorization;
         if (!reqHeader || !reqHeader.startsWith('Bearer ')) throw new GraphQLError('User is not authenticated', {
           extensions: {
@@ -87,7 +95,7 @@ server.start()
           },
         });
 
-        // Verify the token if it is authentic
+        // Verify the token if it is authentic, return error if not authentic
         const token = reqHeader.split(' ')[1] || '';
         const decoded = await jwt.verify(token, process.env.SECRET_KEY);
         if (!decoded) throw new GraphQLError('User is not authenticated', {
@@ -105,7 +113,7 @@ server.start()
             http: { status: 401 },
           },
         });
-        return { req, res, user, roles: ["user"] }
+        return { req, res, user, roles: ["user"]}
       }
       ,
     }));
