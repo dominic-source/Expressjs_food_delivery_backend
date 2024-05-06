@@ -1,35 +1,16 @@
 const emailClient = require('./emailclient');
-const redis = require('redis');
+const Bull = require('bull');
 
 (async function mainSender() {
-  const client = redis.createClient({
-    url: 'redis://localhost:6379'
-  })
-    .on('error', err => console.log('Redis Client Error', err))
-    .on('ready', () => console.log('Redis server is connected'))
-    
-  // Await connection before proceeding
-  await client.connect();
+  const queue = new Bull('user_data_queue'); // Define the queue name
 
-  const onDataChannel = 'user_data_added';
+  queue.on('error', (err) => console.error('Bull queue error:', err));
 
-  client.subscribe(onDataChannel, (err, channel) => {
-    if (err) {
-      console.error('Error subscribing to channel:', err);
-    } else {
-      console.log('Subscribed to channel:', channel);
-    }
+  queue.process(async (job) => {
+    const user_data = job.data; // Access data from the job
+    console.log('Received data');
+    await emailClient.mailMe(user_data);
   });
 
-  client.on('message', async (channel, message) => {
-    console.log(channel, onDataChannel);
-    if (channel === onDataChannel) {
-      console.log('Received data');
-      const data = await client.lPop('user_data_queue');
-      const user_data = JSON.parse(await data);
-      await emailClient.mailMe(user_data);
-      // Process the data (message) here (message will contain the user data)
-  }
-
-});
-})()
+  console.log('Consumer (worker) ready');
+})();

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { User } from '../models/user';
 import { client } from '../app';
-
+import Bull from 'bull';
 
 const resolvers = {
   Query: {
@@ -112,10 +112,11 @@ const resolvers = {
           token,
           uri: undefined
         };
-        const data = JSON.stringify(user_data);
-        (await client).rPush('user_data_queue', data);
-        (await client).publish('user_data_added','');
-
+        // const data = JSON.stringify(user_data);
+        // (await client).rPush('user_data_queue', data);
+        // (await client).publish('user_data_added','');
+        const queue = new Bull('user_data_queue'); // Define the queue name
+        await queue.add(user_data); // Add data to the queue
         return {'message': 'Get the reset token from your email', 'token': token};
       } catch(err) {
         console.log(err);
