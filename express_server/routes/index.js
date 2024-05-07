@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from 'multer';
 import UserControllers from "../controllers/userControllers";
-import { allowedExtensions } from "../app";
+import { allowedExtensions } from "../utils/allowedextension";
 
 // Setup storage for file uploads
 const storage = multer.diskStorage({
@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
       } else cb(null, file.fieldname+uniquePrefix);
     }
   });
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage });
   
 const router = Router();
 

@@ -1,7 +1,7 @@
 import { User } from '../models/user';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-
+import { myLogger } from '../utils/mylogger';
 
 class UserControllers {
   static async login(req, res) {
@@ -30,11 +30,10 @@ class UserControllers {
       });
 
       return res.json({ token });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Server error' });
+    } catch (error) {
+      myLogger.error('Error creating user: ' + error.message);
+      return res.status(400).json({ message: 'An error occurred!' });
     }
-
   }
 
   static async upload(req, res) {
@@ -49,8 +48,8 @@ class UserControllers {
         // delete file when this error occurs
         return res.status(404).json({'error': 'not found'});
       }
-    } catch(err) {
-      console.log("An error occurred!", err);
+    } catch(error) {
+      myLogger.error('Error creating user: ' + error.message);
     }
     return res.json({ id }); // Return the saved user object
   }

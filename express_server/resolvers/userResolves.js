@@ -2,8 +2,8 @@ import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { User } from '../models/user';
-import { client } from '../app';
 import Bull from 'bull';
+import { myLogger } from '../utils/mylogger';
 
 const resolvers = {
   Query: {
@@ -19,7 +19,6 @@ const resolvers = {
       }
     }
   },
-
 
   Mutation: {
     createUser: async (_parent, args) => {
@@ -56,6 +55,7 @@ const resolvers = {
         const savedUser = await newUser.save(); 
         return savedUser;
       } catch (error) {
+        myLogger.error('Error creating user: ' + error.message)
         throw new Error('Error creating user: ' + error.message);
       }
     },
@@ -91,7 +91,8 @@ const resolvers = {
         const updated = await User.findByIdAndUpdate(user.id, args);
         if (updated) return {'message': 'Updated successfully'};
         else return {'message': 'An error occurred!'};
-      } catch {
+      } catch(error) {
+        myLogger.error('Error creating user: ' + error.message)
         return {'message': 'An error occurred!'};
       }
     },
@@ -112,14 +113,13 @@ const resolvers = {
           token,
           uri: undefined
         };
-        // const data = JSON.stringify(user_data);
-        // (await client).rPush('user_data_queue', data);
-        // (await client).publish('user_data_added','');
-        const queue = new Bull('user_data_queue'); // Define the queue name
-        await queue.add(user_data); // Add data to the queue
-        return {'message': 'Get the reset token from your email', 'token': token};
-      } catch(err) {
-        console.log(err);
+        // Define the queue name
+        const queue = new Bull('user_data_queue');
+        // Add data to the queue
+        await queue.add(user_data);
+        return {'message': 'Get the reset token from your email'};
+      } catch(error) {
+        myLogger.error('Error creating user: ' + error.message);
         return {'message': 'An error occurred!'};
       }
     },
@@ -137,8 +137,8 @@ const resolvers = {
         const passwordHash = await bcrypt.hash(password, salt);
         await User.findByIdAndUpdate(user[0].id, { passwordHash });
         return {'message': 'Password updated successfully', 'token': user[0].passwordHash};
-      } catch(err) {
-        console.log(err);
+      } catch(error) {
+        myLogger.error('Error creating user: ' + error.message);
         return {'message': 'An error occurred!'}; 
       }
     },
@@ -146,7 +146,8 @@ const resolvers = {
     deleteUser: async (_parent, _, { user, role }) => {
       try {
         await User.findByIdAndUpdate(user.id, { isDeleted: true });
-      } catch {
+      } catch(error) {
+        myLogger.error('Error creating user: ' + error.message);
         return {'message': 'An error occurred!'};
       }
       return {'message': 'User deleted successfully!'};

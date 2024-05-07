@@ -11,7 +11,8 @@ import router from './routes';
 import { User } from './models/user';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
-import { createClient } from 'redis';
+import { logMiddleware } from './middlewares/logMiddleware';
+import { myLogger } from './utils/mylogger';
 
 // initialize express server
 const app = express();
@@ -27,16 +28,6 @@ const { DELIVER_MONGODB_DB,
   DELIVER_MONGODB_PORT
 } = process.env;
 
-// check file extension is allowed
-export function allowedExtensions(filename, mimetype) {
-  const allowed_extentions = ['png', 'jpg', 'jpeg', 'gif', 'image/png', 'image/jpeg', 'image/gif'];
-  const name = filename.split('.');
-  if (allowed_extentions.includes(name[name.length-1].toLowerCase()) ||
-    allowed_extentions.includes(mimetype.toLowerCase())) {
-    return true;
-  }
-  return false;
-}
 // Setup mongodb server
 const uri = `mongodb://${DELIVER_MONGODB_USER}:${DELIVER_MONGODB_PWD}@${DELIVER_MONGODB_HOST}:${DELIVER_MONGODB_PORT}/${DELIVER_MONGODB_DB}?directConnection=true&serverSelectionTimeoutMS=2000&authSource=admin&appName=mongosh+2.2.2`
 mongoose.connect(uri)
@@ -50,6 +41,7 @@ const corsOptions = {
   methods: ['GET', 'PUT', 'POST'],
 }
 
+app.use('/api', logMiddleware);
 app.use(cors(corsOptions));
 
 // Parse incoming request bodies
@@ -62,20 +54,13 @@ const server = new ApolloServer({
   resolvers,
 });
 
-// start redis server
-export const client = createClient({
-  url: 'redis://localhost:6379'
-})
-  .on('error', err => console.log('Redis Client Error', err))
-  .on('ready', () => console.log('Redis server is connected'))
-  .connect();
 
 server.start()
   .then(() => {
     // apply middleware for graphql endpoint
     app.use('/graphql', expressMiddleware(server, {
       context: async ({ req, res }) => {
-
+        myLogger.info(`${new Date().toISOString()} METHOD=${req.method} URL=${req.originalUrl}/${req.body.operationName} IP=${req.ip}`);
         // This are the endpoint does not require authentication
         const publicResolvers = ['createUser', 'Login', 'forgotPassword', 'updatePassword', '']; 
 
