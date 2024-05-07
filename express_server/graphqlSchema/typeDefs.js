@@ -34,9 +34,16 @@ const typeDefs = buildSchema(`#graphql
     address_dispatcher: [Location]
   }
 
+  type Category {
+    id: ID!
+    name: String!
+  }
+
   type Query {
     users: [User]!
     user: User
+    category(id: ID!): Category
+    categories: [Category]!
   }
 
   type Mutation {
@@ -70,6 +77,9 @@ const typeDefs = buildSchema(`#graphql
     logout: Message!
     forgotPassword(email: String!): Message!
     updatePassword(email: String!, token: String!, password: String!): Message! 
+    createCategory(name: String!): Category!
+    createCategories(name: [String!]!): Category!
+    deleteCategory(id: ID!): ID!
   }
 `);
 
