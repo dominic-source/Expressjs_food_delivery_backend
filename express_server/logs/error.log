@@ -1,0 +1,6 @@
+[31merror[39m: Error creating category: _category2.Category is not a constructor
+[31merror[39m: Error creating category: Cannot read properties of undefined (reading 'forEach')
+[31merror[39m: Error creating category: E11000 duplicate key error collection: deliver_db.categories index: name_1 dup key: { name: "Consumable Products | Food & Beverages | Staples (Rice, Flour, Pasta)" }
+[31merror[39m: Error creating category: E11000 duplicate key error collection: deliver_db.categories index: name_1 dup key: { name: "Consumable Products | Food & Beverages | Staples (Rice, Flour, Pasta)" }
+[31merror[39m: Error creating category: E11000 duplicate key error collection: deliver_db.categories index: name_1 dup key: { name: "Consumable Products | Food & Beverages | Staples (Rice, Flour, Pasta)" }
+[31merror[39m: Error creating category: E11000 duplicate key error collection: deliver_db.categories index: name_1 dup key: { name: "Consumable Products | Food & Beverages | Staples (Rice, Flour, Pasta)" }

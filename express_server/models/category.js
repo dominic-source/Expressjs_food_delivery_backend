@@ -4,7 +4,7 @@ import { productSchema } from "./product";
 const { Schema } = mongoose;
 
 const categorySchema = new Schema({
-  name: String,
+  name: { type: String, required: true, unique: true },
   products: [productSchema]
 });
 

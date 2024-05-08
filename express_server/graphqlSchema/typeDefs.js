@@ -77,9 +77,9 @@ const typeDefs = buildSchema(`#graphql
     logout: Message!
     forgotPassword(email: String!): Message!
     updatePassword(email: String!, token: String!, password: String!): Message! 
-    createCategory(name: String!): Category!
-    createCategories(name: [String!]!): Category!
-    deleteCategory(id: ID!): ID!
+    createCategory(name: String!): Category
+    createCategories(name: [String!]!): Message!
+    deleteCategory(id: ID!): Message!
   }
 `);
 

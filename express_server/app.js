@@ -60,7 +60,9 @@ server.start()
     // apply middleware for graphql endpoint
     app.use('/graphql', expressMiddleware(server, {
       context: async ({ req, res }) => {
-        myLogger.info(`${new Date().toISOString()} METHOD=${req.method} URL=${req.originalUrl}/${req.body.operationName} IP=${req.ip}`);
+        if (req.body.operationName !== 'IntrospectionQuery') {
+          myLogger.info(`${new Date().toISOString()} METHOD=${req.method} URL=${req.originalUrl}/${req.body.operationName} IP=${req.ip}`);
+        }
         // This are the endpoint does not require authentication
         const publicResolvers = ['createUser', 'Login', 'forgotPassword', 'updatePassword', '']; 
 

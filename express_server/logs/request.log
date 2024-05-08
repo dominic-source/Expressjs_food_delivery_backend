@@ -1,8 +1,2 @@
-[32minfo[39m: 2024-05-07T13:18:08.353Z METHOD=POST URL=/graphql/IntrospectionQuery IP=::1
-[32minfo[39m: 2024-05-07T13:18:09.296Z METHOD=POST URL=/graphql/IntrospectionQuery IP=::1
-[32minfo[39m: 2024-05-07T13:18:10.300Z METHOD=POST URL=/graphql/IntrospectionQuery IP=::1
-[32minfo[39m: 2024-05-07T13:18:11.301Z METHOD=POST URL=/graphql/IntrospectionQuery IP=::1
-[32minfo[39m: 2024-05-07T13:18:12.300Z METHOD=POST URL=/graphql/IntrospectionQuery IP=::1
-[32minfo[39m: 2024-05-07T13:18:13.300Z METHOD=POST URL=/graphql/IntrospectionQuery IP=::1
-[32minfo[39m: 2024-05-07T13:18:14.307Z METHOD=POST URL=/graphql/IntrospectionQuery IP=::1
-[32minfo[39m: 2024-05-07T13:18:15.300Z METHOD=POST URL=/graphql/IntrospectionQuery IP=::1
+[32minfo[39m: 2024-05-08T21:51:47.898Z METHOD=POST URL=/graphql/Categories IP=::1
+[32minfo[39m: 2024-05-08T21:52:30.076Z METHOD=POST URL=/graphql/Category IP=::1

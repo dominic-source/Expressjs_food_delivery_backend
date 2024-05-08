@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { User } from '../models/user';
+import Category from '../models/category';
 import Bull from 'bull';
 import { myLogger } from '../utils/mylogger';
 
@@ -15,12 +16,61 @@ const resolvers = {
       try {
         return await User.findById(user.id);
       } catch (error) {
-        throw new Error('Error fetching user: ' + error.message);
+        myLogger.error('Error fetching user: ' + error.message);
+        return [];
       }
-    }
+    },
+    category: async (_parent, { id }, { user }) => {
+      try {
+        return await Category.findById(id)
+      } catch (error) {
+        myLogger.error('Error fetching category: ' + error.message);
+        return [];
+      }
+    },
+    categories: async (_parent, _, { user }) => {
+      try {
+        return await Category.find()
+      } catch (error) {
+        myLogger.error('Error fetching category: ' + error.message);
+        return [];
+      }
+    },
   },
 
   Mutation: {
+    createCategory: async (_parent, { name }) => {
+      try {
+        const category = new Category({ name });
+        return await category.save();
+      } catch (error) {
+        myLogger.error('Error creating category: ' + error.message);
+        return null;
+      }
+    },
+
+    createCategories: async (_parent, { name }) => {
+      for (const singleName of name) {
+        try {
+          const category = new Category({ name: singleName });
+          await category.save();
+        } catch (error) {
+          myLogger.error('Error creating category: ' + error.message);
+          return {'message': 'An error occured'};
+        }
+      }
+      return {'message': 'Many categories have been created successfully!'};
+    },
+    deleteCategory: async (_parent, { id }) => {
+      try {
+        const del = await Category.findByIdAndDelete(id);
+        // const del = await Category.deleteMany({});
+        return {'message': 'Category was deleted successfully!'};
+      } catch(error) {
+        myLogger.error('Error deleting category: ' + error.message);
+        return {'message': 'An error occurred!'};
+      }
+    },
     createUser: async (_parent, args) => {
       try {
         const { 
@@ -56,7 +106,7 @@ const resolvers = {
         return savedUser;
       } catch (error) {
         myLogger.error('Error creating user: ' + error.message)
-        throw new Error('Error creating user: ' + error.message);
+        return [];
       }
     },
 
