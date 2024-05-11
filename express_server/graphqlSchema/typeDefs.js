@@ -39,11 +39,26 @@ const typeDefs = buildSchema(`#graphql
     name: String!
   }
 
+  type Product {
+    name: String!
+    description: String!
+    price: Int!
+    createdAt: String!
+    updatedAt: String!
+    currency: String!
+    photo: String
+    userId: String!
+  }
+
   type Query {
     users: [User]!
     user: User
     category(id: ID!): Category
     categories: [Category]!
+    getProduct(name: String!): Product
+    getUserProducts: [Product]!
+    getAllProducts: [Product]!
+    getAllProductsByCategory(categoryName: String!): [Product]!
   }
 
   type Mutation {
@@ -80,6 +95,17 @@ const typeDefs = buildSchema(`#graphql
     createCategory(name: String!): Category
     createCategories(name: [String!]!): Message!
     deleteCategory(id: ID!): Message!
+    
+    createProduct(
+      name: String!,
+      description: String!,
+      price: Int!,
+      currency: String!,
+      category: String!,
+      userId: String!): Product
+
+    deleteProduct(name: String!): Message!
+    updateProduct(id: ID!, name: String, price: String!, description: String!): Message! 
   }
 `);
 
