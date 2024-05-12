@@ -10,7 +10,7 @@ const productschema = new Schema({
   updatedAt: { type: Date, default: new Date().toString() },
   currency: { enum: currency, type: String, default: currency[1] },
   photo: String,
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
 });
 
 export const productSchema = productschema;

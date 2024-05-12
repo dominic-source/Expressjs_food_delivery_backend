@@ -1,6 +1,7 @@
 import mongoose from  "mongoose";
 import bcrypt from 'bcrypt';
 import { locationSchema } from "./location";
+import { productSchema } from "./product";
 
 const { Schema } = mongoose;
 
@@ -21,6 +22,7 @@ const userschema = new Schema({
   userType: { enum: ['seller', 'buyer', 'dispatcher'], type: String },
   status: { type: String, enum: ['available', 'busy', 'deleted']},
   photo: String,
+  products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
 	address_seller: locationSchema,
 	address_buyer: locationSchema,
 	address_dispatcher: locationSchema
