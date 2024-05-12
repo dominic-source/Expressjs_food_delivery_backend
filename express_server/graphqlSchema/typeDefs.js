@@ -8,8 +8,9 @@ const typeDefs = buildSchema(`#graphql
   }
 
   type Location {
-    name: String,
-    longitude: String,
+    id: ID
+    name: String
+    longitude: String
     latitude: String
   }
 
@@ -32,14 +33,17 @@ const typeDefs = buildSchema(`#graphql
     address_seller: [Location]
     address_buyer: [Location]
     address_dispatcher: [Location]
+    products: [String]!
   }
 
   type Category {
     id: ID!
     name: String!
+    products: [Product]
   }
 
   type Product {
+    id: ID!
     name: String!
     description: String!
     price: Int!
@@ -47,7 +51,15 @@ const typeDefs = buildSchema(`#graphql
     updatedAt: String!
     currency: String!
     photo: String
-    userId: String!
+    categoryId: String
+  }
+
+  input updateProduct {
+    name: String
+    description: String
+    price: Int
+    currency: String,
+    photo: String
   }
 
   type Query {
@@ -55,10 +67,10 @@ const typeDefs = buildSchema(`#graphql
     user: User
     category(id: ID!): Category
     categories: [Category]!
-    getProduct(name: String!): Product
+    getProduct(id: ID!): Product
     getUserProducts: [Product]!
     getAllProducts: [Product]!
-    getAllProductsByCategory(categoryName: String!): [Product]!
+    getAllProductsOfUsersByCategory(categoryId: ID!): [Product]!
   }
 
   type Mutation {
@@ -101,11 +113,10 @@ const typeDefs = buildSchema(`#graphql
       description: String!,
       price: Int!,
       currency: String!,
-      category: String!,
-      userId: String!): Product
+      categoryId: String!): Product
 
     deleteProduct(name: String!): Message!
-    updateProduct(id: ID!, name: String, price: String!, description: String!): Message! 
+    updateProduct(id: ID!, product: updateProduct, categoryId: ID!): Product 
   }
 `);
 
