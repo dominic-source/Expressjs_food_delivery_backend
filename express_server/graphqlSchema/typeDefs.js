@@ -115,7 +115,7 @@ const typeDefs = buildSchema(`#graphql
       currency: String!,
       categoryId: String!): Product
 
-    deleteProduct(name: String!): Message!
+    deleteProduct(id: ID!): Message!
     updateProduct(id: ID!, product: updateProduct, categoryId: ID!): Product 
   }
 `);

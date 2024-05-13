@@ -1,2 +1,7 @@
-[32minfo[39m: 2024-05-08T21:51:47.898Z METHOD=POST URL=/graphql/Categories IP=::1
-[32minfo[39m: 2024-05-08T21:52:30.076Z METHOD=POST URL=/graphql/Category IP=::1
+[32minfo[39m: 2024-05-13T10:28:38.136Z METHOD=POST URL=/graphql/DeleteProduct IP=::1
+[32minfo[39m: 2024-05-13T10:30:23.677Z METHOD=POST URL=/graphql/DeleteProduct IP=::1
+[32minfo[39m: 2024-05-13T10:31:19.311Z METHOD=POST URL=/graphql/GetProduct IP=::1
+[31merror[39m: Error creating user: Cast to ObjectId failed for value "6640fd74c9be378be645956" (type string) at path "_id" for model "Product"
+[32minfo[39m: 2024-05-13T10:31:35.772Z METHOD=POST URL=/graphql/GetProduct IP=::1
+[31merror[39m: Error creating user: Cast to ObjectId failed for value "6640fd74c9be378be645956" (type string) at path "_id" for model "Product"
+[32minfo[39m: 2024-05-13T10:33:19.604Z METHOD=POST URL=/graphql/DeleteProduct IP=::1
