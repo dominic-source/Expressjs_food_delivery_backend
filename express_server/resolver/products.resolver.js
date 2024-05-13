@@ -68,6 +68,17 @@ export const productMutationResolver = {
       }
   },
 
+  deleteProduct: async (_parent, { id }) => {
+    try {
+      const product = await Product.findByIdAndDelete(id);
+      if (product) return {'message': 'Successfully deleted!'};
+      else return {'message': 'An error occured!'};
+    } catch (error) {
+      myLogger.error('Error creating user: ' + error.message);
+      return {'message': 'An error occured!'};
+    }
+  },
+
   updateProduct: async (_parent, {id, product, categoryId}) => {
     try {
       product.updatedAt = new Date().toString();
