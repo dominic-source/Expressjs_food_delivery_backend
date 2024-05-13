@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import typeDefs from './graphqlSchema/typeDefs';
-import resolvers from './resolvers/userResolves';
+import resolvers from './resolver/resolvers';
 import router from './routes';
 import { User } from './models/user';
 import jwt from 'jsonwebtoken';
@@ -64,7 +64,7 @@ server.start()
           myLogger.info(`${new Date().toISOString()} METHOD=${req.method} URL=${req.originalUrl}/${req.body.operationName} IP=${req.ip}`);
         }
         // This are the endpoint does not require authentication
-        const publicResolvers = ['createUser', 'Login', 'forgotPassword', 'updatePassword', '']; 
+        const publicResolvers = ['createUser', 'Login', 'ForgotPassword', 'UpdatePassword', '']; 
 
         // Determine the resolver being called
         const resolverName = req.body.operationName;
