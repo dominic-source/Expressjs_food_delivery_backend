@@ -36,6 +36,13 @@ const typeDefs = buildSchema(`#graphql
     products: [String]!
   }
 
+  type Users {
+    firstName: String!
+    lastName: String!
+    username: String!
+    email: String!
+  }
+
   type Category {
     id: ID!
     name: String!
@@ -63,7 +70,7 @@ const typeDefs = buildSchema(`#graphql
   }
 
   type Query {
-    users: [User]!
+    users: [Users]!
     user: User
     category(id: ID!): Category
     categories: [Category]!
