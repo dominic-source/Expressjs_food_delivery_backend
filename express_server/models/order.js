@@ -7,13 +7,13 @@ const { Schema } = mongoose;
 const orderSchema = new Schema({
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  dispatcher: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  dispatcherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   orderDateTime: { type: Date, default: new Date().toString()},
   deliveryAddress: String,
   currency: String,
   totalAmount: Number,
   status: { enum: ['complete', 'incomplete', 'pending'], type: String, default: 'incomplete' },
-  orderItems: [orderItemSchema],
+  orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }],
   payment: [paymentSchema],
   paymentToken: String
 });
