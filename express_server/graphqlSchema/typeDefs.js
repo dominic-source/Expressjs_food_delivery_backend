@@ -28,7 +28,9 @@ const typeDefs = buildSchema(`#graphql
     isLoggedIn: Boolean
     isDeleted: Boolean
     userType: String
-    status: String
+    buyerStatus: String
+    sellerStatus: String
+    dispatcherStatus: String
     photo: String
     address_seller: [Location]
     address_buyer: [Location]
@@ -47,6 +49,46 @@ const typeDefs = buildSchema(`#graphql
     id: ID!
     name: String!
     products: [Product]
+  }
+
+  type Payment {
+    id: ID!
+    orderId: ID!
+    paymentDateTime: String!
+    paymentMethod: String
+    currency: String!
+    totalAmount: Int!
+    paymentStatus: String!
+  }
+
+  type Order {
+    id: ID!
+    sellerId: ID!
+    buyerId: ID!
+    dispatcherId: ID
+    orderDateTime: String!
+    deliveryAddress: String!
+    currency: String!
+    totalAmount: Int!
+    status: String!
+    orderItems: [OrderItem]!
+    payment: [Payment]
+    paymentToken: String
+  }
+
+  type OrderItem {
+    id: ID!
+    productId: ID!
+    quantity: Int!
+    comments: String
+    ratings: Int
+  }
+
+  input OrderItems {
+    productId: ID!
+    quantity: Int!
+    comments: String
+    ratings: Int
   }
 
   type Product {
@@ -89,7 +131,9 @@ const typeDefs = buildSchema(`#graphql
       passwordHash: String!
       phoneNumber: String!
       userType: String
-      status: String
+      buyerStatus: String!
+      sellerStatus: String
+      dispatcherStatus: String
       lgaId: String
       vehicleNumber: String
     ): User!
@@ -101,7 +145,9 @@ const typeDefs = buildSchema(`#graphql
       email: String
       phoneNumber: String
       userType: String
-      status: String
+      buyerStatus: String
+      sellerStatus: String
+      dispatcherStatus: String
       lgaId: String
       vehicleNumber: String
     ): Message!
@@ -123,7 +169,13 @@ const typeDefs = buildSchema(`#graphql
       categoryId: String!): Product
 
     deleteProduct(id: ID!): Message!
-    updateProduct(id: ID!, product: updateProduct, categoryId: ID!): Product 
+    updateProduct(id: ID!, product: updateProduct, categoryId: ID!): Product
+    createOrder(
+      sellerId: ID!
+      dispatcherId: ID
+      deliveryAddress: String!
+      orderItems: [OrderItems]!
+    ): Message!
   }
 `);
 
