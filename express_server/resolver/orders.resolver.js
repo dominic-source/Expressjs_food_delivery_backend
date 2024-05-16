@@ -6,9 +6,45 @@ import { Product } from '../models/product'
 import { deleteOrderItems } from '../utils/managedata/deletemodels';
 
 export const ordersQueryResolver = {
+  getMyOrders: async (_parent, _, { user }) => {
+    // This endpoint will get all the users orders as a buyer
+    return await Order.find({
+      buyerId: user.id,
+    });
+  },
+  getMyOrderItems: async (_parent, { orderId }, { user }) => {
+    // This endpoint will get all the order items of the users order
+    const order = await Order.find({
+      $or: [
+        { buyerId: user.id },
+        { sellerId: user.id },
+        { dispatcherId: user.id },
+      ],
+      _id: orderId,
+    });
+    if (!order) return [];
+    return await OrderItem.find({ _id: { $in: order[0].orderItems } });
+  },
+  getTheOrderAsSeller: async (_parent, _, { user }) => { 
+    // This endpoint retrieves a sellers order
+    return await Order.find({
+      sellerId: user.id,
+    });
+  },
+  getTheOrderAsDispatcher: async (_parent, _, { user }) => {
+  // This endpoint retrieves a dispatchers order
+    return await Order.find({
+      dispatcherId: user.id
+    });
+  }
 }
 
 export const ordersMutationResolver = {
+  deleteOrderItemsNow: async (_parent, { ids }, { user }) => {
+    deleteOrderItems(ids);
+    return {'message': 'Order items may have been deleted successfully!'};
+  },
+
   createOrder: async (_parent, args, { user }) => {
     const {
       sellerId,
