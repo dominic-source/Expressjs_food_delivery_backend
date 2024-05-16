@@ -106,7 +106,7 @@ export const userMutationResolvers = {
           return savedUser;
         } catch (error) {
           myLogger.error('Error creating user: ' + error.message)
-          return [];
+          return null;
         }
       },
   
