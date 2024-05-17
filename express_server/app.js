@@ -63,8 +63,18 @@ server.start()
         if (req.body.operationName !== 'IntrospectionQuery') {
           myLogger.info(`${new Date().toISOString()} METHOD=${req.method} URL=${req.originalUrl}/${req.body.operationName} IP=${req.ip}`);
         }
-        // This are the endpoint does not require authentication
+        // This are the endpoints that does not require authentication
         const publicResolvers = ['createUser', 'Login', 'ForgotPassword', 'UpdatePassword', '']; 
+
+        // Available to only admins
+        const adminOnlyResolverEndpoint = [ 
+          'Users',
+          'GetAllOrders',
+          'CreateCategory',
+          'CreateCategories',
+          'DeleteCategory',
+          'DeleteOrderItemsNow'
+        ];
 
         // Determine the resolver being called
         const resolverName = req.body.operationName;
@@ -100,7 +110,14 @@ server.start()
             http: { status: 401 },
           },
         });
-        return { req, res, user, roles: ["user"]}
+        // Allow only admin to access the endpoint include in the admin only resolvers
+        if (adminOnlyResolverEndpoint.includes(resolverName) && (user.username !== 'admin' || user.email !== 'admin@deliver.com')) throw new GraphQLError('User is not an admin', {
+          extensions: {
+            code: 'UNAUTHENTICATED',
+            http: { status: 401 },
+          },
+        });
+        return { req, res, user}
       }
       ,
     }));
