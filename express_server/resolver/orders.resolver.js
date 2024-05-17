@@ -6,6 +6,9 @@ import { Product } from '../models/product'
 import { deleteOrderItems } from '../utils/managedata/deletemodels';
 
 export const ordersQueryResolver = {
+  getAllOrders: async (_parent, _, { user }) => {
+    return await Order.find();
+  },
   getMyOrders: async (_parent, _, { user }) => {
     // This endpoint will get all the users orders as a buyer
     return await Order.find({
