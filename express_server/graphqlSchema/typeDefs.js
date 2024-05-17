@@ -120,6 +120,7 @@ const typeDefs = buildSchema(`#graphql
     getUserProducts: [Product]!
     getAllProducts: [Product]!
     getAllProductsOfUsersByCategory(categoryId: ID!): [Product]!
+    getAllOrders: [Order]!
     getMyOrders: [Order]!
     getMyOrderItems(orderId: ID!): [OrderItem]!
     getTheOrderAsSeller: [Order]!
