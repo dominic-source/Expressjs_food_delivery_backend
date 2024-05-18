@@ -1,2 +1,13 @@
 [31merror[39m: Error creating user: Cast to ObjectId failed for value "6640fd74c9be378be645956" (type string) at path "_id" for model "Product"
 [31merror[39m: Error creating user: Cast to ObjectId failed for value "6640fd74c9be378be645956" (type string) at path "_id" for model "Product"
+[31merror[39m: Error creating orders: status is not defined
+[31merror[39m: Error creating orders: status is not defined
+[31merror[39m: Error creating orders: Order validation failed: totalAmount: Cast to Number failed for value "NaN" (type number) at path "totalAmount"
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "80662464945" }
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: username_1 dup key: { username: "admin" }

@@ -78,7 +78,8 @@ export const ordersMutationResolver = {
         // get currency
         currency = product.currency;
         // calculate total amount
-        totalAmount += product.price;
+        if (!data.quantity) data.quantity = 1;
+        totalAmount += product.price * data.quantity;
         if (!product) {
           deleteOrderItems(createdItems);
           return {'message': 'Product does not exist!'};

@@ -5,3 +5,74 @@
 [32minfo[39m: 2024-05-13T10:31:35.772Z METHOD=POST URL=/graphql/GetProduct IP=::1
 [31merror[39m: Error creating user: Cast to ObjectId failed for value "6640fd74c9be378be645956" (type string) at path "_id" for model "Product"
 [32minfo[39m: 2024-05-13T10:33:19.604Z METHOD=POST URL=/graphql/DeleteProduct IP=::1
+[32minfo[39m: 2024-05-15T22:29:41.368Z METHOD=POST URL=/graphql/createUser IP=::1
+[32minfo[39m: 2024-05-15T22:29:57.901Z METHOD=POST URL=/graphql/Login IP=::1
+[32minfo[39m: 2024-05-15T22:29:57.908Z METHOD=POST URL=/login IP=::ffff:127.0.0.1
+[32minfo[39m: 2024-05-15T22:30:24.613Z METHOD=POST URL=/graphql/User IP=::1
+[32minfo[39m: 2024-05-15T22:32:16.749Z METHOD=POST URL=/graphql/Users IP=::1
+[32minfo[39m: 2024-05-15T22:32:37.015Z METHOD=POST URL=/graphql/User IP=::1
+[32minfo[39m: 2024-05-15T22:33:21.344Z METHOD=POST URL=/graphql/Login IP=::1
+[32minfo[39m: 2024-05-15T22:33:21.350Z METHOD=POST URL=/login IP=::ffff:127.0.0.1
+[32minfo[39m: 2024-05-15T22:33:53.734Z METHOD=POST URL=/graphql/User IP=::1
+[32minfo[39m: 2024-05-15T22:34:08.417Z METHOD=POST URL=/graphql/Users IP=::1
+[32minfo[39m: 2024-05-15T22:35:44.070Z METHOD=POST URL=/graphql/GetProduct IP=::1
+[32minfo[39m: 2024-05-15T22:38:42.940Z METHOD=POST URL=/graphql/GetProduct IP=::1
+[32minfo[39m: 2024-05-15T22:46:00.710Z METHOD=POST URL=/graphql/User IP=::1
+[32minfo[39m: 2024-05-15T22:46:12.172Z METHOD=POST URL=/graphql/User IP=::1
+[32minfo[39m: 2024-05-15T22:47:58.586Z METHOD=POST URL=/graphql/CreateOrder IP=::1
+[31merror[39m: Error creating orders: status is not defined
+[32minfo[39m: 2024-05-15T22:49:03.417Z METHOD=POST URL=/graphql/CreateOrder IP=::1
+[31merror[39m: Error creating orders: status is not defined
+[32minfo[39m: 2024-05-15T22:50:47.547Z METHOD=POST URL=/graphql/CreateOrder IP=::1
+[31merror[39m: Error creating orders: Order validation failed: totalAmount: Cast to Number failed for value "NaN" (type number) at path "totalAmount"
+[32minfo[39m: 2024-05-15T22:51:42.078Z METHOD=POST URL=/graphql/CreateOrder IP=::1
+[32minfo[39m: 2024-05-16T19:10:25.511Z METHOD=POST URL=/graphql/Login IP=::1
+[32minfo[39m: 2024-05-16T19:10:25.521Z METHOD=POST URL=/login IP=::ffff:127.0.0.1
+[32minfo[39m: 2024-05-16T19:11:48.645Z METHOD=POST URL=/graphql/CreateOrder IP=::1
+[32minfo[39m: 2024-05-16T19:12:47.441Z METHOD=POST URL=/graphql/GetOrders IP=::1
+[32minfo[39m: 2024-05-16T19:13:44.215Z METHOD=POST URL=/graphql/GetOrderItems IP=::1
+[32minfo[39m: 2024-05-16T19:16:03.932Z METHOD=POST URL=/graphql/GetOrders IP=::1
+[32minfo[39m: 2024-05-16T19:16:25.975Z METHOD=POST URL=/graphql/CreateOrder IP=::1
+[32minfo[39m: 2024-05-16T19:16:31.950Z METHOD=POST URL=/graphql/GetOrders IP=::1
+[32minfo[39m: 2024-05-16T19:18:25.635Z METHOD=POST URL=/graphql/createUser IP=::1
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[32minfo[39m: 2024-05-16T19:22:46.201Z METHOD=POST URL=/graphql/createUser IP=::1
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[32minfo[39m: 2024-05-16T19:23:02.716Z METHOD=POST URL=/graphql/createUser IP=::1
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[32minfo[39m: 2024-05-16T19:24:25.910Z METHOD=POST URL=/graphql/createUser IP=::1
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[32minfo[39m: 2024-05-16T19:25:28.124Z METHOD=POST URL=/graphql/createUser IP=::1
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[32minfo[39m: 2024-05-16T19:25:53.637Z METHOD=POST URL=/graphql/createUser IP=::1
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "8066246494" }
+[32minfo[39m: 2024-05-16T19:26:17.191Z METHOD=POST URL=/graphql/createUser IP=::1
+[32minfo[39m: 2024-05-16T19:28:00.486Z METHOD=POST URL=/graphql/Login2 IP=::1
+[32minfo[39m: 2024-05-16T19:28:00.511Z METHOD=POST URL=/login IP=::ffff:127.0.0.1
+[32minfo[39m: 2024-05-16T19:28:48.552Z METHOD=POST URL=/graphql/CreateOrder IP=::1
+[32minfo[39m: 2024-05-16T19:28:55.188Z METHOD=POST URL=/graphql/GetOrders IP=::1
+[32minfo[39m: 2024-05-16T20:45:56.336Z METHOD=POST URL=/graphql/GetMyOrders IP=::1
+[32minfo[39m: 2024-05-16T20:46:05.649Z METHOD=POST URL=/graphql/CreateOrder IP=::1
+[32minfo[39m: 2024-05-16T20:46:10.620Z METHOD=POST URL=/graphql/GetMyOrders IP=::1
+[32minfo[39m: 2024-05-16T20:47:30.143Z METHOD=POST URL=/graphql/GetMyOrderItems IP=::1
+[32minfo[39m: 2024-05-16T20:48:09.169Z METHOD=POST URL=/graphql/GetTheOrderAsDispatcher IP=::1
+[32minfo[39m: 2024-05-16T20:48:56.124Z METHOD=POST URL=/graphql/GetTheOrderAsDispatcher IP=::1
+[32minfo[39m: 2024-05-16T20:49:19.037Z METHOD=POST URL=/graphql/GetTheOrderAsDispatcher IP=::1
+[32minfo[39m: 2024-05-16T20:50:02.707Z METHOD=POST URL=/graphql/Login IP=::1
+[32minfo[39m: 2024-05-16T20:50:02.717Z METHOD=POST URL=/login IP=::ffff:127.0.0.1
+[32minfo[39m: 2024-05-16T20:50:24.828Z METHOD=POST URL=/graphql/GetTheOrderAsDispatcher IP=::1
+[32minfo[39m: 2024-05-16T20:53:06.319Z METHOD=POST URL=/graphql/GetMyOrderItems IP=::1
+[32minfo[39m: 2024-05-16T20:56:10.471Z METHOD=POST URL=/graphql/GetMyOrderItems IP=::1
+[32minfo[39m: 2024-05-17T19:32:11.241Z METHOD=POST URL=/graphql/User IP=::1
+[32minfo[39m: 2024-05-17T19:32:19.214Z METHOD=POST URL=/graphql/Users IP=::1
+[32minfo[39m: 2024-05-17T19:33:07.650Z METHOD=POST URL=/graphql/Users IP=::1
+[32minfo[39m: 2024-05-17T19:34:52.601Z METHOD=POST URL=/graphql/createUser IP=::1
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: phoneNumber_1 dup key: { phoneNumber: "80662464945" }
+[32minfo[39m: 2024-05-17T19:35:09.799Z METHOD=POST URL=/graphql/createUser IP=::1
+[32minfo[39m: 2024-05-17T19:35:14.050Z METHOD=POST URL=/graphql/createUser IP=::1
+[31merror[39m: Error creating user: E11000 duplicate key error collection: deliver_db.users index: username_1 dup key: { username: "admin" }
+[32minfo[39m: 2024-05-17T19:39:05.686Z METHOD=POST URL=/graphql/User IP=::1
+[32minfo[39m: 2024-05-17T19:39:11.155Z METHOD=POST URL=/graphql/Users IP=::1
+[32minfo[39m: 2024-05-17T19:39:49.462Z METHOD=POST URL=/graphql/Login4 IP=::1
+[32minfo[39m: 2024-05-17T19:39:49.477Z METHOD=POST URL=/login IP=::ffff:127.0.0.1
+[32minfo[39m: 2024-05-17T19:40:12.871Z METHOD=POST URL=/graphql/Users IP=::1
