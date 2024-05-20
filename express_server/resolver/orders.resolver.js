@@ -17,6 +17,8 @@ export const ordersQueryResolver = {
   },
   getMyOrderItems: async (_parent, { orderId }, { user }) => {
     // This endpoint will get all the order items of the users order
+    // In this endpoint, we are find a single order with id = orderId where the user is 
+    // either a seller, buyer or dispatcher.
     const order = await Order.find({
       $or: [
         { buyerId: user.id },
