@@ -15,7 +15,6 @@ const orderSchema = new Schema({
   status: { enum: ['complete', 'incomplete', 'pending'], type: String, default: 'incomplete' },
   orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }],
   payment: [paymentSchema],
-  paymentToken: String
 });
 
 const Order = mongoose.model('Order', orderSchema);
