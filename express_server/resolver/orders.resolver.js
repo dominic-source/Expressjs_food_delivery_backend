@@ -7,44 +7,115 @@ import { deleteOrderItems } from '../utils/managedata/deletemodels';
 
 export const ordersQueryResolver = {
   getAllOrders: async (_parent, _, { user }) => {
-    return await Order.find();
+    try {
+      return await Order.find();
+    } catch (error) {
+      return [];
+    }
   },
   getMyOrders: async (_parent, _, { user }) => {
     // This endpoint will get all the users orders as a buyer
-    return await Order.find({
-      buyerId: user.id,
-    });
+    try {
+      return await Order.find({
+        buyerId: user.id,
+      });
+    } catch (error){
+      return [];
+    }
+    
   },
   getMyOrderItems: async (_parent, { orderId }, { user }) => {
     // This endpoint will get all the order items of the users order
     // In this endpoint, we are find a single order with id = orderId where the user is 
     // either a seller, buyer or dispatcher.
-    const order = await Order.find({
-      $or: [
-        { buyerId: user.id },
-        { sellerId: user.id },
-        { dispatcherId: user.id },
-      ],
-      _id: orderId,
-    });
-    if (!order) return [];
-    return await OrderItem.find({ _id: { $in: order[0].orderItems } });
+    try {
+      const order = await Order.find({
+        $or: [
+          { buyerId: user.id },
+          { sellerId: user.id },
+          { dispatcherId: user.id },
+        ],
+        _id: orderId,
+      });
+      if (!order) return [];
+      return await OrderItem.find({ _id: { $in: order[0].orderItems } });
+  
+    } catch (error) {
+      return [];
+    }
   },
   getTheOrderAsSeller: async (_parent, _, { user }) => { 
     // This endpoint retrieves a sellers order
-    return await Order.find({
-      sellerId: user.id,
-    });
+    try {
+      return await Order.find({
+        sellerId: user.id,
+      });
+    } catch (error) {
+      return [];
+    }
   },
   getTheOrderAsDispatcher: async (_parent, _, { user }) => {
   // This endpoint retrieves a dispatchers order
-    return await Order.find({
-      dispatcherId: user.id
-    });
-  }
+    try {
+      return await Order.find({
+        dispatcherId: user.id
+      });
+    } catch (error) {
+      return [];
+    }
+  },
+  // getAnOrderItem: async (_parent, { orderItemId }) => {
+  //   // This endpoint retrieves a single order item
+  //   // it is only for testing purposes
+  //   return await OrderItem.findById(orderItemId);
+  // }
 }
 
 export const ordersMutationResolver = {
+  updateOrderItems: async (_parent, { orderId, orderItems }, { user }) => {
+    try {
+      const order = await Order.findById(orderId);
+      if (!order) return {'message': 'Order does not exist!'};
+      if (!(order.buyerId == user.id || order.sellerId == user.id)) return {'message': 'You are not authorized to delete this order item!'};
+      if (order.payment && order.payment.paymentStatus === 'paid') return {'message': 'You cannot delete a paid orders item!'};
+
+      if (orderItems) {
+        for (const item of orderItems) {
+          const orderItem = await OrderItem.findById(item.id);
+          if (!orderItem) return {'message': 'Some of the order item(s) does not exist!'};
+          if (order.orderItems.includes(orderItem._id)) {
+            orderItem.quantity = item.quantity;
+            await orderItem.save();
+          } else {
+            return {'message': 'An order item does not exist in this Order!'};
+          }
+        }
+      }
+      return {'message': 'Order items were updated successfully!'};
+    } catch (error) {
+      return {'message': 'An error occurred!'};
+    }
+    
+  },
+  deleteAnOrderItem: async (_parent, { orderId, orderItemId }, { user }) => {
+    try {
+      const order = await Order.findById(orderId);
+      if (!order) return {'message': 'Order does not exist!'};
+      if (!(order.buyerId == user.id || order.sellerId == user.id)) return {'message': 'You are not authorized to delete this order item!'};
+      if (order.payment && order.payment.paymentStatus === 'paid') return {'message': 'You cannot delete a paid orders item!'};
+      if (order.payment && order.payment.paymentStatus === 'inprocess') {
+        const lastUpdateTime = new Date(order.payment.lastUpdateTime);
+        const currentTime = new Date();
+        const oneHourAgo = new Date(currentTime.getTime() - 3600000);
+        const diff = oneHourAgo > lastUpdateTime;
+        if (diff) return {'message': 'You cannot delete an order item that is in process!'};
+      }
+      await OrderItem.findByIdAndDelete(orderItemId);
+      return {'message': 'Order item was deleted successfully!'};
+    } catch (error) {
+      return {'message': 'An error occurred!'};
+    }
+  },
   deleteOrder: async (_parent, { orderId }, { user }) => {
     // This endpoint will delete a order
     try {
@@ -59,6 +130,7 @@ export const ordersMutationResolver = {
         const diff = oneHourAgo > lastUpdateTime;
         if (diff) return {'message': 'You cannot delete a order that is in process!'};
       }
+      deleteOrderItems(order.orderItems);
       await Order.findByIdAndDelete(orderId);
       return {'message': 'Order was deleted successfully!'};
     } catch (error) {
@@ -78,6 +150,7 @@ export const ordersMutationResolver = {
   },
 
   deleteOrderItemsNow: async (_parent, { ids }, { user }) => {
+    // This is an admin route or endpoint   
     deleteOrderItems(ids);
     return {'message': 'Order items may have been deleted successfully!'};
   },
