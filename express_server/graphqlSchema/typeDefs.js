@@ -172,7 +172,8 @@ const typeDefs = buildSchema(`#graphql
       price: Int!,
       currency: String!,
       categoryId: String!): Product
-
+    deleteOrder(orderId: ID!): Message!
+    updateOrderAddress(orderId: ID!, deliveryAddress: String!): Message!
     deleteProduct(id: ID!): Message!
     updateProduct(id: ID!, product: updateProduct, categoryId: ID!): Product
     createOrder(
