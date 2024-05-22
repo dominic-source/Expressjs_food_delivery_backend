@@ -79,14 +79,21 @@ const typeDefs = buildSchema(`#graphql
   type OrderItem {
     id: ID!
     productId: ID!
-    quantity: Int!
+    quantity: Int
     comments: String
     ratings: Int
   }
 
   input OrderItems {
     productId: ID!
-    quantity: Int!
+    quantity: Int
+    comments: String
+    ratings: Int
+  }
+
+  input OrderItem2 {
+    id: ID!
+    quantity: Int
     comments: String
     ratings: Int
   }
@@ -125,6 +132,7 @@ const typeDefs = buildSchema(`#graphql
     getMyOrderItems(orderId: ID!): [OrderItem]!
     getTheOrderAsSeller: [Order]!
     getTheOrderAsDispatcher: [Order]!
+    getAnOrderItem(orderItemId: ID!): OrderItem
   }
 
   type Mutation {
@@ -166,6 +174,8 @@ const typeDefs = buildSchema(`#graphql
     createCategories(name: [String!]!): Message!
     deleteCategory(id: ID!): Message!
     deleteOrderItemsNow(ids: [ID]!): Message!
+    deleteAnOrderItem(orderId: ID!, orderItemId: ID!): Message!
+    updateOrderItems(orderId: ID!, orderItems: [OrderItem2]!): Message!
     createProduct(
       name: String!,
       description: String!,
