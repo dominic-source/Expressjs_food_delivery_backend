@@ -45,6 +45,38 @@ export const ordersQueryResolver = {
 }
 
 export const ordersMutationResolver = {
+  deleteOrder: async (_parent, { orderId }, { user }) => {
+    // This endpoint will delete a order
+    try {
+      const order = await Order.findById(orderId);
+      if (!order) return {'message': 'Order does not exist!'};
+      if (!(order.buyerId == user.id || order.sellerId == user.id)) return {'message': 'You are not authorized to delete this order!'};
+      if (order.payment && order.payment.paymentStatus === 'paid') return {'message': 'You cannot delete a paid order!'};
+      if (order.payment && order.payment.paymentStatus === 'inprocess') {
+        const lastUpdateTime = new Date(order.payment.lastUpdateTime);
+        const currentTime = new Date();
+        const oneHourAgo = new Date(currentTime.getTime() - 3600000);
+        const diff = oneHourAgo > lastUpdateTime;
+        if (diff) return {'message': 'You cannot delete a order that is in process!'};
+      }
+      await Order.findByIdAndDelete(orderId);
+      return {'message': 'Order was deleted successfully!'};
+    } catch (error) {
+      return {'message': 'An error occurred!'};
+    }
+  },
+
+  updateOrderAddress: async (_parent, { orderId, deliveryAddress }, { user }) => {
+    // This endpoint will update a order
+    // Only the buyer should be able to update the delivery address
+    const order = await Order.findById(orderId);
+    if (!order) return {'message': 'Order does not exist!'};
+    if (order.buyerId != user.id) return {'message': 'You are not authorized to update this order!'};
+    order.deliveryAddress = deliveryAddress;
+    await order.save();
+    return {'message': 'Order was updated successfully!'};
+  },
+
   deleteOrderItemsNow: async (_parent, { ids }, { user }) => {
     deleteOrderItems(ids);
     return {'message': 'Order items may have been deleted successfully!'};
