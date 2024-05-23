@@ -82,17 +82,17 @@ export const ordersMutationResolver = {
       if (orderItems) {
         for (const item of orderItems) {
           const orderItem = await OrderItem.findById(item.id);
-          if (!orderItem) return {'message': 'Some of the order item(s) does not exist!'};
-          if (order.orderItems.includes(orderItem._id)) {
+          if (orderItem && order.orderItems.includes(item.id)) {
             orderItem.quantity = item.quantity;
             await orderItem.save();
-          } else {
-            return {'message': 'An order item does not exist in this Order!'};
           }
         }
       }
+      // This save must be called to update the total Amount in the order
+      await order.save();
       return {'message': 'Order items were updated successfully!'};
     } catch (error) {
+      console.log(error);
       return {'message': 'An error occurred!'};
     }
     
@@ -110,7 +110,16 @@ export const ordersMutationResolver = {
         const diff = oneHourAgo > lastUpdateTime;
         if (diff) return {'message': 'You cannot delete an order item that is in process!'};
       }
+      const index = order.orderItems.indexOf(orderItemId);
+      if (index === -1) return {'message': 'Order item does not exist!'};
+      order.orderItems.splice(index, 1);
+
+      // Delete the order item
       await OrderItem.findByIdAndDelete(orderItemId);
+
+      // This save must be called to update the total Amount in the order
+      await order.save();
+      
       return {'message': 'Order item was deleted successfully!'};
     } catch (error) {
       return {'message': 'An error occurred!'};
