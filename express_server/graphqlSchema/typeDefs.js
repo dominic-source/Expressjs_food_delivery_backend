@@ -202,6 +202,14 @@ const typeDefs = buildSchema(`#graphql
       deliveryAddress: String!
       orderItems: [OrderItems]!
     ): Message!
+    createPayment(
+      orderId: ID!
+      paymentMethod: String!
+      currency: String!
+      sellerAmount: Int!
+      dispatcherAmount: Int!
+      paymentStatus: String!
+    ): Message!
   }
 `);
 
