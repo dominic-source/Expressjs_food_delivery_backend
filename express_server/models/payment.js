@@ -9,10 +9,10 @@ const paymentschema = new Schema({
   lastUpdateTime: { type: Date, default: new Date().toString()},
   paymentMethod: { enum: paymentMethods, type: String, default: paymentMethods[0] },
   currency: { enum: currency, type: String, default: currency[1] },
-  totalAmount: { type: Number, default: 0 },
   sellerAmount: { type: Number, default: 0 },
   dispatcherAmount: { type: Number, default: 0 },
-  paymentStatus: { enum: paymentStatus, type: String, default: paymentStatus[1] },
+  sellerPaymentStatus: { enum: paymentStatus, type: String, default: paymentStatus[1] },
+  dispatcherPaymentStatus: { enum: paymentStatus, type: String, default: paymentStatus[1] },
 });
 
 export const paymentSchema = paymentschema;
