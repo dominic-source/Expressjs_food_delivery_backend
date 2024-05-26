@@ -210,6 +210,10 @@ const typeDefs = buildSchema(`#graphql
       dispatcherAmount: Int!
       paymentStatus: String!
     ): Message!
+    updatePayment(
+      paymentId: ID!
+      status: String!
+    ): Message!
   }
 `);
 
