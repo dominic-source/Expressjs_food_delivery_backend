@@ -24,6 +24,41 @@ export const paymentQueryResolver = {
 }
 
 export const paymentMutationResolver = {
+  updatePayment: async (_parent, {
+    paymentId,
+    status
+      }, { user }) => {
+    try {
+      const pay = await Payment.findById(paymentId);
+      if (!pay) return {'message': 'Payment not found'};
+      const order = await Order.findById(id=pay.orderId);
+      if (!order) return {'message': 'Order not found'};
+      if (order.sellerId.toString() === user.id) {
+        pay.sellerPaymentStatus = status;
+      } else if (order.dispatcherId.toString() === user.id) {
+        pay.dispatcherPaymentStatus = status;
+      } else {
+        return {'message': 'Unauthorized'};
+      }
+      pay.lastUpdateTime = new Date().toString();
+      pay.paymentDateTime = new Date().toString();
+      if (pay.sellerPaymentStatus === 'paid' && pay.dispatcherPaymentStatus === 'paid'){
+        order.status = 'completed';
+        await order.save();
+      } else if (pay.sellerPaymentStatus === 'inprocess' || pay.dispatcherPaymentStatus === 'inprocess'){
+        order.status = 'incomplete';
+        await order.save();
+      } else {
+        return {'message': 'An error occured in your input!'};
+      }
+      await pay.save();
+      return {'message': 'Payment was successfully updated!'};
+    } catch (error) {
+      myLogger.error('Error creating user: ' + error.message);
+      return {'message': 'An error occurred while processing payment'};
+    }
+  },
+
   createPayment: async (_parent, {
     orderId,
     paymentMethod,
@@ -47,10 +82,10 @@ export const paymentMutationResolver = {
       order.payment.push(pay._id);
       await order.save()
       await pay.save();
-      return {'message': 'Payment was successful!'};
+      return {'message': 'Payment was successfully created!'};
     } catch (error) {
       myLogger.error('Error creating user: ' + error.message);
-      return null;
+      return  {'message': 'An error occurred while processing payment'};
     }
   },
 }
