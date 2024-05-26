@@ -15,7 +15,7 @@ const orderSchema = new Schema({
   deliveryAddress: String,
   currency: String,
   totalAmount: Number,
-  status: { enum: ['complete', 'incomplete', 'pending'], type: String, default: 'incomplete' },
+  status: { enum: ['completed', 'incomplete', 'pending'], type: String, default: 'incomplete' },
   orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }],
   payment: [paymentSchema],
 });
