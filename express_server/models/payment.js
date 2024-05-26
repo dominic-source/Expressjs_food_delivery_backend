@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 
 const paymentschema = new Schema({
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-  paymentDateTime: { type: Date, default: new Date().toString()},
+  paymentDateTime: { type: Date},
   lastUpdateTime: { type: Date, default: new Date().toString()},
   paymentMethod: { enum: paymentMethods, type: String, default: paymentMethods[0] },
   currency: { enum: currency, type: String, default: currency[1] },
