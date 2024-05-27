@@ -140,6 +140,12 @@ export const ordersMutationResolver = {
         if (diff) return {'message': 'You cannot delete a order that is in process!'};
       }
       deleteOrderItems(order.orderItems);
+      order.populate('payment');
+      for (const payment of order.payment) {
+        payment.isDeleted = true;
+        payment.lastUpdateTime = new Date().toString();
+        await payment.save();
+      }
       await Order.findByIdAndDelete(orderId);
       return {'message': 'Order was deleted successfully!'};
     } catch (error) {
