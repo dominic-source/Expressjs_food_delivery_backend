@@ -63,11 +63,14 @@ const typeDefs = buildSchema(`#graphql
 
   type Payments {
     id: ID!
-    paymentDateTime: String!
+    paymentDateTime: String
+    lastUpdateTime: String!
     paymentMethod: String!
     currency: String!
-    totalAmount: Int!
-    paymentStatus: String!
+    sellerAmount: Int!
+    dispatcherAmount: Int!
+    sellerPaymentStatus: String!
+    dispatcherPaymentStatus: String!
   }
 
   type Order {
@@ -142,7 +145,7 @@ const typeDefs = buildSchema(`#graphql
     getTheOrderAsSeller: [Order]!
     getTheOrderAsDispatcher: [Order]!
     getAnOrderItem(orderItemId: ID!): OrderItem
-    getMyPayment(orderId: ID!): [Payments]!
+    getMyPayment(orderId: ID!): [Payments]
   }
 
   type Mutation {
@@ -208,7 +211,6 @@ const typeDefs = buildSchema(`#graphql
       currency: String!
       sellerAmount: Int!
       dispatcherAmount: Int!
-      paymentStatus: String!
     ): Message!
     updatePayment(
       paymentId: ID!
