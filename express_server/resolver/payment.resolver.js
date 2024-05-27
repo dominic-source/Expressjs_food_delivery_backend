@@ -8,7 +8,7 @@ const availableCurrency = currency;
 export const paymentQueryResolver = {
   getMyPayment: async (_parent, { orderId }, { user }) => {
     try {
-      const order = await Order.findById(id=orderId).populate('payment');
+      const order = await Order.findById(orderId).populate('payment');
       if (!order) return [];
       if (!(order.buyerId.toString() === user.id ||
         order.sellerId.toString() === user.id ||
@@ -18,7 +18,7 @@ export const paymentQueryResolver = {
       return order.payment;
     } catch (error) {
       myLogger.error('Error creating user: ' + error.message);
-      return null;
+      return [];
     }
   },
 }
@@ -31,21 +31,20 @@ export const paymentMutationResolver = {
     try {
       const pay = await Payment.findById(paymentId);
       if (!pay) return {'message': 'Payment not found'};
-      const order = await Order.findById(id=pay.orderId);
+      const order = await Order.findById(pay.orderId);
       if (!order) return {'message': 'Order not found'};
       if (order.sellerId.toString() === user.id) {
         pay.sellerPaymentStatus = status;
-      } else if (order.dispatcherId.toString() === user.id) {
         pay.dispatcherPaymentStatus = status;
       } else {
         return {'message': 'Unauthorized'};
       }
       pay.lastUpdateTime = new Date().toString();
       pay.paymentDateTime = new Date().toString();
-      if (pay.sellerPaymentStatus === 'paid' && pay.dispatcherPaymentStatus === 'paid'){
+      if (pay.sellerPaymentStatus === 'paid'){
         order.status = 'completed';
         await order.save();
-      } else if (pay.sellerPaymentStatus === 'inprocess' || pay.dispatcherPaymentStatus === 'inprocess'){
+      } else if (pay.sellerPaymentStatus === 'inprocess'){
         order.status = 'incomplete';
         await order.save();
       } else {
@@ -54,6 +53,7 @@ export const paymentMutationResolver = {
       await pay.save();
       return {'message': 'Payment was successfully updated!'};
     } catch (error) {
+      console.log(error);
       myLogger.error('Error creating user: ' + error.message);
       return {'message': 'An error occurred while processing payment'};
     }
@@ -67,7 +67,7 @@ export const paymentMutationResolver = {
     dispatcherAmount,
       }, { user }) => {
     try {
-      const order = await Order.findById(id=orderId)
+      const order = await Order.findById(orderId)
       if (!order) return {'message': 'Order not found'};
       if (order.buyerId.toString() !== user.id) return {'message': 'Unauthorized'};
       if (!paymentMethods.includes(paymentMethod)) return {'message': 'payment method is not allowed'};
@@ -80,10 +80,11 @@ export const paymentMutationResolver = {
         dispatcherAmount
       });
       order.payment.push(pay._id);
-      await order.save()
       await pay.save();
+      await order.save()
       return {'message': 'Payment was successfully created!'};
     } catch (error) {
+      console.log(error)
       myLogger.error('Error creating user: ' + error.message);
       return  {'message': 'An error occurred while processing payment'};
     }
