@@ -13,6 +13,7 @@ const paymentschema = new Schema({
   dispatcherAmount: { type: Number, default: 0 },
   sellerPaymentStatus: { enum: paymentStatus, type: String, default: paymentStatus[1] },
   dispatcherPaymentStatus: { enum: paymentStatus, type: String, default: paymentStatus[1] },
+  isDeleted: { type: Boolean, default: false },
 });
 
 export const paymentSchema = paymentschema;

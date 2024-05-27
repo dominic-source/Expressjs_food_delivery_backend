@@ -17,7 +17,7 @@ const orderSchema = new Schema({
   totalAmount: Number,
   status: { enum: ['completed', 'incomplete', 'pending'], type: String, default: 'incomplete' },
   orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem' }],
-  payment: [paymentSchema],
+  payment: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' }],
 });
 
 orderSchema.pre('save', async function(next) {
