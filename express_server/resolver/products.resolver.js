@@ -24,7 +24,7 @@ export const productQueryResolver = {
     }
   },
 
-  getAllProducts: async (_parent, _, { user }) => {
+  getAllProducts: async (_parent) => {
     try {
       const products = await Product.find();
       return products;
@@ -48,24 +48,24 @@ export const productQueryResolver = {
 
 export const productMutationResolver = {
   createProduct: async (_parent, args, { user }) => {
-      try {
-        const { name, description, price, currency, categoryId } = args;
-        // Get the category information, return error message if false
-        const category = await Category.findById(categoryId);
-        if (!category) return {'message': 'The product category ID must be specified!'};
+    try {
+      const { name, description, price, currency, categoryId } = args;
+      // Get the category information, return error message if false
+      const category = await Category.findById(categoryId);
+      if (!category) return {'message': 'The product category ID must be specified!'};
 
-        const product = new Product({ name, description, price, currency, categoryId: category._id });
-        await product.save(); // Save the product first
+      const product = new Product({ name, description, price, currency, categoryId: category._id });
+      await product.save(); // Save the product first
 
-        const userMe = await User.findById(user.id);
-        userMe.products.push(product._id);
-        await userMe.save();
+      const userMe = await User.findById(user.id);
+      userMe.products.push(product._id);
+      await userMe.save();
 
-        return product; // Return the created product
-      } catch (error) {
-        myLogger.error('Error creating user: ' + error.message);
-        return null;
-      }
+      return product; // Return the created product
+    } catch (error) {
+      myLogger.error('Error creating user: ' + error.message);
+      return null;
+    }
   },
 
   deleteProduct: async (_parent, { id }) => {
