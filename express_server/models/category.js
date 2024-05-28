@@ -1,5 +1,4 @@
 import mongoose from  "mongoose";
-import { productSchema } from "./product";
 
 const { Schema } = mongoose;
 
