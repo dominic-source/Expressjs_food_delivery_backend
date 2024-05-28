@@ -13,6 +13,7 @@ import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
 import { logMiddleware } from './middlewares/logMiddleware';
 import { myLogger } from './utils/mylogger';
+import process from 'process';
 
 // initialize express server
 const app = express();
