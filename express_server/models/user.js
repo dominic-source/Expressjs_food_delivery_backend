@@ -1,7 +1,6 @@
 import mongoose from  "mongoose";
 import bcrypt from 'bcrypt';
 import { locationSchema } from "./location";
-import { productSchema } from "./product";
 
 const { Schema } = mongoose;
 
@@ -30,7 +29,7 @@ const userschema = new Schema({
 	address_dispatcher: locationSchema
 });
 
-const SALT_ROUNDS = 10
+
 userschema.pre('save', async function(next) {
     if (!this.isModified('passwordHash')) {
         return next();
