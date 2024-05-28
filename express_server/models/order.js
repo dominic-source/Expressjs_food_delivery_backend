@@ -1,6 +1,4 @@
 import mongoose from  "mongoose";
-import { orderItemSchema } from "./orderItem";
-import { paymentSchema } from "./payment";
 import { Product } from "./product";
 import { OrderItem } from "./orderItem";
 
