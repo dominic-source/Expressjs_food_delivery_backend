@@ -1,7 +1,7 @@
 import { myLogger } from '../utils/mylogger';
 import { Payment } from '../models/payment';
 import Order from '../models/order';
-import { paymentStatus, paymentMethods, currency } from '../../configPayment.json'
+import { paymentMethods, currency } from '../../configPayment.json'
 
 const availableCurrency = currency;
 
@@ -14,7 +14,7 @@ export const paymentQueryResolver = {
         order.sellerId.toString() === user.id ||
           order.dispatcherId.toString() === user.id)) {
             return [];
-          }
+      }
       return order.payment;
     } catch (error) {
       myLogger.error('Error creating user: ' + error.message);
