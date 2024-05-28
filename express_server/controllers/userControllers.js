@@ -23,7 +23,7 @@ class UserControllers {
       }
 
       // Update user information to be loggedIn
-      const me = await User.findByIdAndUpdate(user.id, {isLoggedIn: true});
+      await User.findByIdAndUpdate(user.id, {isLoggedIn: true});
       // Generate JWT with user ID and expiration time 
       const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
           expiresIn: "24h", // 1 hour in seconds
