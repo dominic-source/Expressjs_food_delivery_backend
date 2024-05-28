@@ -6,7 +6,7 @@ import { Product } from '../models/product'
 import { deleteOrderItems } from '../utils/managedata/deletemodels';
 
 export const ordersQueryResolver = {
-  getAllOrders: async (_parent, _, { user }) => {
+  getAllOrders: async (_parent) => {
     try {
       return await Order.find();
     } catch (error) {
@@ -97,6 +97,7 @@ export const ordersMutationResolver = {
     }
     
   },
+
   deleteAnOrderItem: async (_parent, { orderId, orderItemId }, { user }) => {
     try {
       const order = await Order.findById(orderId);
@@ -125,6 +126,7 @@ export const ordersMutationResolver = {
       return {'message': 'An error occurred!'};
     }
   },
+
   deleteOrder: async (_parent, { orderId }, { user }) => {
     // This endpoint will delete a order
     try {
@@ -164,7 +166,7 @@ export const ordersMutationResolver = {
     return {'message': 'Order was updated successfully!'};
   },
 
-  deleteOrderItemsNow: async (_parent, { ids }, { user }) => {
+  deleteOrderItemsNow: async (_parent, { ids }) => {
     // This is an admin route or endpoint   
     deleteOrderItems(ids);
     return {'message': 'Order items may have been deleted successfully!'};
@@ -230,5 +232,4 @@ export const ordersMutationResolver = {
       return {'message': 'An error occurred!'};
     }
   },
-
 }
