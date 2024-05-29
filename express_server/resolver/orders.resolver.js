@@ -90,7 +90,7 @@ export const ordersMutationResolver = {
       }
       // This save must be called to update the total Amount in the order
       await order.save();
-      return {'message': 'Order items were updated successfully!'};
+      return {'message': 'Order items were updated successfully!', 'id': orderId};
     } catch (error) {
       console.log(error);
       return {'message': 'An error occurred!'};
@@ -163,7 +163,7 @@ export const ordersMutationResolver = {
     if (order.buyerId != user.id) return {'message': 'You are not authorized to update this order!'};
     order.deliveryAddress = deliveryAddress;
     await order.save();
-    return {'message': 'Order was updated successfully!'};
+    return {'message': 'Order was updated successfully!', 'id': orderId};
   },
 
   deleteOrderItemsNow: async (_parent, { ids }) => {
@@ -224,7 +224,7 @@ export const ordersMutationResolver = {
         orderItems: createdItems,
       });
       await newOrder.save();
-      return {'message': 'Order was created successfully!'}
+      return {'message': 'Order was created successfully!', 'id': newOrder._id}
     } catch (error) {
       // Delete any created order items
       if (createdItems) deleteOrderItems(createdItems);
