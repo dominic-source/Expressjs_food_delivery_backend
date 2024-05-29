@@ -7,7 +7,7 @@
     "lint": "./node_modules/.bin/eslint",
     "check-lint": "eslint",
     "start": "babel-node --presets @babel/preset-env ./app.js",
-    "test": "./node_modules/.bin/mocha --require @babel/register --exit"
+    "test": "./node_modules/.bin/mocha --require @babel/register --exit test/**/*.test.js"
   },
   "author": "chinonso morba",
   "license": "ISC",
@@ -43,12 +43,12 @@
     "@babel/node": "^7.23.9",
     "@babel/preset-env": "^7.24.1",
     "@babel/register": "^7.23.7",
-    "chai": "^5.1.0",
+    "chai": "^4.2.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^27.9.0",
-    "mocha": "^10.3.0",
+    "mocha": "^10.4.0",
     "nodemon": "^3.1.0",
     "request": "^2.88.2",
     "sinon": "^17.0.1"
