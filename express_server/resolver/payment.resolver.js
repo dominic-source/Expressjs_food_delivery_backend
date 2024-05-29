@@ -51,7 +51,7 @@ export const paymentMutationResolver = {
         return {'message': 'An error occured in your input!'};
       }
       await pay.save();
-      return {'message': 'Payment was successfully updated!'};
+      return {'message': 'Payment was successfully updated!', 'id': pay._id};
     } catch (error) {
       console.log(error);
       myLogger.error('Error creating user: ' + error.message);
@@ -82,7 +82,7 @@ export const paymentMutationResolver = {
       order.payment.push(pay._id);
       await pay.save();
       await order.save()
-      return {'message': 'Payment was successfully created!'};
+      return {'message': 'Payment was successfully created!', 'id': pay._id};
     } catch (error) {
       console.log(error)
       myLogger.error('Error creating user: ' + error.message);
