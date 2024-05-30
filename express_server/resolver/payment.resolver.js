@@ -79,10 +79,11 @@ export const paymentMutationResolver = {
         sellerAmount,
         dispatcherAmount
       });
-      order.payment.push(pay._id);
       await pay.save();
+      order.payment.push(pay._id);
       await order.save()
-      return {'message': 'Payment was successfully created!', 'id': pay._id};
+
+      return {'message': 'Payment was successfully created!', 'id': pay._id.toString()};
     } catch (error) {
       console.log(error)
       myLogger.error('Error creating user: ' + error.message);
