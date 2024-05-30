@@ -34,5 +34,45 @@ describe('getMyPayment', function() {
     expect(result).to.deep.equal(payment);
   });
 
-  // Add more test cases here for different scenarios
+  it('should return an error when order does not exist', async function() {
+    const orderId = new mongoose.Types.ObjectId();
+    const userId = new mongoose.Types.ObjectId();
+
+    stub(Order, 'findById').resolves(null);
+
+    const result = await paymentQueryResolver.getMyPayment(null, { orderId }, { user: { id: userId.toString() } });
+
+    expect(result).to.deep.equal([]);
+  });
+
+  it('should return an error when user is not buyer, seller, or dispatcher', async function() { 
+    const orderId = new mongoose.Types.ObjectId();
+    const userId = new mongoose.Types.ObjectId();
+    const otherUserId = new mongoose.Types.ObjectId();
+
+    const order = {
+      _id: orderId,
+      buyerId: otherUserId,
+      sellerId: otherUserId,
+      dispatcherId: otherUserId,
+    };
+
+    stub(Order, 'findById').returns({
+      populate: stub().resolves(order),
+    });
+
+    const result = await paymentQueryResolver.getMyPayment(null, { orderId }, { user: { id: userId.toString() } });
+
+    expect(result).to.deep.equal([]);
+  });
+
+  it('should throw an error if an exception occurs', async function() {
+    const orderId = new mongoose.Types.ObjectId();
+    const userId = new mongoose.Types.ObjectId();
+
+    stub(Order, 'findById').throws(new Error('An error occurred'));
+
+    const result = await paymentQueryResolver.getMyPayment(null, { orderId }, { user: { id: userId.toString() } });
+    expect(result).to.deep.equal([]);
+  });
 });
