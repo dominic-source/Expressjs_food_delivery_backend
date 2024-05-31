@@ -19,10 +19,10 @@ export const ordersQueryResolver = {
       return await Order.find({
         buyerId: user.id,
       });
-    } catch (error){
+    } catch (error) {
       return [];
     }
-    
+
   },
   getMyOrderItems: async (_parent, { orderId }, { user }) => {
     // This endpoint will get all the order items of the users order
@@ -39,12 +39,12 @@ export const ordersQueryResolver = {
       });
       if (!order) return [];
       return await OrderItem.find({ _id: { $in: order[0].orderItems } });
-  
+
     } catch (error) {
       return [];
     }
   },
-  getTheOrderAsSeller: async (_parent, _, { user }) => { 
+  getTheOrderAsSeller: async (_parent, _, { user }) => {
     // This endpoint retrieves a sellers order
     try {
       return await Order.find({
@@ -55,7 +55,7 @@ export const ordersQueryResolver = {
     }
   },
   getTheOrderAsDispatcher: async (_parent, _, { user }) => {
-  // This endpoint retrieves a dispatchers order
+    // This endpoint retrieves a dispatchers order
     try {
       return await Order.find({
         dispatcherId: user.id
@@ -75,9 +75,9 @@ export const ordersMutationResolver = {
   updateOrderItems: async (_parent, { orderId, orderItems }, { user }) => {
     try {
       const order = await Order.findById(orderId);
-      if (!order) return {'message': 'Order does not exist!'};
-      if (!(order.buyerId == user.id || order.sellerId == user.id)) return {'message': 'You are not authorized to delete this order item!'};
-      if (order.payment && order.payment.paymentStatus === 'paid') return {'message': 'You cannot delete a paid orders item!'};
+      if (!order) return { 'message': 'Order does not exist!' };
+      if (!(order.buyerId == user.id || order.sellerId == user.id)) return { 'message': 'You are not authorized to delete this order item!' };
+      if (order.payment && order.payment.paymentStatus === 'paid') return { 'message': 'You cannot delete a paid orders item!' };
 
       if (orderItems) {
         for (const item of orderItems) {
@@ -90,29 +90,29 @@ export const ordersMutationResolver = {
       }
       // This save must be called to update the total Amount in the order
       await order.save();
-      return {'message': 'Order items were updated successfully!', 'id': orderId};
+      return { 'message': 'Order items were updated successfully!', 'id': orderId };
     } catch (error) {
       console.log(error);
-      return {'message': 'An error occurred!'};
+      return { 'message': 'An error occurred!' };
     }
-    
+
   },
 
   deleteAnOrderItem: async (_parent, { orderId, orderItemId }, { user }) => {
     try {
       const order = await Order.findById(orderId);
-      if (!order) return {'message': 'Order does not exist!'};
-      if (!(order.buyerId == user.id || order.sellerId == user.id)) return {'message': 'You are not authorized to delete this order item!'};
-      if (order.payment && order.payment.paymentStatus === 'paid') return {'message': 'You cannot delete a paid orders item!'};
+      if (!order) return { 'message': 'Order does not exist!' };
+      if (!(order.buyerId == user.id || order.sellerId == user.id)) return { 'message': 'You are not authorized to delete this order item!' };
+      if (order.payment && order.payment.paymentStatus === 'paid') return { 'message': 'You cannot delete a paid orders item!' };
       if (order.payment && order.payment.paymentStatus === 'inprocess') {
         const lastUpdateTime = new Date(order.payment.lastUpdateTime);
         const currentTime = new Date();
         const oneHourAgo = new Date(currentTime.getTime() - 3600000);
         const diff = oneHourAgo > lastUpdateTime;
-        if (diff) return {'message': 'You cannot delete an order item that is in process!'};
+        if (diff) return { 'message': 'You cannot delete an order item that is in process!' };
       }
       const index = order.orderItems.indexOf(orderItemId);
-      if (index === -1) return {'message': 'Order item does not exist!'};
+      if (index === -1) return { 'message': 'Order item does not exist!' };
       order.orderItems.splice(index, 1);
 
       // Delete the order item
@@ -120,10 +120,10 @@ export const ordersMutationResolver = {
 
       // This save must be called to update the total Amount in the order
       await order.save();
-      
-      return {'message': 'Order item was deleted successfully!'};
+
+      return { 'message': 'Order item was deleted successfully!' };
     } catch (error) {
-      return {'message': 'An error occurred!'};
+      return { 'message': 'An error occurred!' };
     }
   },
 
@@ -131,15 +131,15 @@ export const ordersMutationResolver = {
     // This endpoint will delete a order
     try {
       const order = await Order.findById(orderId);
-      if (!order) return {'message': 'Order does not exist!'};
-      if (!(order.buyerId == user.id || order.sellerId == user.id)) return {'message': 'You are not authorized to delete this order!'};
-      if (order.payment && order.payment.paymentStatus === 'paid') return {'message': 'You cannot delete a paid order!'};
+      if (!order) return { 'message': 'Order does not exist!' };
+      if (!(order.buyerId == user.id || order.sellerId == user.id)) return { 'message': 'You are not authorized to delete this order!' };
+      if (order.payment && order.payment.paymentStatus === 'paid') return { 'message': 'You cannot delete a paid order!' };
       if (order.payment && order.payment.paymentStatus === 'inprocess') {
         const lastUpdateTime = new Date(order.payment.lastUpdateTime);
         const currentTime = new Date();
         const oneHourAgo = new Date(currentTime.getTime() - 3600000);
         const diff = oneHourAgo > lastUpdateTime;
-        if (diff) return {'message': 'You cannot delete a order that is in process!'};
+        if (diff) return { 'message': 'You cannot delete a order that is in process!' };
       }
       deleteOrderItems(order.orderItems);
       order.populate('payment');
@@ -149,9 +149,9 @@ export const ordersMutationResolver = {
         await payment.save();
       }
       await Order.findByIdAndDelete(orderId);
-      return {'message': 'Order was deleted successfully!'};
+      return { 'message': 'Order was deleted successfully!' };
     } catch (error) {
-      return {'message': 'An error occurred!'};
+      return { 'message': 'An error occurred!' };
     }
   },
 
@@ -159,17 +159,17 @@ export const ordersMutationResolver = {
     // This endpoint will update a order
     // Only the buyer should be able to update the delivery address
     const order = await Order.findById(orderId);
-    if (!order) return {'message': 'Order does not exist!'};
-    if (order.buyerId != user.id) return {'message': 'You are not authorized to update this order!'};
+    if (!order) return { 'message': 'Order does not exist!' };
+    if (order.buyerId != user.id) return { 'message': 'You are not authorized to update this order!' };
     order.deliveryAddress = deliveryAddress;
     await order.save();
-    return {'message': 'Order was updated successfully!', 'id': orderId};
+    return { 'message': 'Order was updated successfully!', 'id': orderId };
   },
 
   deleteOrderItemsNow: async (_parent, { ids }) => {
     // This is an admin route or endpoint   
     deleteOrderItems(ids);
-    return {'message': 'Order items may have been deleted successfully!'};
+    return { 'message': 'Order items may have been deleted successfully!' };
   },
 
   createOrder: async (_parent, args, { user }) => {
@@ -185,13 +185,13 @@ export const ordersMutationResolver = {
 
       // Verify if the seller exist or not
       const seller = await User.findById(sellerId);
-      if (!seller) return {'message': 'An error occurred!'};
+      if (!seller) return { 'message': 'An error occurred!' };
 
       // Verify if the dispatcher exist or not and is available
       if (dispatcherId) {
         const dispatcher = await User.findById(dispatcherId);
-        if (!dispatcher) return {'message': 'An error occurred!'};
-        if (dispatcher.dispatcherStatus !== 'available') return {'message': 'Dispatcher is not available'};
+        if (!dispatcher) return { 'message': 'An error occurred!' };
+        if (dispatcher.dispatcherStatus !== 'available') return { 'message': 'Dispatcher is not available' };
       }
       let currency;
       let totalAmount = 0;
@@ -206,7 +206,7 @@ export const ordersMutationResolver = {
         totalAmount += product.price * data.quantity;
         if (!product) {
           deleteOrderItems(createdItems);
-          return {'message': 'Product does not exist!'};
+          return { 'message': 'Product does not exist!' };
         }
         const item = new OrderItem(data);
         await item.save();
@@ -224,12 +224,12 @@ export const ordersMutationResolver = {
         orderItems: createdItems,
       });
       await newOrder.save();
-      return {'message': 'Order was created successfully!', 'id': newOrder._id}
+      return { 'message': 'Order was created successfully!', 'id': newOrder._id }
     } catch (error) {
       // Delete any created order items
       if (createdItems) deleteOrderItems(createdItems);
       myLogger.error('Error creating orders: ' + error.message);
-      return {'message': 'An error occurred!'};
+      return { 'message': 'An error occurred!' };
     }
   },
 }
