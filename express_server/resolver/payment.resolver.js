@@ -35,26 +35,24 @@ export const paymentMutationResolver = {
       if (!order) return {'message': 'Order not found'};
       if (order.sellerId.toString() === user.id) {
         pay.sellerPaymentStatus = status;
+      } else if (order.dispatcherId.toString() === user.id) {
         pay.dispatcherPaymentStatus = status;
       } else {
         return {'message': 'Unauthorized'};
       }
       pay.lastUpdateTime = new Date().toString();
       pay.paymentDateTime = new Date().toString();
-      if (pay.sellerPaymentStatus === 'paid'){
+      if (pay.sellerPaymentStatus === 'paid' && pay.dispatcherPaymentStatus === 'paid'){
         order.status = 'completed';
         await order.save();
-      } else if (pay.sellerPaymentStatus === 'inprocess'){
+      } else if (pay.sellerPaymentStatus !== 'paid' || pay.dispatcherPaymentStatus !== 'paid'){
         order.status = 'incomplete';
         await order.save();
-      } else {
-        return {'message': 'An error occured in your input!'};
       }
       await pay.save();
-      return {'message': 'Payment was successfully updated!', 'id': pay._id};
+      return {'message': 'Payment was successfully updated!', 'id': pay._id.toString()};
     } catch (error) {
-      console.log(error);
-      myLogger.error('Error creating user: ' + error.message);
+      myLogger.error('Error updating payment: ' + error.message);
       return {'message': 'An error occurred while processing payment'};
     }
   },
@@ -72,6 +70,7 @@ export const paymentMutationResolver = {
       if (order.buyerId.toString() !== user.id) return {'message': 'Unauthorized'};
       if (!paymentMethods.includes(paymentMethod)) return {'message': 'payment method is not allowed'};
       if (!availableCurrency.includes(currency)) return {'message': 'currency not available for transaction'};
+      if (sellerAmount < 0 || dispatcherAmount < 0) return {'message': 'Invalid amount'};
       const pay = new Payment({
         orderId,
         paymentMethod,
@@ -85,7 +84,6 @@ export const paymentMutationResolver = {
 
       return {'message': 'Payment was successfully created!', 'id': pay._id.toString()};
     } catch (error) {
-      console.log(error)
       myLogger.error('Error creating user: ' + error.message);
       return  {'message': 'An error occurred while processing payment'};
     }
