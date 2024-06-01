@@ -13,6 +13,7 @@ export const ordersQueryResolver = {
       return [];
     }
   },
+
   getMyOrders: async (_parent, _, { user }) => {
     // This endpoint will get all the users orders as a buyer
     try {
@@ -24,6 +25,7 @@ export const ordersQueryResolver = {
     }
 
   },
+
   getMyOrderItems: async (_parent, { orderId }, { user }) => {
     // This endpoint will get all the order items of the users order
     // In this endpoint, we are find a single order with id = orderId where the user is 
@@ -44,6 +46,7 @@ export const ordersQueryResolver = {
       return [];
     }
   },
+
   getTheOrderAsSeller: async (_parent, _, { user }) => {
     // This endpoint retrieves a sellers order
     try {
@@ -54,6 +57,7 @@ export const ordersQueryResolver = {
       return [];
     }
   },
+
   getTheOrderAsDispatcher: async (_parent, _, { user }) => {
     // This endpoint retrieves a dispatchers order
     try {
