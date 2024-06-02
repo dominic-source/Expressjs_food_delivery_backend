@@ -18,3 +18,8 @@ while IFS= read -r line; do
   # Execute the line as a command
   export $line
 done < "$file"
+
+
+
+#write a script that creates a file from a series of arguments
+
