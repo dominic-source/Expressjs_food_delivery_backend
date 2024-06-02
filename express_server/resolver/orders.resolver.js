@@ -80,23 +80,25 @@ export const ordersMutationResolver = {
     try {
       const order = await Order.findById(orderId);
       if (!order) return { 'message': 'Order does not exist!' };
-      if (!(order.buyerId == user.id || order.sellerId == user.id)) return { 'message': 'You are not authorized to delete this order item!' };
-      if (order.payment && order.payment.paymentStatus === 'paid') return { 'message': 'You cannot delete a paid orders item!' };
-
-      if (orderItems) {
-        for (const item of orderItems) {
-          const orderItem = await OrderItem.findById(item.id);
-          if (orderItem && order.orderItems.includes(item.id)) {
-            orderItem.quantity = item.quantity;
-            await orderItem.save();
-          }
+      if (!(order.buyerId == user.id)) return { 'message': 'You are not authorized to update this order item!' };
+      if (order.payment && order.payment[0].sellerPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!' };
+      if (order.payment && order.payment[0].dispatcherPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!' };
+      if(!orderItems) return { 'message': 'Order items must be provided!' };
+      if (!Array.isArray(orderItems)) return { 'message': 'Order items must be an array!' };
+      for (const item of orderItems) {
+        const orderItem = await OrderItem.findById(item.id);
+        if (orderItem && order.orderItems.includes(item.id)) {
+          orderItem.quantity = item.quantity;
+          await orderItem.save();
         }
       }
+
       // This save must be called to update the total Amount in the order
       await order.save();
       return { 'message': 'Order items were updated successfully!', 'id': orderId };
     } catch (error) {
       console.log(error);
+      myLogger.error('Errorred in updating orders: ' + error.message);
       return { 'message': 'An error occurred!' };
     }
 
