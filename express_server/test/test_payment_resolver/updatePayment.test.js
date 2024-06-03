@@ -236,7 +236,7 @@ describe('updatePayment', function() {
     expect(order.status).to.equal('completed');
   })
 
-  it('should return error if an exception is thorwn', async function() {
+  it('should return error if an exception is thrown', async function() {
     const orderId = new Types.ObjectId();
     const paymentId = new Types.ObjectId();
     const status = 'paid';
