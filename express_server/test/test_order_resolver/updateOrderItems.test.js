@@ -3,7 +3,6 @@ import sinon from 'sinon';
 import { Types } from 'mongoose';
 import Order from '../../models/order';
 import { OrderItem } from '../../models/orderItem';
-import { Payment } from '../../models/payment';
 import { ordersMutationResolver } from '../../resolver/orders.resolver';
 import { myLogger } from '../../utils/mylogger';
 
@@ -46,13 +45,12 @@ describe('updateOrderItems', function() {
         sellerId,
         dispatcherId,
         orderItems: [itemId1, itemId2],
-        payment: [{
-            dispatcherPaymentStatus: 'unpaid',
-            sellerPaymentStatus: 'unpaid',
-        }],
+        payment: [{ dispatcherPaymentStatus: 'unpaid', sellerPaymentStatus: 'unpaid' }],
         save: stub().resolves(),
     }
-    const orderStub = stub(Order, 'findById').resolves(order);
+    const orderStub = stub(Order, 'findById').returns({
+      populate: stub().resolves(order),
+    });
     const findStub = stub(OrderItem, 'findById').resolves(orderItems[0]);
     const result = await ordersMutationResolver.updateOrderItems(
       null,
@@ -68,7 +66,9 @@ describe('updateOrderItems', function() {
   it('should return an error message if order does not exist', async function() {
     const orderId = new Types.ObjectId();
     const buyerId = new Types.ObjectId();
-    const orderStub = stub(Order, 'findById').resolves(null);
+    const orderStub = stub(Order, 'findById').returns({
+      populate: stub().resolves(null),
+    });
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId },
@@ -89,13 +89,12 @@ describe('updateOrderItems', function() {
         sellerId,
         dispatcherId,
         orderItems: [new Types.ObjectId()],
-        payment: [{
-            dispatcherPaymentStatus: 'unpaid',
-            sellerPaymentStatus: 'unpaid',
-        }],
+        payment: [{ dispatcherPaymentStatus: 'unpaid', sellerPaymentStatus: 'unpaid' }],
         save: stub().resolves(),
     }
-    const orderStub = stub(Order, 'findById').resolves(order);
+    const orderStub = stub(Order, 'findById').returns({
+      populate: stub().resolves(order),
+    });
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId },
@@ -116,13 +115,12 @@ describe('updateOrderItems', function() {
         sellerId,
         dispatcherId,
         orderItems: [new Types.ObjectId()],
-        payment: [{
-            dispatcherPaymentStatus: 'paid',
-            sellerPaymentStatus: 'paid',
-        }],
+        payment: [{ dispatcherPaymentStatus: 'paid', sellerPaymentStatus: 'paid' }],
         save: stub().resolves(),
     }
-    const orderStub = stub(Order, 'findById').resolves(order);
+    const orderStub = stub(Order, 'findById').returns({
+      populate: stub().resolves(order),
+    });
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId },
@@ -143,13 +141,12 @@ describe('updateOrderItems', function() {
         sellerId,
         dispatcherId,
         orderItems: [new Types.ObjectId()],
-        payment: [{
-            dispatcherPaymentStatus: 'unpaid',
-            sellerPaymentStatus: 'unpaid',
-        }],
+        payment: [{ dispatcherPaymentStatus: 'unpaid', sellerPaymentStatus: 'unpaid' }],
         save: stub().resolves(),
     }
-    const orderStub = stub(Order, 'findById').resolves(order);
+    const orderStub = stub(Order, 'findById').returns({
+      populate: stub().resolves(order),
+    });
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId },
@@ -171,13 +168,12 @@ describe('updateOrderItems', function() {
         sellerId,
         dispatcherId,
         orderItems: [new Types.ObjectId()],
-        payment: [{
-            dispatcherPaymentStatus: 'unpaid',
-            sellerPaymentStatus: 'unpaid',
-        }],
+        payment: [{ sellerPaymentStatus: 'unpaid', dispatcherPaymentStatus: 'unpaid' }],
         save: stub().resolves(),
     }
-    const orderStub = stub(Order, 'findById').resolves(order);
+    const orderStub = stub(Order, 'findById').returns({
+      populate: stub().resolves(order),
+    });
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId, orderItems: {} },
@@ -186,7 +182,6 @@ describe('updateOrderItems', function() {
     expect(result).to.have.property('message', 'Order items must be an array!');
     expect(orderStub.calledOnce).to.be.true;
   });
-
 
   it('should return an error when an exception is raised', async function() {
     const orderStub = stub(Order, 'findById').throws(new Error('error occurred'));
