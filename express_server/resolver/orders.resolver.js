@@ -78,7 +78,7 @@ export const ordersQueryResolver = {
 export const ordersMutationResolver = {
   updateOrderItems: async (_parent, { orderId, orderItems }, { user }) => {
     try {
-      const order = await Order.findById(orderId);
+      const order = await Order.findById(orderId).populate('payment');
       if (!order) return { 'message': 'Order does not exist!' };
       if (!(order.buyerId == user.id)) return { 'message': 'You are not authorized to update this order item!' };
       if (order.payment && order.payment[0].sellerPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!' };
@@ -92,12 +92,10 @@ export const ordersMutationResolver = {
           await orderItem.save();
         }
       }
-
       // This save must be called to update the total Amount in the order
       await order.save();
       return { 'message': 'Order items were updated successfully!', 'id': orderId };
     } catch (error) {
-      console.log(error);
       myLogger.error('Errorred in updating orders: ' + error.message);
       return { 'message': 'An error occurred!' };
     }
@@ -106,24 +104,22 @@ export const ordersMutationResolver = {
 
   deleteAnOrderItem: async (_parent, { orderId, orderItemId }, { user }) => {
     try {
-      const order = await Order.findById(orderId);
+      const order = await Order.findById(orderId).populate('payment');
       if (!order) return { 'message': 'Order does not exist!' };
       if (!(order.buyerId == user.id || order.sellerId == user.id)) return { 'message': 'You are not authorized to delete this order item!' };
-      if (order.payment && order.payment.paymentStatus === 'paid') return { 'message': 'You cannot delete a paid orders item!' };
-      if (order.payment && order.payment.paymentStatus === 'inprocess') {
-        const lastUpdateTime = new Date(order.payment.lastUpdateTime);
+      if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid orders item!' };
+      if (order.payment && (order.payment[0].sellerPaymentStatus === 'inprocess' || order.payment[0].dispatcherPaymentStatus === 'inprocess')) {
+        const lastUpdateTime = new Date(order.payment[0].lastUpdateTime);
         const currentTime = new Date();
         const oneHourAgo = new Date(currentTime.getTime() - 3600000);
-        const diff = oneHourAgo > lastUpdateTime;
+        const diff = oneHourAgo < lastUpdateTime;
         if (diff) return { 'message': 'You cannot delete an order item that is in process!' };
       }
-      const index = order.orderItems.indexOf(orderItemId);
-      if (index === -1) return { 'message': 'Order item does not exist!' };
+      const index = order.orderItems.map(item => item.toString()).indexOf(orderItemId);
+      if (index == -1) return { 'message': 'Order item does not exist!' };
       order.orderItems.splice(index, 1);
-
       // Delete the order item
       await OrderItem.findByIdAndDelete(orderItemId);
-
       // This save must be called to update the total Amount in the order
       await order.save();
 
@@ -139,12 +135,12 @@ export const ordersMutationResolver = {
       const order = await Order.findById(orderId);
       if (!order) return { 'message': 'Order does not exist!' };
       if (!(order.buyerId == user.id || order.sellerId == user.id)) return { 'message': 'You are not authorized to delete this order!' };
-      if (order.payment && order.payment.paymentStatus === 'paid') return { 'message': 'You cannot delete a paid order!' };
-      if (order.payment && order.payment.paymentStatus === 'inprocess') {
-        const lastUpdateTime = new Date(order.payment.lastUpdateTime);
+      if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid order!' };
+      if (order.payment && (order.payment[0].sellerPaymentStatus === 'inprocess' || order.payment[0].dispatcherPaymentStatus === 'inprocess')) {
+        const lastUpdateTime = new Date(order.payment[0].lastUpdateTime);
         const currentTime = new Date();
         const oneHourAgo = new Date(currentTime.getTime() - 3600000);
-        const diff = oneHourAgo > lastUpdateTime;
+        const diff = oneHourAgo < lastUpdateTime;
         if (diff) return { 'message': 'You cannot delete a order that is in process!' };
       }
       deleteOrderItems(order.orderItems);
@@ -154,6 +150,7 @@ export const ordersMutationResolver = {
         payment.lastUpdateTime = new Date().toString();
         await payment.save();
       }
+
       await Order.findByIdAndDelete(orderId);
       return { 'message': 'Order was deleted successfully!' };
     } catch (error) {
@@ -169,7 +166,7 @@ export const ordersMutationResolver = {
     if (order.buyerId != user.id) return { 'message': 'You are not authorized to update this order!' };
     order.deliveryAddress = deliveryAddress;
     await order.save();
-    return { 'message': 'Order was updated successfully!', 'id': orderId };
+    return { 'message': 'Order address was updated successfully!', 'id': orderId };
   },
 
   deleteOrderItemsNow: async (_parent, { ids }) => {
@@ -205,15 +202,16 @@ export const ordersMutationResolver = {
       for (const data of orderItems) {
         // verify if the productId exist
         const product = await Product.findById(data.productId);
+        if (!product) {
+          deleteOrderItems(createdItems);
+          return { 'message': 'Product does not exist!' };
+        }
         // get currency
         currency = product.currency;
         // calculate total amount
         if (!data.quantity) data.quantity = 1;
         totalAmount += product.price * data.quantity;
-        if (!product) {
-          deleteOrderItems(createdItems);
-          return { 'message': 'Product does not exist!' };
-        }
+        
         const item = new OrderItem(data);
         await item.save();
         createdItems.push(item._id);
