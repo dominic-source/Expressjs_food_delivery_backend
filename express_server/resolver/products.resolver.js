@@ -37,7 +37,6 @@ export const productQueryResolver = {
   getAllProductsOfUsersByCategory: async (_parent, { categoryId }, { user }) => {
     try {
       const userMe = await User.findById(user.id).populate('products');
-      console.log(userMe.products);
       return userMe.products.filter(product => product.categoryId.toString() === categoryId);
     } catch (error) {
       myLogger.error('Error creating user: ' + error.message);
