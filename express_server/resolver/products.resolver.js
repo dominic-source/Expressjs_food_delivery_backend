@@ -79,7 +79,6 @@ export const productMutationResolver = {
         return {'message': 'Successfully deleted!'};
       } else return {'message': 'An error occured!'};
     } catch (error) {
-      console.log(error);
       myLogger.error('Error deleting product: ' + error.message);
       return {'message': 'An error occured!'};
     }
