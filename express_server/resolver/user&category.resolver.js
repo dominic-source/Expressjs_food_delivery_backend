@@ -8,15 +8,20 @@ import { myLogger } from '../utils/mylogger';
 
 export const userQueryResolvers = {
   users: async (_parent) => {
-    return await User.find();
+    try {
+      return await User.find();
+    } catch (error) {
+      myLogger.error('Error fetching users: ' + error.message);
+      return [];
+    }
   },
-  
+
   user: async (_parent, args, { user }) => {
     try {
       return await User.findById(user.id);
     } catch (error) {
       myLogger.error('Error fetching user: ' + error.message);
-      return [];
+      return null;
     }
   },
 
@@ -25,7 +30,7 @@ export const userQueryResolvers = {
       return await Category.findById(id)
     } catch (error) {
       myLogger.error('Error fetching category: ' + error.message);
-      return [];
+      return null;
     }
   },
 
