@@ -67,20 +67,36 @@ export const productMutationResolver = {
     }
   },
 
-  deleteProduct: async (_parent, { id }) => {
+  deleteProduct: async (_parent, { id }, { user }) => {
     try {
+      const userData = await User.findById(user.id).populate('products');
+      const index = userData.products.map(item => item.toString()).indexOf(id);
+      if (index == -1) return { 'message': 'This Product does not exist for this user!' };
+      userData.products.splice(index, 1);
       const product = await Product.findByIdAndDelete(id);
-      if (product) return {'message': 'Successfully deleted!'};
-      else return {'message': 'An error occured!'};
+      if (product) {
+        await userData.save();
+        return {'message': 'Successfully deleted!'};
+      } else return {'message': 'An error occured!'};
     } catch (error) {
-      myLogger.error('Error creating user: ' + error.message);
+      console.log(error);
+      myLogger.error('Error deleting product: ' + error.message);
       return {'message': 'An error occured!'};
     }
   },
 
-  updateProduct: async (_parent, {id, product, categoryId}) => {
+  updateProduct: async (_parent, { id, product, categoryId }, { user }) => {
     try {
-      product.updatedAt = new Date().toString();
+      // Sanitize users input
+      const keys = Object.keys(product);
+      const newProduct = keys.filter(key => key !== 'id' || key !== 'createdAt' || key !== 'updatedAt').reduce((obj, key) => {
+        obj[key] = product[key];
+        return obj;
+      }, {});
+      const userData = await User.findById(user.id).populate('products');
+      const index = userData.products.map(item => item.toString()).indexOf(id);
+      if (index == -1) return { 'message': 'This Product does not exist for this user!' };
+      newProduct.updatedAt = new Date().toString();
       const category = await Category.findById(categoryId);
       if (!category) return {'message': 'This category does not exist!'};
       // Find the product and update it
