@@ -47,22 +47,74 @@ export const userQueryResolvers = {
 export const userMutationResolvers = {
   createCategory: async (_parent, { name }) => {
     try {
+      const listCategories = ['Consumable Products', 'Non-Consumable Products'];
+
+      // Define the category format regex
+      const categoryFormat = /^([\w\s]+)\|[\w\s]+\|[\w\s]+$/;
+
+      // Validate category format
+      if (!categoryFormat.test(name)) {
+        throw new Error('Invalid category format');
+      }
+
+      // Validate input
+      const mainName = categoryFormat.exec(name)[1];
+      if (!listCategories.includes(mainName)) {
+        throw new Error('Invalid category name');
+      }
+  
+      // Check if category already exists
+      const existingCategory = await Category.findOne({ name });
+      if (existingCategory) {
+        throw new Error('Category already exists');
+      }
+  
+      // Create and save new category
       const category = new Category({ name });
       return await category.save();
     } catch (error) {
       myLogger.error('Error creating category: ' + error.message);
-      return null;
+      throw error;
     }
   },
 
   createCategories: async (_parent, { name }) => {
+    if (!Array.isArray(name)) {
+      throw new Error('Name must be an array');
+    }
+    if (name.length === 0) {
+      throw new Error('Name cannot be empty');
+    }
     for (const singleName of name) {
       try {
+        const listCategories = ['Consumable Products', 'Non-Consumable Products'];
+  
+        // Define the category format regex
+        const categoryFormat = /^([\w\s]+)\|[\w\s]+\|[\w\s]+$/;
+  
+        // Validate category format
+        if (!categoryFormat.test(singleName)) {
+          throw new Error('Invalid category format');
+        }
+  
+        // Validate input
+        const mainName = categoryFormat.exec(singleName)[1];
+        if (!listCategories.includes(mainName)) {
+          throw new Error('Invalid category name');
+        }
+    
+        // Check if category already exists
+        const existingCategory = await Category.findOne({ name: singleName });
+        if (existingCategory) {
+          throw new Error('Category already exists');
+        }
+    
+        // Create and save new category
         const category = new Category({ name: singleName });
         await category.save();
       } catch (error) {
         myLogger.error('Error creating category: ' + error.message);
-        return {'message': 'An error occured'};
+        throw error;
       }
     }
     return {'message': 'Many categories have been created successfully!'};
