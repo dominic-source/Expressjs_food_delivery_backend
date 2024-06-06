@@ -122,9 +122,11 @@ export const userMutationResolvers = {
 
   deleteCategory: async (_parent, { id }) => {
     try {
-      await Category.findByIdAndDelete(id);
-      // const del = await Category.deleteMany({});
-      return {'message': 'Category was deleted successfully!'};
+      const category = await Category.findByIdAndDelete(id);
+      if (!category) {
+        throw new Error('Category not found');
+      }
+      return {'message': 'Category has been deleted successfully!'};
     } catch(error) {
       myLogger.error('Error deleting category: ' + error.message);
       return {'message': 'An error occurred!'};
