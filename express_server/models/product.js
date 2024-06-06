@@ -3,8 +3,8 @@ import { currency } from '../../configPayment.json'
 const { Schema } = mongoose;
 
 const productschema = new Schema({
-  name: String,
-  description: String,
+  name: { type: String, maxlength: 20 },
+  description: { type: String, maxlength: 50 },
   price: Number,
   createdAt: { type: Date, default: new Date().toString() },
   updatedAt: { type: Date, default: new Date().toString() },
