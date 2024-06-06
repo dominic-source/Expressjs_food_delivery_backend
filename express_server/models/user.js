@@ -5,12 +5,12 @@ import { locationSchema } from "./location";
 const { Schema } = mongoose;
 
 const userschema = new Schema({
-  firstName: String,
-  lastName: String,
-  username: { type: String, required: true, unique: true, collation: { locale: 'en', strength: 2 }},
+  firstName: { type: String, maxlength: 20 },
+  lastName: { type: String, maxlength: 20 },
+  username: { type: String, required: true, unique: true, collation: { locale: 'en', strength: 2 }, maxlength: 20},
   passwordHash: String,
-  email: { type: String, required: true, unique: true, collation: { locale: 'en', strength: 2 }},
-  phoneNumber: { type: String, required: true, unique: true, collation: { locale: 'en', strength: 2 }},
+  email: { type: String, required: true, unique: true, collation: { locale: 'en', strength: 2 }, maxlength: 20},
+  phoneNumber: { type: String, required: true, unique: true, collation: { locale: 'en', strength: 2 }, maxlength: 20},
   resetPasswordToken: String,
   createdAt: { type: Date, default: new Date().toString() },
   updatedAt: { type: Date, default: new Date().toString() },
@@ -18,6 +18,7 @@ const userschema = new Schema({
   vehicleNumber: String,
   isLoggedIn: {type: Boolean, default: false},
   isDeleted: {type: Boolean, default: false},
+  role: { type: String, default: 'user' },
   userType: { enum: ['seller', 'buyer', 'dispatcher'], type: String },
   sellerStatus: { type: String, enum: ['available', 'busy', 'deleted']},
   dispatcherStatus: { type: String, enum: ['available', 'busy', 'deleted']},
