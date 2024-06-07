@@ -26,12 +26,12 @@ class UserControllers {
       await User.findByIdAndUpdate(user.id, {isLoggedIn: true});
       // Generate JWT with user ID and expiration time 
       const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
-          expiresIn: "24h", // 1 hour in seconds
+          expiresIn: "24h",
       });
 
       return res.json({ token });
     } catch (error) {
-      myLogger.error('Error creating user: ' + error.message);
+      myLogger.error('Error logging in user: ' + error.message);
       return res.status(400).json({ message: 'An error occurred!' });
     }
   }
