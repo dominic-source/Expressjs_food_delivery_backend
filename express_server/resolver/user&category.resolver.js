@@ -197,7 +197,42 @@ export const userMutationResolvers = {
 
   updateUser: async (_parent, args, { user }) => {
     try {
-      const updated = await User.findByIdAndUpdate(user.id, args);
+      const {
+        firstName,
+        lastName,
+        username,
+        email,
+        phoneNumber,
+        lgaId,
+        vehicleNumber,
+        userType,
+        buyerStatus,
+        sellerStatus,
+        dispatcherStatus,
+      } = args;
+      const newArgs = {
+        firstName,
+        lastName,
+        username,
+        email,
+        phoneNumber,
+        lgaId,
+        vehicleNumber,
+        userType,
+        buyerStatus,
+        sellerStatus,
+        dispatcherStatus,
+      };
+      // use map, filter, reduce, etc.
+      const keys = Object.keys(newArgs);
+      const filteredArgs = keys.reduce((acc, key) => {
+        if (newArgs[key] !== undefined) {
+          acc[key] = newArgs[key];
+        }
+        return acc;
+      }, {});
+
+      const updated = await User.findByIdAndUpdate(user.id, filteredArgs);
       if (updated) return {'message': 'Updated successfully'};
       else return {'message': 'An error occurred!'};
     } catch(error) {
