@@ -2,7 +2,6 @@ import chai from 'chai';
 import sinon from 'sinon';
 import { User } from '../../models/user';
 import { userMutationResolvers } from '../../resolver/user&category.resolver';
-import { Types } from 'mongoose';
 
 const expect = chai.expect;
 const { stub, restore } = sinon;
