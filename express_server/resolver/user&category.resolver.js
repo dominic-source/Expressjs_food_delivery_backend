@@ -178,7 +178,6 @@ export const userMutationResolvers = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
-
     if (!loginResponse.ok) {
       return {'message': 'Login failed'};
     }
