@@ -65,7 +65,7 @@ server.start()
           myLogger.info(`${new Date().toISOString()} METHOD=${req.method} URL=${req.originalUrl}/${req.body.operationName} IP=${req.ip}`);
         }
         // This are the endpoints that does not require authentication
-        const publicResolvers = ['createUser', 'Login', 'ForgotPassword', 'UpdatePassword', '']; 
+        const publicResolvers = ['CreateUser', 'Login', 'ForgotPassword', 'UpdatePassword', 'login', '']; 
 
         // Available to only admins
         const adminOnlyResolverEndpoint = [ 
