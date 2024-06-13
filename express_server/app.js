@@ -61,66 +61,20 @@ server.start()
     // apply middleware for graphql endpoint
     app.use('/graphql', expressMiddleware(server, {
       context: async ({ req, res }) => {
-        if (req.body.operationName !== 'IntrospectionQuery') {
-          myLogger.info(`${new Date().toISOString()} METHOD=${req.method} URL=${req.originalUrl}/${req.body.operationName} IP=${req.ip}`);
-        }
-        // This are the endpoints that does not require authentication
-        const publicResolvers = ['CreateUser', 'Login', 'ForgotPassword', 'UpdatePassword', 'login', '']; 
+    // //  is are the endpoints that does not require authentication
+    //     const publicResolvers = ['CreateUser', 'Login', 'ForgotPassword', 'UpdatePassword', 'login', '']; 
 
-        // Available to only admins
-        const adminOnlyResolverEndpoint = [ 
-          'Users',
-          'GetAllOrders',
-          'CreateCategory',
-          'CreateCategories',
-          'DeleteCategory',
-          'DeleteOrderItemsNow'
-        ];
-
-        // Determine the resolver being called
-        const resolverName = req.body.operationName;
-        // If it's a public resolver, return an empty context
-        if (publicResolvers.includes(resolverName)) {
-          return { req, res};
-        }
-
-        // Check the authorization header of the user and return error if None or error
-        const reqHeader = req.headers.authorization;
-        if (!reqHeader || !reqHeader.startsWith('Bearer ')) throw new GraphQLError('User is not authenticated', {
-          extensions: {
-            code: 'UNAUTHENTICATED',
-            http: { status: 401 },
-          },
-        });
-
-        // Verify the token if it is authentic, return error if not authentic
-        const token = reqHeader.split(' ')[1] || '';
-        const decoded = await jwt.verify(token, process.env.SECRET_KEY);
-        if (!decoded) throw new GraphQLError('User is not authenticated', {
-          extensions: {
-            code: 'UNAUTHENTICATED',
-            http: { status: 401 },
-          },
-        });
-
-        // if decoded find the user and check if the user is logged In and not deleted
-        const user = await User.findById(decoded.userId);
-        if (!user || !user.isLoggedIn || user.isDeleted) throw new GraphQLError('User is not authenticated', {
-          extensions: {
-            code: 'UNAUTHENTICATED',
-            http: { status: 401 },
-          },
-        });
-        // Allow only admin to access the endpoint include in the admin only resolvers
-        if (adminOnlyResolverEndpoint.includes(resolverName) && (user.username !== 'admin' || user.email !== 'admin@deliver.com')) throw new GraphQLError('User is not an admin', {
-          extensions: {
-            code: 'UNAUTHENTICATED',
-            http: { status: 401 },
-          },
-        });
-        return { req, res, user}
+    //     // Available to only admins
+    //     const adminOnlyResolverEndpoint = [ 
+    //       'Users',
+    //       'GetAllOrders',
+    //       'CreateCategory',
+    //       'CreateCategories',
+    //       'DeleteCategory',
+    //       'DeleteOrderItemsNow'
+    //     ];
+        return { req, res }
       }
-      ,
     }));
     console.log('Graphql server has started!')
   })
