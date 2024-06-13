@@ -38,9 +38,13 @@ type Location {
 }
 
 type Message {
-  message: String!,
+  message: String
   token: String
   id: ID
+  userData: User
+  usersData: [Users]
+  statusCode: Int!
+  ok: Boolean!
 }
 
 type Mutation {
@@ -73,7 +77,7 @@ type Mutation {
     passwordHash: String!
     phoneNumber: String!
     userType: String
-    buyerStatus: String!
+    buyerStatus: String
     sellerStatus: String
     dispatcherStatus: String
     lgaId: String
@@ -182,8 +186,8 @@ type Query {
   getTheOrderAsDispatcher: [Order]!
   getTheOrderAsSeller: [Order]!
   getUserProducts: [Product]!
-  user: User
-  users: [Users]!
+  user: Message
+  users: Message
 }
 
 type User {
