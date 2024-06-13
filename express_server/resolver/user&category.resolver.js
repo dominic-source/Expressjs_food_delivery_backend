@@ -1,27 +1,45 @@
-import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { User } from '../models/user';
 import Category from '../models/category';
 import Bull from 'bull';
 import { myLogger } from '../utils/mylogger';
+import { authRequest, loginMe } from '../utils/managedata/sendrequest';
+
 
 export const userQueryResolvers = {
-  users: async (_parent) => {
+  users: async (_parent, _, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { isAdmin } = await response.json();
+    if (!isAdmin) return { message: 'You need to be and admin to access this route!', statusCode: 403, ok: false };
     try {
-      return await User.find();
+      const usersData = await User.find();
+      return { usersData, statusCode: 200, ok: true };
     } catch (error) {
       myLogger.error('Error fetching users: ' + error.message);
-      return [];
+      return { message: 'An error occurred!', statusCode: 500, ok: false};
     }
   },
 
-  user: async (_parent, args, { user }) => {
+  user: async (_parent, _, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
     try {
-      return await User.findById(user.id);
+      const userData = await User.findById(user._id);
+      return { userData, statusCode: response.status, ok: true };
     } catch (error) {
       myLogger.error('Error fetching user: ' + error.message);
-      return null;
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
@@ -173,13 +191,10 @@ export const userMutationResolvers = {
   login: async (_parent, args) => {
     const { email, password } = args;
     // Login logic using the RESTful API (already implemented)
-    const loginResponse = await fetch('http://localhost:5000/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    const loginResponse = await loginMe(email, password);
     if (!loginResponse.ok) {
-      return {'message': 'Login failed'};
+      const message = await loginResponse.json();
+      return { statusCode: loginResponse.status, message: message.message, ok: loginResponse.ok };
     }
 
     const loginData = await loginResponse.json();
@@ -188,9 +203,17 @@ export const userMutationResolvers = {
     return {'message': 'User logged in successfully', 'token': token};
   },
 
-  logout: async (_parent, arg, { user }) => {
+  logout: async (_parent, _, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
+  
     // Update the user information to be logged out
-    const updated = await User.findByIdAndUpdate(user.id, { isLoggedIn: false });
+    const updated = await User.findByIdAndUpdate(user._id, { isLoggedIn: false });
     if (updated) return {'message': 'Logged out successfully'};
     else return {'message': 'An error occured'};
   },
