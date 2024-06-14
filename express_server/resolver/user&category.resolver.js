@@ -16,7 +16,7 @@ export const userQueryResolvers = {
       return { statusCode: response.status, message: message.message, ok: response.ok };
     }
     const { isAdmin } = await response.json();
-    if (!isAdmin) return { message: 'You need to be and admin to access this route!', statusCode: 403, ok: false };
+    if (!isAdmin) return { message: 'You need to be an admin to access this route!', statusCode: 403, ok: false };
     try {
       const usersData = await User.find();
       return { usersData, statusCode: 200, ok: true };
@@ -43,27 +43,50 @@ export const userQueryResolvers = {
     }
   },
 
-  category: async (_parent, { id }) => {
+  category: async (_parent, { id }, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
     try {
-      return await Category.findById(id)
+      const categoryData = await Category.findById(id);
+      return { categoryData, statusCode: response.status, ok: true };
     } catch (error) {
       myLogger.error('Error fetching category: ' + error.message);
-      return null;
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
-  categories: async (_parent) => {
+  categories: async (_parent, _, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
     try {
-      return await Category.find()
+      const categoriesData = await Category.find();
+      return { categoriesData, statusCode: response.status, ok: true };
     } catch (error) {
       myLogger.error('Error fetching category: ' + error.message);
-      return [];
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 }
 
 export const userMutationResolvers = {
-  createCategory: async (_parent, { name }) => {
+  createCategory: async (_parent, { name }, { req }) => {
+    // authenticate user who must be an admin
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { isAdmin } = await response.json();
+    if (!isAdmin) return { message: 'You need to be an admin to access this route!', statusCode: 403, ok: false };
+
     try {
       const listCategories = ['Consumable Products', 'Non-Consumable Products'];
 
@@ -72,36 +95,47 @@ export const userMutationResolvers = {
 
       // Validate category format
       if (!categoryFormat.test(name)) {
-        throw new Error('Invalid category format');
+        return { message: 'Invalid category format', statusCode: 400, ok: false};
       }
 
       // Validate input
       const mainName = categoryFormat.exec(name)[1];
       if (!listCategories.includes(mainName)) {
-        throw new Error('Invalid category name');
+        return { message: 'Invalid category name', statusCode: 400, ok: false};
       }
   
       // Check if category already exists
       const existingCategory = await Category.findOne({ name });
       if (existingCategory) {
-        throw new Error('Category already exists');
+        return { message: 'Category already exists', statusCode: 400, ok: false};
       }
   
       // Create and save new category
       const category = new Category({ name });
-      return await category.save();
+      const categoryData = await category.save();
+      return { categoryData, statusCode: 201, ok: true };
+
     } catch (error) {
       myLogger.error('Error creating category: ' + error.message);
-      throw error;
+      return { message: 'An error occurred!', statusCode: 500, ok: false};
     }
   },
 
-  createCategories: async (_parent, { name }) => {
+  createCategories: async (_parent, { name }, { req }) => {
+    // authenticate user who must be an admin
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { isAdmin } = await response.json();
+    if (!isAdmin) return { message: 'You need to be an admin to access this route!', statusCode: 403, ok: false };
+
     if (!Array.isArray(name)) {
-      throw new Error('Name must be an array');
+      return { message: 'Name must be an array', statusCode: 400, ok: false};
     }
     if (name.length === 0) {
-      throw new Error('Name cannot be empty');
+      return { message: 'Name cannot be empty', statusCode: 400, ok: false};
     }
     for (const singleName of name) {
       try {
@@ -112,19 +146,19 @@ export const userMutationResolvers = {
   
         // Validate category format
         if (!categoryFormat.test(singleName)) {
-          throw new Error('Invalid category format');
+          return { message: 'Invalid category format', statusCode: 400, ok: false};
         }
   
         // Validate input
         const mainName = categoryFormat.exec(singleName)[1];
         if (!listCategories.includes(mainName)) {
-          throw new Error('Invalid category name');
+          return { message: 'Invalid category name', statusCode: 400, ok: false};
         }
     
         // Check if category already exists
         const existingCategory = await Category.findOne({ name: singleName });
         if (existingCategory) {
-          throw new Error('Category already exists');
+          return { message: 'Category already exists', statusCode: 400, ok: false};
         }
     
         // Create and save new category
@@ -132,22 +166,32 @@ export const userMutationResolvers = {
         await category.save();
       } catch (error) {
         myLogger.error('Error creating category: ' + error.message);
-        throw error;
+        return { message: 'An error occurred!', statusCode: 500, ok: false};
       }
     }
-    return {'message': 'Many categories have been created successfully!'};
+    return {'message': 'Many categories have been created successfully!', ok: true, statusCode: 201};
   },
 
-  deleteCategory: async (_parent, { id }) => {
+  deleteCategory: async (_parent, { id }, { req }) => {
+    // authenticate user who must be an admin
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { isAdmin } = await response.json();
+    if (!isAdmin) return { message: 'You need to be an admin to access this route!', statusCode: 403, ok: false };
+
     try {
       const category = await Category.findByIdAndDelete(id);
       if (!category) {
-        throw new Error('Category not found');
+        return { message: 'Category not found', statusCode: 404, ok: false};
+
       }
-      return {'message': 'Category has been deleted successfully!'};
+      return { message: 'Category has been deleted successfully!', statusCode: 201, ok: true };
     } catch(error) {
       myLogger.error('Error deleting category: ' + error.message);
-      return {'message': 'An error occurred!'};
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
@@ -180,11 +224,11 @@ export const userMutationResolvers = {
         lgaId, 
         vehicleNumber,
         });
-      const savedUser = await newUser.save(); 
-      return savedUser;
+      const userData = await newUser.save(); 
+      return { userData, statusCode: 201, ok: true };
     } catch (error) {
       myLogger.error('Error creating user: ' + error.message)
-      return null;
+      return { message: 'An error occurred while creating user', statusCode: 500, ok: false };
     }
   },
   
@@ -200,7 +244,7 @@ export const userMutationResolvers = {
     const loginData = await loginResponse.json();
     const token = loginData.token;
 
-    return {'message': 'User logged in successfully', 'token': token};
+    return { message : 'User logged in successfully', token, statusCode: 200, ok: true };
   },
 
   logout: async (_parent, _, { req }) => {
@@ -218,7 +262,14 @@ export const userMutationResolvers = {
     else return {'message': 'An error occured'};
   },
 
-  updateUser: async (_parent, args, { user }) => {
+  updateUser: async (_parent, args, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
     try {
       const {
         firstName,
@@ -255,12 +306,12 @@ export const userMutationResolvers = {
         return acc;
       }, {});
 
-      const updated = await User.findByIdAndUpdate(user.id, filteredArgs);
-      if (updated) return {'message': 'Updated successfully'};
-      else return {'message': 'An error occurred!'};
+      const updated = await User.findByIdAndUpdate(user._id, filteredArgs);
+      if (updated) return { message: 'Updated successfully', statusCode: 200, ok: true };
+      else return { message: 'An error occurred!', statusCode: 500, ok: false };
     } catch(error) {
-      myLogger.error('Error creating user: ' + error.message)
-      return {'message': 'An error occurred!'};
+      myLogger.error('Error updating user: ' + error.message)
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
@@ -284,10 +335,10 @@ export const userMutationResolvers = {
       const queue = new Bull('user_data_queue');
       // Add data to the queue
       await queue.add(user_data);
-      return {'message': 'Get the reset token from your email'};
+      return {'message': 'Get the reset token from your email', statusCode: 200, ok: true };
     } catch(error) {
       myLogger.error('Error changing password: ' + error.message);
-      return {'message': 'An error occurred!'};
+      return {'message': 'An error occurred!', statusCode: 500, ok: true };
     }
   },
 
@@ -298,25 +349,33 @@ export const userMutationResolvers = {
       const resetPasswordToken = user[0].resetPasswordToken.split(' ')[0];
       const expiryDate = new Date(user[0].resetPasswordToken.split(' ')[1]);
       const presentDate = new Date();
-      if (expiryDate <= presentDate) return {'message': 'An error occurred!'};
-      if (token != resetPasswordToken) return {'message': 'An error occurred!'};
+      if (expiryDate <= presentDate) return {'message': 'An error occurred!', statusCode: 401, ok: false };
+      if (token != resetPasswordToken) return {'message': 'An error occurred!', statusCode: 401, ok: false };
       const salt = await bcrypt.genSalt();
       const passwordHash = await bcrypt.hash(password, salt);
       await User.findByIdAndUpdate(user[0].id, { passwordHash });
-      return {'message': 'Password updated successfully'};
+      return {'message': 'Password updated successfully', statusCode: 200, ok: true };
     } catch(error) {
-      myLogger.error('Error creating user: ' + error.message);
-      return {'message': 'An error occurred!'}; 
+      myLogger.error('Error updating password: ' + error.message);
+      return {'message': 'An error occurred!', statusCode: 500, ok: false }; 
     }
   },
 
-  deleteUser: async (_parent, _, { user }) => {
+  deleteUser: async (_parent, _, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
     try {
-      await User.findByIdAndUpdate(user.id, { isDeleted: true });
+      const delUser = await User.findByIdAndUpdate(user._id, { isDeleted: true });
+      if(!delUser) return { message: 'Could not delete user!', statusCode: 500, ok: false }
     } catch(error) {
-      myLogger.error('Error creating user: ' + error.message);
+      myLogger.error('Error deleting user: ' + error.message);
       return {'message': 'An error occurred!'};
     }
-    return {'message': 'User deleted successfully!'};
+    return { message: 'User deleted successfully!', statusCode: 200, ok: true };
   },
 }
