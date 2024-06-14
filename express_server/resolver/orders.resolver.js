@@ -4,68 +4,122 @@ import { OrderItem } from '../models/orderItem';
 import { User } from '../models/user';
 import { Product } from '../models/product'
 import { deleteOrderItems } from '../utils/managedata/deletemodels';
+import { authRequest } from '../utils/managedata/sendrequest';
 
 export const ordersQueryResolver = {
-  getAllOrders: async (_parent) => {
+  getAllOrders: async (_parent, _, { req }) => {
+    // authenticate user as admin
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { isAdmin } = await response.json();
+    if (!isAdmin) return { message: 'You need to be an admin to access this route!', statusCode: 403, ok: false };
     try {
-      return await Order.find();
+      const ordersData = await Order.find();
+      return { ordersData, statusCode: 200, ok: true };
     } catch (error) {
-      return [];
+      myLogger.error('Error getting all orders: ' + error.message);
+      return { message: 'An error occurred!', statusCode: 500, ok: false};
     }
   },
 
-  getMyOrders: async (_parent, _, { user }) => {
+  getMyOrders: async (_parent, _, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+
+    const { user } = await response.json();
     // This endpoint will get all the users orders as a buyer
     try {
-      return await Order.find({
-        buyerId: user.id,
+      const ordersData = await Order.find({
+        buyerId: user._id,
       });
+      return { ordersData, statusCode: 200, ok: true };
     } catch (error) {
-      return [];
+      myLogger.error('Error getting my order as buyer : ' + error.message);
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
 
   },
 
-  getMyOrderItems: async (_parent, { orderId }, { user }) => {
+  getMyOrderItems: async (_parent, { orderId }, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+
+    const { user } = await response.json();
+    
     // This endpoint will get all the order items of the users order
     // In this endpoint, we are find a single order with id = orderId where the user is 
     // either a seller, buyer or dispatcher.
     try {
       const order = await Order.find({
         $or: [
-          { buyerId: user.id },
-          { sellerId: user.id },
-          { dispatcherId: user.id },
+          { buyerId: user._id },
+          { sellerId: user._id },
+          { dispatcherId: user._id },
         ],
         _id: orderId,
       });
-      if (!order) return [];
-      return await OrderItem.find({ _id: { $in: order[0].orderItems } });
-
+      if (!order) return { message: 'Order not found!', statusCode: 404, ok: false };
+      const orderItems = await OrderItem.find({ _id: { $in: order[0].orderItems } });
+      return { orderItems, statusCode: 200, ok: true };
     } catch (error) {
-      return [];
+      myLogger.error('Error getting my order items: ' + error.message);
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
-  getTheOrderAsSeller: async (_parent, _, { user }) => {
+  getTheOrderAsSeller: async (_parent, _, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+
+    const { user } = await response.json();
+
     // This endpoint retrieves a sellers order
     try {
-      return await Order.find({
-        sellerId: user.id,
+      const ordersData =  await Order.find({
+        sellerId: user._id,
       });
+      return { ordersData, statusCode: 200, ok: true };
     } catch (error) {
-      return [];
+      myLogger.error('Error getting order as seller: ' + error.message);
+
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
-  getTheOrderAsDispatcher: async (_parent, _, { user }) => {
+  getTheOrderAsDispatcher: async (_parent, _, { req }) => {
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+
+    const { user } = await response.json();
+    
     // This endpoint retrieves a dispatchers order
     try {
-      return await Order.find({
-        dispatcherId: user.id
+      const ordersData = await Order.find({
+        dispatcherId: user._id
       });
+      return { ordersData, statusCode: 200, ok: true };
     } catch (error) {
-      return [];
+      myLogger.error('Error getting order as dispatcher: ' + error.message);
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
   // getAnOrderItem: async (_parent, { orderItemId }) => {
@@ -76,15 +130,23 @@ export const ordersQueryResolver = {
 }
 
 export const ordersMutationResolver = {
-  updateOrderItems: async (_parent, { orderId, orderItems }, { user }) => {
+  updateOrderItems: async (_parent, { orderId, orderItems }, { req }) => {
+     // authenticate user
+     const response = await authRequest(req.headers.authorization);
+     if (!response.ok) {
+       const message = await response.json();
+       return { statusCode: response.status, message: message.message, ok: response.ok };
+     }
+     const { user } = await response.json();
+ 
     try {
       const order = await Order.findById(orderId).populate('payment');
-      if (!order) return { 'message': 'Order does not exist!' };
-      if (!(order.buyerId == user.id)) return { 'message': 'You are not authorized to update this order item!' };
-      if (order.payment && order.payment[0].sellerPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!' };
-      if (order.payment && order.payment[0].dispatcherPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!' };
-      if(!orderItems) return { 'message': 'Order items must be provided!' };
-      if (!Array.isArray(orderItems)) return { 'message': 'Order items must be an array!' };
+      if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false };
+      if (!(order.buyerId == user._id)) return { 'message': 'You are not authorized to update this order item!', statusCode: 401, ok: false };
+      if (order.payment && order.payment[0].sellerPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!', statusCode: 401, ok: false };
+      if (order.payment && order.payment[0].dispatcherPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!', statusCode: 401, ok: false };
+      if(!orderItems) return { 'message': 'Order items must be provided!', statusCode: 400, ok: false };
+      if (!Array.isArray(orderItems)) return { 'message': 'Order items must be an array!', statusCode: 400, ok: false };
       for (const item of orderItems) {
         const orderItem = await OrderItem.findById(item.id);
         if (orderItem && order.orderItems.includes(item.id)) {
@@ -94,54 +156,72 @@ export const ordersMutationResolver = {
       }
       // This save must be called to update the total Amount in the order
       await order.save();
-      return { 'message': 'Order items were updated successfully!', 'id': orderId };
+      return { 'message': 'Order items were updated successfully!', 'id': orderId, statusCode: 201, ok: true };
     } catch (error) {
-      myLogger.error('Errorred in updating orders: ' + error.message);
-      return { 'message': 'An error occurred!' };
+      myLogger.error('Error in updating orders: ' + error.message);
+      return { 'message': 'An error occurred!', statusCode: 500, ok: false };
     }
 
   },
 
-  deleteAnOrderItem: async (_parent, { orderId, orderItemId }, { user }) => {
+  deleteAnOrderItem: async (_parent, { orderId, orderItemId }, { req }) => {
+      // authenticate user
+      const response = await authRequest(req.headers.authorization);
+      if (!response.ok) {
+        const message = await response.json();
+        return { statusCode: response.status, message: message.message, ok: response.ok };
+      }
+      const { user } = await response.json();
+  
     try {
       const order = await Order.findById(orderId).populate('payment');
-      if (!order) return { 'message': 'Order does not exist!' };
-      if (!(order.buyerId == user.id || order.sellerId == user.id)) return { 'message': 'You are not authorized to delete this order item!' };
-      if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid orders item!' };
+      if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false  };
+      if (!(order.buyerId == user._id || order.sellerId == user._id)) return { 'message': 'You are not authorized to delete this order item!', statusCode: 401, ok: false };
+      if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid orders item!', statusCode: 401, ok: false  };
       if (order.payment && (order.payment[0].sellerPaymentStatus === 'inprocess' || order.payment[0].dispatcherPaymentStatus === 'inprocess')) {
         const lastUpdateTime = new Date(order.payment[0].lastUpdateTime);
         const currentTime = new Date();
         const oneHourAgo = new Date(currentTime.getTime() - 3600000);
         const diff = oneHourAgo < lastUpdateTime;
-        if (diff) return { 'message': 'You cannot delete an order item that is in process!' };
+        if (diff) return { 'message': 'You cannot delete an order item that is in process!', statusCode: 401, ok: false  };
       }
       const index = order.orderItems.map(item => item.toString()).indexOf(orderItemId);
-      if (index == -1) return { 'message': 'Order item does not exist!' };
+      if (index == -1) return { 'message': 'Order item does not exist!', statusCode: 404, ok: false  };
       order.orderItems.splice(index, 1);
       // Delete the order item
       await OrderItem.findByIdAndDelete(orderItemId);
       // This save must be called to update the total Amount in the order
       await order.save();
 
-      return { 'message': 'Order item was deleted successfully!' };
+      return { 'message': 'Order item was deleted successfully!', statusCode: 200, ok: true  };
     } catch (error) {
-      return { 'message': 'An error occurred!' };
+      myLogger.error('Error deleting order items: ' + error.message);
+      return { 'message': 'An error occurred!', statusCode: 500, ok: false  };
     }
   },
 
-  deleteOrder: async (_parent, { orderId }, { user }) => {
+  deleteOrder: async (_parent, { orderId }, { req }) => {
     // This endpoint will delete a order
+
+     // authenticate user
+     const response = await authRequest(req.headers.authorization);
+     if (!response.ok) {
+       const message = await response.json();
+       return { statusCode: response.status, message: message.message, ok: response.ok };
+     }
+     const { user } = await response.json();
+
     try {
       const order = await Order.findById(orderId);
-      if (!order) return { 'message': 'Order does not exist!' };
-      if (!(order.buyerId == user.id || order.sellerId == user.id)) return { 'message': 'You are not authorized to delete this order!' };
-      if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid order!' };
+      if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false   };
+      if (!(order.buyerId == user._id || order.sellerId == user._id)) return { 'message': 'You are not authorized to delete this order!', statusCode: 401, ok: false };
+      if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid order!', statusCode: 401, ok: false };
       if (order.payment && (order.payment[0].sellerPaymentStatus === 'inprocess' || order.payment[0].dispatcherPaymentStatus === 'inprocess')) {
         const lastUpdateTime = new Date(order.payment[0].lastUpdateTime);
         const currentTime = new Date();
         const oneHourAgo = new Date(currentTime.getTime() - 3600000);
         const diff = oneHourAgo < lastUpdateTime;
-        if (diff) return { 'message': 'You cannot delete a order that is in process!' };
+        if (diff) return { 'message': 'You cannot delete a order that is in process!', statusCode: 401, ok: false };
       }
       deleteOrderItems(order.orderItems);
       order.populate('payment');
@@ -152,49 +232,75 @@ export const ordersMutationResolver = {
       }
 
       await Order.findByIdAndDelete(orderId);
-      return { 'message': 'Order was deleted successfully!' };
+      return { 'message': 'Order was deleted successfully!', statusCode: 200, ok: true };
     } catch (error) {
-      return { 'message': 'An error occurred!' };
+      myLogger.error('Error deleting order: ' + error.message);
+      return { 'message': 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
-  updateOrderAddress: async (_parent, { orderId, deliveryAddress }, { user }) => {
+  updateOrderAddress: async (_parent, { orderId, deliveryAddress }, { req }) => {
     // This endpoint will update a order
     // Only the buyer should be able to update the delivery address
+
+     // authenticate user
+     const response = await authRequest(req.headers.authorization);
+     if (!response.ok) {
+       const message = await response.json();
+       return { statusCode: response.status, message: message.message, ok: response.ok };
+     }
+     const { user } = await response.json();
+
     const order = await Order.findById(orderId);
-    if (!order) return { 'message': 'Order does not exist!' };
-    if (order.buyerId != user.id) return { 'message': 'You are not authorized to update this order!' };
+    if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false };
+    if (order.buyerId != user._id) return { 'message': 'You are not authorized to update this order!', statusCode: 401, ok: false };
     order.deliveryAddress = deliveryAddress;
     await order.save();
-    return { 'message': 'Order address was updated successfully!', 'id': orderId };
+    return { 'message': 'Order address was updated successfully!', 'id': orderId, statusCode: 200, ok: true };
   },
 
-  deleteOrderItemsNow: async (_parent, { ids }) => {
-    // This is an admin route or endpoint   
+  deleteOrderItemsNow: async (_parent, { ids }, { req }) => {
+    // This is an admin route or endpoint
+
+     // authenticate user
+     const response = await authRequest(req.headers.authorization);
+     if (!response.ok) {
+       const message = await response.json();
+       return { statusCode: response.status, message: message.message, ok: response.ok };
+     }
     deleteOrderItems(ids);
-    return { 'message': 'Order items may have been deleted successfully!' };
+    return { 'message': 'Order items may have been deleted successfully!', statusCode: 200, ok: true };
   },
 
-  createOrder: async (_parent, args, { user }) => {
+  createOrder: async (_parent, args, { req }) => {
+
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
+
     const {
       sellerId,
       dispatcherId,
       deliveryAddress,
       orderItems,
     } = args;
-    const buyerId = user.id;
+    const buyerId = user._id;
     let createdItems = [];
     try {
 
       // Verify if the seller exist or not
       const seller = await User.findById(sellerId);
-      if (!seller) return { 'message': 'An error occurred!' };
+      if (!seller) return { 'message': 'seller does not exist!', statusCode: 404, ok: false };
 
       // Verify if the dispatcher exist or not and is available
       if (dispatcherId) {
         const dispatcher = await User.findById(dispatcherId);
-        if (!dispatcher) return { 'message': 'An error occurred!' };
-        if (dispatcher.dispatcherStatus !== 'available') return { 'message': 'Dispatcher is not available' };
+        if (!dispatcher) return { 'message': 'dispatcher does not exist!', statusCode: 404, ok: false };
+        if (dispatcher.dispatcherStatus !== 'available') return { 'message': 'Dispatcher is not available', statusCode: 401, ok: false };
       }
       let currency;
       let totalAmount = 0;
@@ -204,7 +310,7 @@ export const ordersMutationResolver = {
         const product = await Product.findById(data.productId);
         if (!product) {
           deleteOrderItems(createdItems);
-          return { 'message': 'Product does not exist!' };
+          return { 'message': 'Product does not exist!', statusCode: 404, ok: false  };
         }
         // get currency
         currency = product.currency;
@@ -228,12 +334,12 @@ export const ordersMutationResolver = {
         orderItems: createdItems,
       });
       await newOrder.save();
-      return { 'message': 'Order was created successfully!', 'id': newOrder._id }
+      return { 'message': 'Order was created successfully!', 'id': newOrder._id, statusCode: 201, ok: true }
     } catch (error) {
       // Delete any created order items
       if (createdItems) deleteOrderItems(createdItems);
       myLogger.error('Error creating orders: ' + error.message);
-      return { 'message': 'An error occurred!' };
+      return { 'message': 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 }
