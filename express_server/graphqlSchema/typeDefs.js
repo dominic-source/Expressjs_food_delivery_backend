@@ -43,12 +43,23 @@ type Message {
   id: ID
   userData: User
   usersData: [Users]
+  orderData: Order
+  ordersData: [Orders]
+  productData: Product
+  productsData: [Product]
+  orderItemsData: [OrderItem]
+  orderItemData: OrderItem
+  paymentsData: [Payment]
+  paymentData: Payment
+  categoryData: Category
+  categoriesData: [Category]
+  locationData: Location
   statusCode: Int!
   ok: Boolean!
 }
 
 type Mutation {
-  createCategory(name: String!): Category
+  createCategory(name: String!): Message!
   createCategories(name: [String!]!): Message!
   createOrder(
     sellerId: ID!
@@ -68,7 +79,7 @@ type Mutation {
     description: String!,
     price: Int!,
     currency: String!,
-    categoryId: String!): Product
+    categoryId: String!): Message!
   createUser(
     firstName: String!
     lastName: String!
@@ -82,7 +93,7 @@ type Mutation {
     dispatcherStatus: String
     lgaId: String
     vehicleNumber: String
-  ): User
+  ): Message!
   deleteAnOrderItem(orderId: ID!, orderItemId: ID!): Message!
   deleteCategory(id: ID!): Message!
   deleteOrder(orderId: ID!): Message!
@@ -99,7 +110,7 @@ type Mutation {
     paymentId: ID!
     status: String!
   ): Message!
-  updateProduct(id: ID!, product: updateProduct, categoryId: ID!): Product
+  updateProduct(id: ID!, product: updateProduct, categoryId: ID!): Message!
   updateUser(
     firstName: String
     lastName: String
@@ -173,21 +184,21 @@ type Product {
 }
 
 type Query {
-  category(id: ID!): Category
-  categories: [Category]!
-  getAllOrders: [Order]!
-  getAllProducts: [Product]!
-  getAllProductsOfUsersByCategory(categoryId: ID!): [Product]!
-  getAnOrderItem(orderItemId: ID!): OrderItem
-  getMyOrderItems(orderId: ID!): [OrderItem]!
-  getMyOrders: [Order]!
-  getMyPayment(orderId: ID!): [Payments]
-  getProduct(id: ID!): Product
-  getTheOrderAsDispatcher: [Order]!
-  getTheOrderAsSeller: [Order]!
-  getUserProducts: [Product]!
-  user: Message
-  users: Message
+  category(id: ID!): Message!
+  categories: Message!
+  getAllOrders: Message!
+  getAllProducts: Message!
+  getAllProductsOfUsersByCategory(categoryId: ID!): Message!
+  getAnOrderItem(orderItemId: ID!): Message!
+  getMyOrderItems(orderId: ID!): Message!
+  getMyOrders: Message!
+  getMyPayment(orderId: ID!): Message!
+  getProduct(id: ID!): Message!
+  getTheOrderAsDispatcher: Message!
+  getTheOrderAsSeller: Message!
+  getUserProducts: Message!
+  user: Message!
+  users: Message!
 }
 
 type User {
