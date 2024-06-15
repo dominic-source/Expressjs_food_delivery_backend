@@ -2,6 +2,7 @@ import { myLogger } from '../utils/mylogger';
 import { Payment } from '../models/payment';
 import Order from '../models/order';
 import { paymentMethods, currency } from '../../configPayment.json'
+import { authRequest } from '../utils/managedata/sendrequest';
 
 const availableCurrency = currency;
 
@@ -85,12 +86,13 @@ export const paymentMutationResolver = {
       const message = await response.json();
       return { statusCode: response.status, message: message.message, ok: response.ok };
     }
-    const { user } = await response.json();
+    let { user } = await response.json();
+    user.id = user._id.toString();
 
     try {
       const order = await Order.findById(orderId)
       if (!order) return {'message': 'Order not found'};
-      if (order.buyerId.toString() !== user._id) return {'message': 'Unauthorized', statusCode: 401, ok: false };
+      if (order.buyerId.toString() !== user.id) return {'message': 'Unauthorized', statusCode: 401, ok: false };
       if (!paymentMethods.includes(paymentMethod)) return {'message': 'payment method is not allowed', statusCode: 401, ok: false };
       if (!availableCurrency.includes(currency)) return {'message': 'currency not available for transaction', statusCode: 400, ok: false };
       if (sellerAmount < 0 || dispatcherAmount < 0) return {'message': 'Invalid amount', statusCode: 400, ok: false };
