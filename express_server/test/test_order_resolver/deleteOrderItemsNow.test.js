@@ -1,5 +1,6 @@
 import chai from 'chai';
 import sinon from 'sinon';
+import fetch from 'node-fetch';
 import { Types } from 'mongoose';
 import Order from '../../models/order';
 import { ordersMutationResolver } from '../../resolver/orders.resolver';

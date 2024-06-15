@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import Order from '../../models/order';
 import { Payment } from '../../models/payment';
 import { paymentMutationResolver } from '../../resolver/payment.resolver';
-
+import fetch from 'node-fetch';
 
 const { expect } = chai;
 describe('createPayment', function() {
@@ -40,14 +40,25 @@ describe('createPayment', function() {
 
     // Stubbing Order.findById to resolve with the order
     stub(Order, 'findById').resolves(order);
-
+    
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
     // Stubbing Payment constructor to return the payment instance
     const paymentStub = stub(Payment.prototype, 'save').resolves(payment);
     const result = await paymentMutationResolver.createPayment(
         null, 
         { orderId, paymentMethod, currency, sellerAmount, dispatcherAmount }, 
-        { user: {
-             id: userId.toString() 
+        { req: {
+             headers: {
+              authorization: "fakeString"
+             } 
             } 
         });
     // Check if the result has the correct message and an id field

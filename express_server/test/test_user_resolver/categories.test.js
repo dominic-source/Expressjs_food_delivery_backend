@@ -1,5 +1,6 @@
 import chai from 'chai';
 import sinon from 'sinon';
+import fetch from 'node-fetch';
 import Category from '../../models/category';
 import { userQueryResolvers } from '../../resolver/user&category.resolver';
 import { Types } from 'mongoose';

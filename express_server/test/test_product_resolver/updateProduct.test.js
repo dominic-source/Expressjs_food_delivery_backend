@@ -1,5 +1,6 @@
 import chai from 'chai';
 import sinon from 'sinon';
+import fetch from 'node-fetch';
 import { Product } from '../../models/product';
 import Category from '../../models/category';
 import { User } from '../../models/user';

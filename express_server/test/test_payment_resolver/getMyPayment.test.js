@@ -1,6 +1,7 @@
 import chai from 'chai';
 import sinon from 'sinon';
 import mongoose from 'mongoose';
+import fetch from 'node-fetch';
 import Order from '../../models/order';
 import { paymentQueryResolver } from '../../resolver/payment.resolver';
 

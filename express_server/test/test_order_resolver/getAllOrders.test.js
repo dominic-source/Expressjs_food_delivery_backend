@@ -1,5 +1,6 @@
 import chai from 'chai';
 import sinon from 'sinon';
+import fetch from 'node-fetch';
 import Order from '../../models/order';
 import { ordersQueryResolver } from '../../resolver/orders.resolver';
 

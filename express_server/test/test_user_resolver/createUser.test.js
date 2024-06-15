@@ -1,5 +1,6 @@
 import chai from 'chai';
 import sinon from 'sinon';
+import fetch from 'node-fetch';
 import { User } from '../../models/user';
 import { userMutationResolvers } from '../../resolver/user&category.resolver';
 

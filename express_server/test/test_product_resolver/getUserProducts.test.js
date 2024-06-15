@@ -1,5 +1,6 @@
 import chai from 'chai';
 import sinon from 'sinon';
+import fetch from 'node-fetch';
 import { User } from '../../models/user';
 import { productQueryResolver } from '../../resolver/products.resolver';
 import { Types } from 'mongoose';

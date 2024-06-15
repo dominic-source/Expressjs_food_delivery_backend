@@ -2,6 +2,7 @@ import chai from 'chai';
 import sinon from 'sinon';
 import { Types } from 'mongoose';
 import Order from '../../models/order';
+import fetch from 'node-fetch';
 import { Payment } from '../../models/payment';
 import { paymentMutationResolver} from '../../resolver/payment.resolver';
 import { myLogger } from '../../utils/mylogger';
