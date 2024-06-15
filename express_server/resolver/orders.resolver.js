@@ -5,6 +5,7 @@ import { User } from '../models/user';
 import { Product } from '../models/product'
 import { deleteOrderItems } from '../utils/managedata/deletemodels';
 import { authRequest } from '../utils/managedata/sendrequest';
+import _ from 'lodash';
 
 export const ordersQueryResolver = {
   getAllOrders: async (_parent, _, { req }) => {
@@ -254,7 +255,7 @@ export const ordersMutationResolver = {
     const order = await Order.findById(orderId);
     if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false };
     if (order.buyerId != user._id) return { 'message': 'You are not authorized to update this order!', statusCode: 401, ok: false };
-    order.deliveryAddress = deliveryAddress;
+    order.deliveryAddress = _.trim(deliveryAddress);
     await order.save();
     return { 'message': 'Order address was updated successfully!', 'id': orderId, statusCode: 200, ok: true };
   },
@@ -328,7 +329,7 @@ export const ordersMutationResolver = {
         sellerId,
         dispatcherId,
         buyerId,
-        deliveryAddress,
+        deliveryAddress: _.trim(deliveryAddress),
         currency,
         totalAmount,
         orderItems: createdItems,

@@ -2,6 +2,7 @@ import { myLogger } from '../utils/mylogger';
 import { Product } from '../models/product';
 import Category from '../models/category';
 import { User } from '../models/user';
+import _ from 'lodash';
 
 
 export const productQueryResolver = {
@@ -68,7 +69,7 @@ export const productQueryResolver = {
 }
 
 export const productMutationResolver = {
-  createProduct: async (_parent, args, { user }) => {
+  createProduct: async (_parent, args, { req }) => {
     // authenticate user
     const response = await authRequest(req.headers.authorization);
     if (!response.ok) {
@@ -78,7 +79,13 @@ export const productMutationResolver = {
     const { user } = await response.json();
 
     try {
-      const { name, description, price, currency, categoryId } = args;
+
+      let { name, description, price, currency, categoryId } = args;
+      // trim whitespace from the input
+      name = _.trim(name);
+      description = _.trim(description);
+      currency = _.trim(currency);
+  
       // Get the category information, return error message if false
       const category = await Category.findById(categoryId);
       if (!category) return {'message': 'The product category ID must be specified!', statusCode: 400, ok: false };
@@ -135,8 +142,12 @@ export const productMutationResolver = {
     try {
       // Sanitize users input
       const keys = Object.keys(product);
-      const newProduct = keys.filter(key => key !== 'id' || key !== 'createdAt' || key !== 'updatedAt').reduce((obj, key) => {
-        obj[key] = product[key];
+      const newProduct = keys.filter(key => !(key === 'id' || key === 'createdAt' || key === 'updatedAt')).reduce((obj, key) => {
+        if(key === 'description' || key === 'photo' || key === 'name') {
+          obj[key] = _.trim(product[key]);
+        } else {
+          obj[key] = product[key];
+        }
         return obj;
       }, {});
       const userData = await User.findById(user._id).populate('products');

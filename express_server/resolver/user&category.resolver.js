@@ -5,6 +5,7 @@ import Category from '../models/category';
 import Bull from 'bull';
 import { myLogger } from '../utils/mylogger';
 import { authRequest, loginMe } from '../utils/managedata/sendrequest';
+import _ from 'lodash';
 
 
 export const userQueryResolvers = {
@@ -88,6 +89,8 @@ export const userMutationResolvers = {
     if (!isAdmin) return { message: 'You need to be an admin to access this route!', statusCode: 403, ok: false };
 
     try {
+      // trim leading and ending whitespaces if any
+      name = _.trim(name);
       const listCategories = ['Consumable Products', 'Non-Consumable Products'];
 
       // Define the category format regex
@@ -137,13 +140,16 @@ export const userMutationResolvers = {
     if (name.length === 0) {
       return { message: 'Name cannot be empty', statusCode: 400, ok: false};
     }
-    for (const singleName of name) {
+    for (let singleName of name) {
       try {
         const listCategories = ['Consumable Products', 'Non-Consumable Products'];
   
         // Define the category format regex
         const categoryFormat = /^([\w\s]+)\|[\w\s]+\|[\w\s]+$/;
-  
+
+        // remove whitespaces from start and end of the string if any
+        singleName = _.trim(singleName);
+
         // Validate category format
         if (!categoryFormat.test(singleName)) {
           return { message: 'Invalid category format', statusCode: 400, ok: false};
@@ -154,13 +160,13 @@ export const userMutationResolvers = {
         if (!listCategories.includes(mainName)) {
           return { message: 'Invalid category name', statusCode: 400, ok: false};
         }
-    
+
         // Check if category already exists
         const existingCategory = await Category.findOne({ name: singleName });
         if (existingCategory) {
           return { message: 'Category already exists', statusCode: 400, ok: false};
         }
-    
+
         // Create and save new category
         const category = new Category({ name: singleName });
         await category.save();
@@ -210,17 +216,15 @@ export const userMutationResolvers = {
         vehicleNumber,
         } = args;
 
-      // Handle the file upload
-
       const newUser = new User({
-        firstName,
-        lastName,
-        username,
-        email,
-        passwordHash,
-        phoneNumber,
-        userType,
-        status,
+        firstName: _.trim(firstName),
+        lastName: _.trim(lastName),
+        username: _.trim(username),
+        email: _.trim(email),
+        passwordHash: _.trim(passwordHash),
+        phoneNumber: _.trim(phoneNumber),
+        userType: _.trim(userType),
+        status: _.trim(status),
         lgaId, 
         vehicleNumber,
         });
@@ -317,6 +321,7 @@ export const userMutationResolvers = {
 
   forgotPassword: async (_parent, { email }) => {
     try {
+      email = _.trim(email);
       const user = await User.find({ email });
       if (!user[0]) return {'message': 'An error occurred!'};
       const expiryDate = new Date();
@@ -344,6 +349,7 @@ export const userMutationResolvers = {
 
   updatePassword: async (_parent, { email, password, token }) => {
     try {
+      email = _.trim(email);
       const user = await User.find({ email });
       if (!user) return {'message': 'An error occurred!'};
       const resetPasswordToken = user[0].resetPasswordToken.split(' ')[0];
