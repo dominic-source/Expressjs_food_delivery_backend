@@ -8,11 +8,7 @@ import dotenv from 'dotenv';
 import typeDefs from './graphqlSchema/typeDefs';
 import resolvers from './resolver/resolvers';
 import router from './routes';
-import { User } from './models/user';
-import jwt from 'jsonwebtoken';
-import { GraphQLError } from 'graphql';
 import { logMiddleware } from './middlewares/logMiddleware';
-import { myLogger } from './utils/mylogger';
 import process from 'process';
 
 // initialize express server
@@ -60,21 +56,7 @@ server.start()
   .then(() => {
     // apply middleware for graphql endpoint
     app.use('/graphql', expressMiddleware(server, {
-      context: async ({ req, res }) => {
-    // //  is are the endpoints that does not require authentication
-    //     const publicResolvers = ['CreateUser', 'Login', 'ForgotPassword', 'UpdatePassword', 'login', '']; 
-
-    //     // Available to only admins
-    //     const adminOnlyResolverEndpoint = [ 
-    //       'Users',
-    //       'GetAllOrders',
-    //       'CreateCategory',
-    //       'CreateCategories',
-    //       'DeleteCategory',
-    //       'DeleteOrderItemsNow'
-    //     ];
-        return { req, res }
-      }
+      context: async ({ req, res }) =>  { req, res }
     }));
     console.log('Graphql server has started!')
   })
