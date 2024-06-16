@@ -44,7 +44,7 @@ type Message {
   userData: User
   usersData: [Users]
   orderData: Order
-  ordersData: [Orders]
+  ordersData: [Order]
   productData: Product
   productsData: [Product]
   orderItemsData: [OrderItem]
