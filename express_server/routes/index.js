@@ -19,7 +19,7 @@ const upload = multer({ storage: storage });
   
 const router = Router();
 
-router.post('/authenticate', UserControllers.authenticate);
+router.post('/authenticateAndAuthorize', UserControllers.authenticateAndAuthorize);
 router.post('/login', UserControllers.login); 
 router.post('/uploads', upload.single('toUploadFile'), UserControllers.upload);
 module.exports = router;

@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { myLogger } from '../utils/mylogger';
 
 class UserControllers {
-  static async authenticate(req, res) {
+  static async authenticateAndAuthorize(req, res) {
      // Check the authorization header of the user and return error if None or error
      const reqHeader = req.headers.authorization;
      if (!reqHeader || !reqHeader.startsWith('Bearer ')) {
