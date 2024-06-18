@@ -9,6 +9,20 @@ const expect = chai.expect;
 const { stub, restore } = sinon;
 
 describe('getAllProducts', function() {
+  beforeEach(function() {
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: new Types.ObjectId(),
+        },
+        isAdmin: true
+      }),
+      status: 200
+    });
+  });
+
   afterEach(function() {
     restore();
   });
@@ -30,23 +44,39 @@ describe('getAllProducts', function() {
       categoryId: new Types.ObjectId()
     }];
     const findStub = stub(Product, 'find').resolves(products);
-    const result = await productQueryResolver.getAllProducts(null);
-    expect(result).to.be.deep.equal(products);
+    const result = await productQueryResolver.getAllProducts(
+      null,
+      null,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
+
+    expect(result).to.be.deep.equal({ productsData: products, statusCode: 200, ok: true });
     expect(findStub.calledOnce).to.be.true;
   });
   
   it('should return null if an error occurs', async function() {
     const findStub = stub(Product, 'find').throws(new Error('Error occurred'));
     const result = await productQueryResolver.getAllProducts(null);
-    expect(result).to.be.null;
+    expect(result).to.deep.equal({ message: 'An error occured!', statusCode: 500, ok: false });
     expect(findStub.calledOnce).to.be.true;
   });
 
   it('should return empty array if there are no products', async function() {
     const findStub = stub(Product, 'find').resolves([]);
-    const result = await productQueryResolver.getAllProducts(null);
-    expect(result).to.be.empty;
+    const result = await productQueryResolver.getAllProducts(
+      null,
+      null,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
+    expect(result.productsData).to.be.empty;
     expect(findStub.calledOnce).to.be.true;
   });
-
 });
