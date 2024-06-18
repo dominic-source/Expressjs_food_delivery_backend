@@ -23,6 +23,16 @@ describe('createOrder', function() {
         dispatcherStatus: 'available'
     };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
+
     const dispatcherId = new Types.ObjectId();
     const sellerId = new Types.ObjectId();
     const deliveryAddress = '123, Main Street';
@@ -64,7 +74,12 @@ describe('createOrder', function() {
     const result = await ordersMutationResolver.createOrder(
         null,
         { dispatcherId, sellerId, deliveryAddress, orderItems },
-        { user });
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
+        });
 
     expect(result).to.have.property('message', 'Order was created successfully!');
     expect(result).to.have.property('id').to.be.a.string;
@@ -80,6 +95,15 @@ describe('createOrder', function() {
         id: new Types.ObjectId(),
         dispatcherStatus: 'available'
     };
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
 
     const dispatcherId = new Types.ObjectId();
     const sellerId = new Types.ObjectId();
@@ -122,9 +146,13 @@ describe('createOrder', function() {
     const result = await ordersMutationResolver.createOrder(
         null,
         { dispatcherId, sellerId, deliveryAddress, orderItems },
-        { user });
-
-    expect(result).to.have.property('message', 'An error occurred!');
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
+    });
+    expect(result).to.deep.equal({ 'message': 'seller does not exist!', statusCode: 404, ok: false });
     expect(userStub.calledOnce).to.be.true;
     expect(orderItemStub.called).to.be.false;
     expect(orderStub.called).to.be.false;
@@ -137,6 +165,16 @@ describe('createOrder', function() {
         id: new Types.ObjectId(),
         dispatcherStatus: 'available'
     };
+
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
 
     const dispatcherId = new Types.ObjectId();
     const sellerId = new Types.ObjectId();
@@ -171,7 +209,11 @@ describe('createOrder', function() {
     const result = await ordersMutationResolver.createOrder(
         null,
         { dispatcherId, sellerId, deliveryAddress, orderItems },
-        { user });
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         } });
 
     expect(result).to.have.property('message', 'Product does not exist!');
     expect(userStub.calledTwice).to.be.true;
@@ -184,6 +226,15 @@ describe('createOrder', function() {
         id: new Types.ObjectId(),
         dispatcherStatus: 'available'
     };
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
 
     const dispatcherId = new Types.ObjectId();
     const sellerId = new Types.ObjectId();
@@ -226,9 +277,14 @@ describe('createOrder', function() {
     const result = await ordersMutationResolver.createOrder(
         null,
         { dispatcherId, sellerId, deliveryAddress, orderItems },
-        { user });
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
+    });
 
-    expect(result).to.have.property('message', 'An error occurred!');
+    expect(result).to.deep.equal({ 'message': 'seller does not exist!', statusCode: 404, ok: false });
     expect(userStub.called).to.be.true;
     expect(orderItemStub.called).to.be.false;
     expect(orderStub.called).to.be.false;
@@ -241,6 +297,16 @@ describe('createOrder', function() {
         id: new Types.ObjectId(),
         dispatcherStatus: 'busy'
     };
+
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
 
     const dispatcherId = new Types.ObjectId();
     const sellerId = new Types.ObjectId();
@@ -283,7 +349,11 @@ describe('createOrder', function() {
     const result = await ordersMutationResolver.createOrder(
         null,
         { dispatcherId, sellerId, deliveryAddress, orderItems },
-        { user });
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }});
 
     expect(result).to.have.property('message', 'Dispatcher is not available');
     expect(userStub.calledTwice).to.be.true;
@@ -298,7 +368,16 @@ describe('createOrder', function() {
         id: new Types.ObjectId(),
         dispatcherStatus: 'available'
     };
-
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
+  
     const dispatcherId = new Types.ObjectId();
     const sellerId = new Types.ObjectId();
     const deliveryAddress = '123, Main Street';
@@ -340,7 +419,11 @@ describe('createOrder', function() {
     const result = await ordersMutationResolver.createOrder(
         null,
         { dispatcherId, sellerId, deliveryAddress, orderItems },
-        { user });
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }});
 
     expect(result).to.have.property('message', 'An error occurred!');
     expect(userStub.calledTwice).to.be.true;
