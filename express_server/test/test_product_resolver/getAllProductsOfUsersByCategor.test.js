@@ -10,6 +10,21 @@ const expect = chai.expect;
 const { stub, restore } = sinon;
 
 describe('getAllProductsOfUsersByCategory', function() {
+  
+  beforeEach(function() {
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: new Types.ObjectId(),
+        },
+        isAdmin: true
+      }),
+      status: 200
+    });
+  });
+
   afterEach(function() {
     restore();
   });
@@ -27,8 +42,15 @@ describe('getAllProductsOfUsersByCategory', function() {
       }]
     };
     const findByIdStub = stub(User, 'findById').returns({ populate: stub().resolves(user) });
-    const result = await productQueryResolver.getAllProductsOfUsersByCategory(null, { categoryId: user.products[0].categoryId.toString() }, { user });
-    expect(result).to.be.deep.equal(user.products);
+    const result = await productQueryResolver.getAllProductsOfUsersByCategory(null,
+      { categoryId: user.products[0].categoryId.toString() },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
+    expect(result).to.be.deep.equal({ productsData: user.products, statusCode: 200, ok: true });
     expect(findByIdStub.calledOnce).to.be.true;
   });
 
@@ -45,8 +67,16 @@ describe('getAllProductsOfUsersByCategory', function() {
       }]
     };
     const findByIdStub = stub(User, 'findById').throws(new Error('Error occurred'));
-    const result = await productQueryResolver.getAllProductsOfUsersByCategory(null, { categoryId: user.products[0].categoryId.toString() }, { user });
-    expect(result).to.be.null;
+    const result = await productQueryResolver.getAllProductsOfUsersByCategory(
+      null,
+      { categoryId: user.products[0].categoryId.toString() },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
+    expect(result).to.deep.equal({ message: 'An error occured!', statusCode: 500, ok: false });
     expect(findByIdStub.calledOnce).to.be.true;
   });
 
@@ -56,8 +86,16 @@ describe('getAllProductsOfUsersByCategory', function() {
       products: []
     };
     const findByIdStub = stub(User, 'findById').returns({ populate: stub().resolves(user) });
-    const result = await productQueryResolver.getAllProductsOfUsersByCategory(null, { categoryId: new Types.ObjectId().toString() }, { user });
-    expect(result).to.be.empty;
+    const result = await productQueryResolver.getAllProductsOfUsersByCategory(
+      null,
+      { categoryId: new Types.ObjectId().toString() },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
+    expect(result.productsData).to.be.empty;
     expect(findByIdStub.calledOnce).to.be.true;
   });
 });
