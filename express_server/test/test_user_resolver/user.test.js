@@ -9,7 +9,29 @@ const expect = chai.expect;
 const { stub, restore } = sinon;
 
 describe('user', function() {
+  let fetchStub;
+  let userStub;
+
+  beforeEach(function() {
+    // Stub authRequest
+    fetchStub = stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: new Types.ObjectId(),
+        },
+        isAdmin: true
+      }),
+      status: 200
+    });
+
+    // Stub User.findOne
+    userStub = stub(User, 'findOne');
+  });
+
   afterEach(function() {
+    // Restore stubs
+    // fetchStub.restore();
     restore();
   });
 
@@ -20,21 +42,45 @@ describe('user', function() {
         email: 'user1@gmail.com',
         password: '123456'
     }
-    stub(User, 'findById').resolves(user);
-    const result = await userQueryResolvers.user(null, null, { user });
-    expect(result.name).to.be.deep.equal(user.name);    
+    userStub.resolves(user);
+    const result = await userQueryResolvers.user(
+      null,
+      null,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
+
+    expect(result).to.be.deep.equal({ userData: user, statusCode: 200, ok: true });    
   });
 
   it('should return null if the user is not found', async function() {
-    stub(User, 'findById').resolves(null);
-    const result = await userQueryResolvers.user(null, null, { user: { id: new Types.ObjectId() } });
-    expect(result).to.be.null;
+    userStub.resolves(null);
+    const result = await userQueryResolvers.user(
+      null,
+      null,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
+    expect(result).to.be.deep.equal({ userData: null, statusCode: 200, ok: true });
   });
 
   it('should return null if an exception is raised', async function() {
-    stub(User, 'findById').throws(new Error('Error fetching user'));
-    const result = await userQueryResolvers.user(null, null, { user: { id: new Types.ObjectId() } });
-    expect(result).to.be.null;
+    userStub.throws(new Error('Error fetching user'));
+    const result = await userQueryResolvers.user(
+      null,
+      null,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
+    expect(result).to.be.deep.equal({ message: 'An error occurred!', statusCode: 500, ok: false });
   });
 });
-
