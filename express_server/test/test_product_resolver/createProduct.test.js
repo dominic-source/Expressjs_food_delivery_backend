@@ -11,6 +11,21 @@ const expect = chai.expect;
 const { stub, restore } = sinon;
 
 describe('createProduct', function() {
+
+  beforeEach(function() {
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: new Types.ObjectId(),
+        },
+        isAdmin: true
+      }),
+      status: 200
+    });
+  });
+
   afterEach(function() {
     restore();
   });
@@ -35,18 +50,23 @@ describe('createProduct', function() {
     const findByIdCategoryStub = stub(Category, 'findById').resolves(category);
     const saveStub = stub(Product.prototype, 'save').resolves(product);
     const result = await productMutationResolver.createProduct(
-        null, 
-        {
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            currency: product.currency,
-            categoryId: category._id.toString() 
-        },
-        {
-            user 
-        });
-    expect(result.name).to.be.equal(product.name);
+      null, 
+      {
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          currency: product.currency,
+          categoryId: category._id.toString() 
+      },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
+
+    expect(result.statusCode).to.be.equal(200);
+    expect(result.ok).to.be.true;
     expect(findByIdStub.calledOnce).to.be.true;
     expect(findByIdCategoryStub.calledOnce).to.be.true;
     expect(saveStub.calledOnce).to.be.true;
@@ -78,8 +98,11 @@ describe('createProduct', function() {
             currency: product.currency,
             categoryId: product.categoryId.toString() 
         },
-        {
-            user 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
         });
     expect(result.message).to.be.equal('The product category ID must be specified!');
     expect(findByIdStub.calledOnce).to.be.false;
@@ -115,10 +138,13 @@ describe('createProduct', function() {
             currency: product.currency,
             categoryId: category._id.toString() 
         },
-        {
-            user 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
         });
-    expect(result).to.be.null;
+    expect(result).to.deep.equal({ message: 'An error occurred!', statusCode: 500, ok: false });
     expect(findByIdStub.calledOnce).to.be.true;
     expect(findByIdCategoryStub.calledOnce).to.be.true;
     expect(saveStub.called).to.be.true;
@@ -152,10 +178,13 @@ describe('createProduct', function() {
             currency: product.currency,
             categoryId: category._id.toString() 
         },
-        {
-            user 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
         });
-    expect(result).to.be.null;
+    expect(result).to.deep.equal({ message: 'An error occurred!', statusCode: 500, ok: false });
     expect(findByIdStub.calledOnce).to.be.false;
     expect(findByIdCategoryStub.calledOnce).to.be.true;
     expect(saveStub.called).to.be.true;
@@ -190,8 +219,11 @@ describe('createProduct', function() {
             currency: product.currency,
             categoryId: category._id.toString() 
         },
-        {
-            user 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
         });
     // const userString = user.products[0].toString().slice(0, -1);
     // const productString = product._id.toString().slice(0, -1);
