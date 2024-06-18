@@ -80,15 +80,26 @@ describe('createPayment', function() {
     const sellerAmount = 100;
     const dispatcherAmount = 50;
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
     // Stubbing Order.findById to resolve with null
     stub(Order, 'findById').resolves(null);
 
     const result = await paymentMutationResolver.createPayment(
         null, 
         { orderId, paymentMethod, currency, sellerAmount, dispatcherAmount }, 
-        { user: {
-             id: userId.toString() 
+        { req: {
+            headers: {
+              authorization: "fakeString"
             } 
+          } 
         });
     // Check if the result has the correct message
     expect(result).to.have.property('message', 'Order not found');
@@ -101,6 +112,16 @@ describe('createPayment', function() {
     const currency = 'Naira';
     const sellerAmount = 100;
     const dispatcherAmount = 50;
+
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
 
     const order = {
       _id: orderId,
@@ -115,9 +136,11 @@ describe('createPayment', function() {
     const result = await paymentMutationResolver.createPayment(
         null, 
         { orderId, paymentMethod, currency, sellerAmount, dispatcherAmount }, 
-        { user: {
-             id: userId.toString() 
-            } 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }  
         });
     // Check if the result has the correct message
     expect(result).to.have.property('message', 'Unauthorized');
@@ -131,6 +154,16 @@ describe('createPayment', function() {
     const sellerAmount = 100;
     const dispatcherAmount = 50;
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
+
     const order = {
       _id: orderId,
       buyerId: userId,
@@ -144,9 +177,11 @@ describe('createPayment', function() {
     const result = await paymentMutationResolver.createPayment(
         null, 
         { orderId, paymentMethod, currency, sellerAmount, dispatcherAmount }, 
-        { user: {
-             id: userId.toString() 
-            } 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         } 
         });
     // Check if the result has the correct message
     expect(result).to.have.property('message', 'payment method is not allowed');
@@ -160,6 +195,16 @@ describe('createPayment', function() {
     const sellerAmount = 100;
     const dispatcherAmount = 50;
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
+
     const order = {
       _id: orderId,
       buyerId: userId,
@@ -173,9 +218,11 @@ describe('createPayment', function() {
     const result = await paymentMutationResolver.createPayment(
         null, 
         { orderId, paymentMethod, currency, sellerAmount, dispatcherAmount }, 
-        { user: {
-             id: userId.toString() 
-            } 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         } 
         });
     // Check if the result has the correct message
     expect(result).to.have.property('message', 'currency not available for transaction');
@@ -189,6 +236,16 @@ describe('createPayment', function() {
     const sellerAmount = -100;
     const dispatcherAmount = 50;
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
+
     const order = {
       _id: orderId,
       buyerId: userId,
@@ -202,9 +259,11 @@ describe('createPayment', function() {
     const result = await paymentMutationResolver.createPayment(
         null, 
         { orderId, paymentMethod, currency, sellerAmount, dispatcherAmount }, 
-        { user: {
-             id: userId.toString() 
-            } 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         } 
         });
     // Check if the result has the correct message
     expect(result).to.have.property('message', 'Invalid amount');
@@ -218,6 +277,16 @@ describe('createPayment', function() {
     const sellerAmount = 100;
     const dispatcherAmount = -50;
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
+
     const order = {
       _id: orderId,
       buyerId: userId,
@@ -231,9 +300,11 @@ describe('createPayment', function() {
     const result = await paymentMutationResolver.createPayment(
         null, 
         { orderId, paymentMethod, currency, sellerAmount, dispatcherAmount }, 
-        { user: {
-             id: userId.toString() 
-            } 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         } 
         });
     // Check if the result has the correct message
     expect(result).to.have.property('message', 'Invalid amount');
@@ -247,15 +318,27 @@ describe('createPayment', function() {
     const sellerAmount = 100;
     const dispatcherAmount = 50;
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
+
     // Stubbing Order.findById to throw an error
     stub(Order, 'findById').throws(new Error('error'));
 
     const result = await paymentMutationResolver.createPayment(
         null, 
         { orderId, paymentMethod, currency, sellerAmount, dispatcherAmount }, 
-        { user: {
-             id: userId.toString() 
-            } 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         } 
         });
     // Check if the result has the correct message
     expect(result).to.have.property('message', 'An error occurred while processing payment');
