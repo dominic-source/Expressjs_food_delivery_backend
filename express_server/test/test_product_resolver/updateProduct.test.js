@@ -11,6 +11,21 @@ const expect = chai.expect;
 const { stub, restore } = sinon;
 
 describe('updateProduct', function() {
+
+  beforeEach(function() {
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: new Types.ObjectId(),
+        },
+        isAdmin: true
+      }),
+      status: 200
+    });
+  });
+
   afterEach(function() {
     restore();
   });
@@ -27,9 +42,9 @@ describe('updateProduct', function() {
       categoryId
     };
     const category = {
-        id: categoryId,
-        name: 'category1'
-        };
+      id: categoryId,
+      name: 'category1'
+    };
     const user = {
       id: new Types.ObjectId(),
       products: [productId],
@@ -41,9 +56,17 @@ describe('updateProduct', function() {
     
     const categoryStub = stub(Category, 'findById').returns(category);
     const id = productId.toString();
-    const result = await productMutationResolver.updateProduct(null, { id, product, categoryId}, { user });
+    const result = await productMutationResolver.updateProduct(
+      null,
+      { id, product, categoryId},
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
-    expect(result.name).to.deep.equal(product.name);
+    expect(result.statusCode).to.equal(200);
     expect(findByIdAndUpdateStub.calledOnce).to.be.true;
     expect(findByIdUserStub.calledOnce).to.be.true;
     expect(categoryStub.calledOnce).to.be.true;
@@ -67,7 +90,7 @@ describe('updateProduct', function() {
         };
     const user = {
       id: new Types.ObjectId(),
-      products: [productId],
+      products: [],
       populate: stub().returnsThis()
     };
     
@@ -76,12 +99,19 @@ describe('updateProduct', function() {
     
     const categoryStub = stub(Category, 'findById').returns(category);
     const id = productId.toString();
-    const result = await productMutationResolver.updateProduct(null, { id, product, categoryId}, { user });
-
-    expect(result).to.deep.equal({ 'message': 'An error occured!' });
-    expect(findByIdAndUpdateStub.calledOnce).to.be.true;
+    const result = await productMutationResolver.updateProduct(
+      null,
+      { id, product, categoryId},
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
+    expect(result).to.deep.equal({ 'message': 'This Product does not exist for this user!', statusCode: 404, ok: false });
+    expect(findByIdAndUpdateStub.calledOnce).to.be.false;
     expect(findByIdUserStub.calledOnce).to.be.true;
-    expect(categoryStub.calledOnce).to.be.true;
+    expect(categoryStub.calledOnce).to.be.false;
     expect(findByIdUserStub.calledOnce).to.be.true;
   });
 
@@ -105,11 +135,19 @@ describe('updateProduct', function() {
     const findByIdAndUpdateStub = stub(Product, 'findByIdAndUpdate').resolves(product);
     const findByIdUserStub = stub(User, 'findById').returns(user);
     
-    const categoryStub = stub(Category, 'findById').returns(null);
+    const categoryStub = stub(Category, 'findById').returns();
     const id = productId.toString();
-    const result = await productMutationResolver.updateProduct(null, { id, product, categoryId}, { user });
+    const result = await productMutationResolver.updateProduct(
+      null,
+      { id, product, categoryId},
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
-    expect(result).to.deep.equal({'message': 'This category does not exist!'});
+    expect(result).to.deep.equal({ 'message': 'This category does not exist!', statusCode: 404, ok: false });
     expect(findByIdAndUpdateStub.calledOnce).to.be.false;
     expect(findByIdUserStub.calledOnce).to.be.true;
     expect(categoryStub.calledOnce).to.be.true;
@@ -142,9 +180,17 @@ describe('updateProduct', function() {
     
     const categoryStub = stub(Category, 'findById').returns(category);
     const id = productId.toString();
-    const result = await productMutationResolver.updateProduct(null, { id, product, categoryId}, { user });
+    const result = await productMutationResolver.updateProduct(
+      null,
+      { id, product, categoryId},
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
-    expect(result).to.be.null;
+    expect(result).to.deep.equal({ message: 'An error occurred!', statusCode: 500, ok: false});
     expect(findByIdAndUpdateStub.calledOnce).to.be.true;
     expect(findByIdUserStub.calledOnce).to.be.true;
     expect(categoryStub.calledOnce).to.be.true;
