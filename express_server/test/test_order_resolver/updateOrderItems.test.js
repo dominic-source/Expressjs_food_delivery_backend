@@ -22,32 +22,43 @@ describe('updateOrderItems', function() {
     const dispatcherId = new Types.ObjectId();
     const buyerId = new Types.ObjectId();
     const orderId = new Types.ObjectId();
+    const user = { id: buyerId };
+
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id,
+         }
+      })
+    });
 
     const orderItems = [
-        {
-          id: itemId1,
-          orderId: orderId,
-          productId: new Types.ObjectId(),
-          quantity: 20,
-          save: stub().resolves(),
-        },
-        {
-          id: itemId2,
-          orderId: orderId,
-          productId: new Types.ObjectId(),
-          quantity: 10,
-          save: stub().resolves(),
-        },
-      ];
+      {
+        id: itemId1,
+        orderId: orderId,
+        productId: new Types.ObjectId(),
+        quantity: 20,
+        save: stub().resolves(),
+      },
+      {
+        id: itemId2,
+        orderId: orderId,
+        productId: new Types.ObjectId(),
+        quantity: 10,
+        save: stub().resolves(),
+      },
+    ];
 
     const order = {
-        id: orderId,
-        buyerId,
-        sellerId,
-        dispatcherId,
-        orderItems: [itemId1, itemId2],
-        payment: [{ dispatcherPaymentStatus: 'unpaid', sellerPaymentStatus: 'unpaid' }],
-        save: stub().resolves(),
+      id: orderId,
+      buyerId,
+      sellerId,
+      dispatcherId,
+      orderItems: [itemId1, itemId2],
+      payment: [{ dispatcherPaymentStatus: 'unpaid', sellerPaymentStatus: 'unpaid' }],
+      save: stub().resolves(),
     }
     const orderStub = stub(Order, 'findById').returns({
       populate: stub().resolves(order),
@@ -56,8 +67,12 @@ describe('updateOrderItems', function() {
     const result = await ordersMutationResolver.updateOrderItems(
       null,
       { orderId, orderItems },
-      { user: { id: buyerId } }
-    );
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
     expect(result).to.have.property('message', 'Order items were updated successfully!');
     expect(result).to.have.property('id').to.be.a.string;
     expect(findStub.called).to.be.true;
@@ -70,11 +85,25 @@ describe('updateOrderItems', function() {
     const orderStub = stub(Order, 'findById').returns({
       populate: stub().resolves(null),
     });
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: buyerId,
+         }
+      })
+    });
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId },
-    { user: { id: buyerId } }
-    );
+    { req: {
+      headers: {
+       authorization: "fakeString"
+      } 
+     }
+    });
+
     expect(result).to.have.property('message', 'Order does not exist!');
     expect(orderStub.calledOnce).to.be.true;
   });
@@ -93,14 +122,29 @@ describe('updateOrderItems', function() {
         payment: [{ dispatcherPaymentStatus: 'unpaid', sellerPaymentStatus: 'unpaid' }],
         save: stub().resolves(),
     }
+
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: new Types.ObjectId(),
+         }
+      })
+    });
+
     const orderStub = stub(Order, 'findById').returns({
       populate: stub().resolves(order),
     });
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId },
-    { user: { id: new Types.ObjectId() } }
-    );
+    { req: {
+             headers: {
+              authorization: "fakeString"
+             } 
+            }
+    });
     expect(result).to.have.property('message', 'You are not authorized to update this order item!');
     expect(orderStub.calledOnce).to.be.true;
   });
@@ -110,6 +154,15 @@ describe('updateOrderItems', function() {
     const sellerId = new Types.ObjectId();
     const dispatcherId = new Types.ObjectId();
     const buyerId = new Types.ObjectId();
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: buyerId,
+         }
+      })
+    });
     const order = {
         id: orderId,
         buyerId,
@@ -125,8 +178,12 @@ describe('updateOrderItems', function() {
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId },
-    { user: { id: buyerId } }
-    );
+    { req: {
+      headers: {
+       authorization: "fakeString"
+      } 
+     }
+    });
     expect(result).to.have.property('message', 'You cannot update a paid orders item!');
     expect(orderStub.calledOnce).to.be.true;
  });
@@ -136,6 +193,15 @@ describe('updateOrderItems', function() {
     const sellerId = new Types.ObjectId();
     const dispatcherId = new Types.ObjectId();
     const buyerId = new Types.ObjectId();
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: buyerId,
+         }
+      })
+    });
     const order = {
         id: orderId,
         buyerId,
@@ -151,8 +217,12 @@ describe('updateOrderItems', function() {
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId },
-    { user: { id: buyerId } }
-    );
+    { req: {
+      headers: {
+       authorization: "fakeString"
+      } 
+     }
+    });
     expect(result).to.have.property('message', 'Order items must be provided!');
     expect(orderStub.calledOnce).to.be.true;
   });
@@ -163,6 +233,15 @@ describe('updateOrderItems', function() {
     const dispatcherId = new Types.ObjectId();
     const buyerId = new Types.ObjectId();
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: buyerId,
+         }
+      })
+    });
     const order = {
         id: orderId,
         buyerId,
@@ -178,8 +257,12 @@ describe('updateOrderItems', function() {
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId, orderItems: {} },
-    { user: { id: buyerId } }
-    );
+    { req: {
+      headers: {
+       authorization: "fakeString"
+      } 
+     }
+    });
     expect(result).to.have.property('message', 'Order items must be an array!');
     expect(orderStub.calledOnce).to.be.true;
   });
@@ -187,11 +270,24 @@ describe('updateOrderItems', function() {
   it('should return an error when an exception is raised', async function() {
     const orderStub = stub(Order, 'findById').throws(new Error('error occurred'));
     const buyerId = new Types.ObjectId();
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: buyerId,
+         }
+      })
+    });
     const result = await ordersMutationResolver.updateOrderItems(
     null,
     { orderId: new Types.ObjectId() },
-    { user: { id: buyerId } }
-    );
+    { req: {
+      headers: {
+       authorization: "fakeString"
+      } 
+     }
+    });
     expect(result).to.have.property('message', 'An error occurred!');
     expect(orderStub.calledOnce).to.be.true;    
   });
