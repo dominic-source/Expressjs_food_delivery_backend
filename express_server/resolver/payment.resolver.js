@@ -15,13 +15,15 @@ export const paymentQueryResolver = {
       return { statusCode: response.status, message: message.message, ok: response.ok };
     }
     const { user } = await response.json();
+    // Uses the user._id as a string instead of object
+    user.id = user._id.toString();
 
     try {
       const order = await Order.findById(orderId).populate('payment');
-      if (!order) return [];
-      if (!(order.buyerId.toString() === user._id ||
-        order.sellerId.toString() === user._id ||
-          order.dispatcherId.toString() === user._id)) {
+      if (!order) return { message: 'Order was not found!', statusCode: 401, ok: false };
+      if (!(order.buyerId.toString() === user.id ||
+        order.sellerId.toString() === user.id ||
+          order.dispatcherId.toString() === user.id)) {
             return { message: 'You are may not be the right user!', statusCode: 401, ok: false };
       }
       return { paymentsData: order.payment, statusCode: 200, ok: true };
@@ -44,15 +46,17 @@ export const paymentMutationResolver = {
       return { statusCode: response.status, message: message.message, ok: response.ok };
     }
     const { user } = await response.json();
-
+    // Uses the user._id as a string instead of object
+    user.id = user._id.toString();
+  
     try {
       const pay = await Payment.findById(paymentId);
       if (!pay) return {'message': 'Payment not found', statusCode: 404, ok: false };
       const order = await Order.findById(pay.orderId);
       if (!order) return {'message': 'Order not found', statusCode: 404, ok: false };
-      if (order.sellerId.toString() === user._id) {
+      if (order.sellerId.toString() === user.id) {
         pay.sellerPaymentStatus = status;
-      } else if (order.dispatcherId.toString() === user._id) {
+      } else if (order.dispatcherId.toString() === user.id) {
         pay.dispatcherPaymentStatus = status;
       } else {
         return {'message': 'Unauthorized', statusCode: 401, ok: false };

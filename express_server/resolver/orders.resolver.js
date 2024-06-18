@@ -132,18 +132,19 @@ export const ordersQueryResolver = {
 
 export const ordersMutationResolver = {
   updateOrderItems: async (_parent, { orderId, orderItems }, { req }) => {
-     // authenticate user
-     const response = await authRequest(req.headers.authorization);
-     if (!response.ok) {
-       const message = await response.json();
-       return { statusCode: response.status, message: message.message, ok: response.ok };
-     }
-     const { user } = await response.json();
- 
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
+    // Uses the user._id as a string instead of object
+    user.id = user._id.toString();
     try {
       const order = await Order.findById(orderId).populate('payment');
       if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false };
-      if (!(order.buyerId == user._id)) return { 'message': 'You are not authorized to update this order item!', statusCode: 401, ok: false };
+      if (!(order.buyerId.toString() == user.id)) return { 'message': 'You are not authorized to update this order item!', statusCode: 401, ok: false };
       if (order.payment && order.payment[0].sellerPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!', statusCode: 401, ok: false };
       if (order.payment && order.payment[0].dispatcherPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!', statusCode: 401, ok: false };
       if(!orderItems) return { 'message': 'Order items must be provided!', statusCode: 400, ok: false };

@@ -124,7 +124,7 @@ export const productMutationResolver = {
       if (product) {
         await userData.save();
         return { 'message': 'Successfully deleted!', statusCode: 200, ok: true };
-      } else return { 'message': 'An error occurred!', statusCode: 401, ok: false };
+      } else return { 'message': 'Could not delete product!', statusCode: 401, ok: false };
     } catch (error) {
       myLogger.error('Error deleting product: ' + error.message);
       return { 'message': 'An error occurred!', statusCode: 500, ok: false };

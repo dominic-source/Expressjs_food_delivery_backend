@@ -135,10 +135,10 @@ export const userMutationResolvers = {
     if (!isAdmin) return { message: 'You need to be an admin to access this route!', statusCode: 403, ok: false };
 
     if (!Array.isArray(name)) {
-      return { message: 'Name must be an array', statusCode: 400, ok: false};
+      return { message: 'Name must be an array', statusCode: 400, ok: false };
     }
     if (name.length === 0) {
-      return { message: 'Name cannot be empty', statusCode: 400, ok: false};
+      return { message: 'Name cannot be empty', statusCode: 400, ok: false };
     }
     for (let singleName of name) {
       try {
@@ -175,7 +175,7 @@ export const userMutationResolvers = {
         return { message: 'An error occurred!', statusCode: 500, ok: false};
       }
     }
-    return {'message': 'Many categories have been created successfully!', ok: true, statusCode: 201};
+    return { 'message': 'Many categories have been created successfully!', ok: true, statusCode: 201 };
   },
 
   deleteCategory: async (_parent, { id }, { req }) => {
@@ -259,11 +259,15 @@ export const userMutationResolvers = {
       return { statusCode: response.status, message: message.message, ok: response.ok };
     }
     const { user } = await response.json();
-  
-    // Update the user information to be logged out
-    const updated = await User.findByIdAndUpdate(user._id, { isLoggedIn: false });
-    if (updated) return {'message': 'Logged out successfully'};
-    else return {'message': 'An error occured'};
+    try {
+      // Update the user information to be logged out
+      const updated = await User.findByIdAndUpdate(user._id, { isLoggedIn: false });
+      if (updated) return {'message': 'Logged out successfully', statusCode: 200, ok: true};
+      else return {'message': 'Unable to logout user!', statusCode: 400, ok: false };
+    } catch (error) {
+      myLogger.error('Error logging out: ' + error.message)
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
+    }
   },
 
   updateUser: async (_parent, args, { req }) => {
@@ -323,7 +327,7 @@ export const userMutationResolvers = {
     try {
       email = _.trim(email);
       const user = await User.find({ email });
-      if (!user[0]) return {'message': 'An error occurred!'};
+      if (!user[0]) return {'message': 'User was not found!', statusCode: 404, ok: true };
       const expiryDate = new Date();
       const duration = expiryDate.getHours() + 1;
       expiryDate.setHours(duration);
@@ -351,7 +355,7 @@ export const userMutationResolvers = {
     try {
       email = _.trim(email);
       const user = await User.find({ email });
-      if (!user) return {'message': 'An error occurred!'};
+      if (!user || user.length === 0) return {'message': 'An error occurred!', statusCode: 401, ok: false };
       const resetPasswordToken = user[0].resetPasswordToken.split(' ')[0];
       const expiryDate = new Date(user[0].resetPasswordToken.split(' ')[1]);
       const presentDate = new Date();
@@ -374,13 +378,14 @@ export const userMutationResolvers = {
       const message = await response.json();
       return { statusCode: response.status, message: message.message, ok: response.ok };
     }
-    const { user } = await response.json();
+    let { user } = await response.json();
+    user.id = user._id.toString();
     try {
-      const delUser = await User.findByIdAndUpdate(user._id, { isDeleted: true });
+      const delUser = await User.findByIdAndUpdate(user.id, { isDeleted: true });
       if(!delUser) return { message: 'Could not delete user!', statusCode: 500, ok: false }
     } catch(error) {
       myLogger.error('Error deleting user: ' + error.message);
-      return {'message': 'An error occurred!'};
+      return {'message': 'An error occurred!', statusCode: 500, ok: false };
     }
     return { message: 'User deleted successfully!', statusCode: 200, ok: true };
   },
