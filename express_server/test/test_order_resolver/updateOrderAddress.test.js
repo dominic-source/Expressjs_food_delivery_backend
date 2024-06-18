@@ -18,6 +18,16 @@ describe('updateOrderAddress', function() {
     const orderId = new Types.ObjectId().toString();
     const user = { id: new Types.ObjectId() };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id,
+         }
+      })
+    });
+
     const order = {
       id: orderId,
       buyerId: user.id,
@@ -27,7 +37,15 @@ describe('updateOrderAddress', function() {
 
     const orderFindById = stub(Order, 'findById').returns(order);
     const myLoggerError = stub(myLogger, 'error');
-    const result = await ordersMutationResolver.updateOrderAddress(null, { orderId }, { user });
+    const result = await ordersMutationResolver.updateOrderAddress(
+      null,
+      { orderId },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'Order address was updated successfully!');
     expect(result).to.have.property('id').to.be.a.string;
@@ -39,9 +57,27 @@ describe('updateOrderAddress', function() {
     const orderId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id,
+         }
+      })
+    });
+
     const orderFindById = stub(Order, 'findById').returns(null);
 
-    const result = await ordersMutationResolver.updateOrderAddress(null, { orderId }, { user });
+    const result = await ordersMutationResolver.updateOrderAddress(
+      null,
+      { orderId },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'Order does not exist!');
     expect(orderFindById.calledOnce).to.be.true;
@@ -50,6 +86,15 @@ describe('updateOrderAddress', function() {
   it('should return an error message if user is not authorized to update the order', async function() {
     const orderId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id,
+         }
+      })
+    });
 
     const order = {
       buyerId: new Types.ObjectId(),
@@ -57,7 +102,15 @@ describe('updateOrderAddress', function() {
 
     const orderFindById = stub(Order, 'findById').returns(order);
 
-    const result = await ordersMutationResolver.updateOrderAddress(null, { orderId }, { user });
+    const result = await ordersMutationResolver.updateOrderAddress(
+      null,
+      { orderId },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'You are not authorized to update this order!');
     expect(orderFindById.calledOnce).to.be.true;
