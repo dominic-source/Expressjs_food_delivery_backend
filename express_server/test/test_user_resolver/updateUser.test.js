@@ -3,15 +3,29 @@ import { stub } from 'sinon';
 import fetch from 'node-fetch';
 import { User } from '../../models/user';
 import { userMutationResolvers } from '../../resolver/user&category.resolver';
+import { Types } from 'mongoose';
 
 describe('updateUser', () => {
   let findByIdAndUpdateStub;
+  before(function() {
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: new Types.ObjectId(),
+        },
+        isAdmin: true
+      }),
+      status: 200
+    });
+  });
 
-  beforeEach(() => {
+  beforeEach(function() {
     findByIdAndUpdateStub = stub(User, 'findByIdAndUpdate');
   });
 
-  afterEach(() => {
+  afterEach(function() {
     findByIdAndUpdateStub.restore();
   });
 
@@ -30,15 +44,22 @@ describe('updateUser', () => {
       sellerStatus: 'inactive',
       dispatcherStatus: 'inactive',
     };
-    const expectedResponse = { message: 'Updated successfully' };
+    const expectedResponse = { message: 'Updated successfully', statusCode: 200, ok: true };
 
     findByIdAndUpdateStub.resolves(true);
 
-    const result = await userMutationResolvers.updateUser(null, updatedUser, { user: { id: userId } });
+    const result = await userMutationResolvers.updateUser(
+      null,
+      updatedUser,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
 
     expect(result).to.deep.equal(expectedResponse);
     expect(findByIdAndUpdateStub.calledOnce).to.be.true;
-    expect(findByIdAndUpdateStub.firstCall.args[0]).to.equal(userId);
     expect(findByIdAndUpdateStub.firstCall.args[1]).to.deep.equal(updatedUser);
   });
 
@@ -57,15 +78,22 @@ describe('updateUser', () => {
       sellerStatus: 'inactive',
       dispatcherStatus: 'inactive',
     };
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = { message: 'An error occurred!', statusCode: 500, ok: false };
 
     findByIdAndUpdateStub.resolves(false);
 
-    const result = await userMutationResolvers.updateUser(null, updatedUser, { user: { id: userId } });
+    const result = await userMutationResolvers.updateUser(
+      null,
+      updatedUser,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
 
     expect(result).to.deep.equal(expectedResponse);
     expect(findByIdAndUpdateStub.calledOnce).to.be.true;
-    expect(findByIdAndUpdateStub.firstCall.args[0]).to.equal(userId);
     expect(findByIdAndUpdateStub.firstCall.args[1]).to.deep.equal(updatedUser);
   });
 
@@ -87,10 +115,17 @@ describe('updateUser', () => {
 
     findByIdAndUpdateStub.rejects(new Error('Database error'));
 
-    const result = await userMutationResolvers.updateUser(null, updatedUser, { user: { id: userId } });
-    expect(result).to.deep.equal({ message: 'An error occurred!' });
+    const result = await userMutationResolvers.updateUser(
+      null,
+      updatedUser,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
+    expect(result).to.deep.equal({ message: 'An error occurred!', statusCode: 500, ok: false });
     expect(findByIdAndUpdateStub.calledOnce).to.be.true;
-    expect(findByIdAndUpdateStub.firstCall.args[0]).to.equal(userId);
     expect(findByIdAndUpdateStub.firstCall.args[1]).to.deep.equal(updatedUser);
   });
 
@@ -113,7 +148,15 @@ describe('updateUser', () => {
 
     findByIdAndUpdateStub.resolves(true);
 
-    await userMutationResolvers.updateUser(null, updatedUser, { user: { id: userId } });
+    await userMutationResolvers.updateUser(
+      null,
+      updatedUser,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
 
     expect(findByIdAndUpdateStub.calledOnce).to.be.true;
     expect(findByIdAndUpdateStub.firstCall.args[1]).to.not.have.property('fathersonName');
@@ -137,15 +180,22 @@ describe('updateUser', () => {
       email: 'johndoe@example.com',
       phoneNumber: '1234567890',
     };
-    const expectedResponse = { 'message': 'An error occurred!' };
+    const expectedResponse = { message: 'An error occurred!', statusCode: 500, ok: false };
 
     findByIdAndUpdateStub.rejects(new Error());
 
-    const result = await userMutationResolvers.updateUser(null, updatedUser, { user: { id: userId } });
+    const result = await userMutationResolvers.updateUser(
+      null,
+      updatedUser,
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+    });
 
     expect(result).to.deep.equal(expectedResponse);
     expect(findByIdAndUpdateStub.calledOnce).to.be.true;
-    expect(findByIdAndUpdateStub.firstCall.args[0]).to.equal(userId);
     expect(findByIdAndUpdateStub.firstCall.args[1]).to.deep.equal(updatedUser);
   });
 });
