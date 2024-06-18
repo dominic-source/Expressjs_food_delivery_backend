@@ -1,8 +1,9 @@
 import { expect } from 'chai';
-import { stub } from 'sinon';
+import sinon from 'sinon';
 import { User } from '../../models/user';
 import Bull from 'bull';
 import { userMutationResolvers } from '../../resolver/user&category.resolver';
+const { stub, restore } = sinon;
 
 describe('forgotPassword', () => {
   let findByIdAndUpdateStub;
@@ -19,11 +20,12 @@ describe('forgotPassword', () => {
     findByIdAndUpdateStub.restore();
     findStub.restore();
     addStub.restore();
+    restore();
   });
 
   it('should return a success message on successful forgot password request', async () => {
     const email = 'test@example.com';
-    const expectedResponse = { message: 'Get the reset token from your email' };
+    const expectedResponse = {'message': 'Get the reset token from your email', statusCode: 200, ok: true };
 
     findStub.resolves([{ id: '1234567890' }]);
     findByIdAndUpdateStub.resolves(true);
@@ -44,7 +46,7 @@ describe('forgotPassword', () => {
 
   it('should return an error message if the user is not found', async () => {
     const email = 'test@example.com';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = {'message': 'User was not found!', statusCode: 404, ok: true };
 
     findStub.resolves([]);
 
@@ -59,7 +61,7 @@ describe('forgotPassword', () => {
 
   it('should return an error message if the findByIdAndUpdate fails', async () => {
     const email = 'test@example.com';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = {'message': 'An error occurred!', statusCode: 500, ok: true };
 
     findStub.resolves([{ id: '1234567890' }]);
     findByIdAndUpdateStub.rejects(new Error('Database error'));
@@ -75,7 +77,7 @@ describe('forgotPassword', () => {
 
   it('should return an error message if the queue add fails', async () => {
     const email = 'test@example.com';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = {'message': 'An error occurred!', statusCode: 500, ok: true };
 
     findStub.resolves([{ id: '1234567890' }]);
     findByIdAndUpdateStub.resolves(true);
