@@ -9,6 +9,21 @@ const expect = chai.expect;
 const { stub, restore } = sinon;
 
 describe('deleteCategory', function() {
+  beforeEach(function() {
+    const userId = new Types.ObjectId().toString();
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId,
+          },
+        isAdmin: true
+      }),
+      status: 200
+    });
+  });
+
   afterEach(function() {
     restore();
   });
@@ -21,11 +36,17 @@ describe('deleteCategory', function() {
 
     const categoryStub = stub(Category, 'findByIdAndDelete').resolves(category);
 
-    const result = await userMutationResolvers.deleteCategory(null, {
+    const result = await userMutationResolvers.deleteCategory(
+      null, {
       id: category._id,
+    }, { req: {
+      headers: {
+       authorization: "fakeString"
+      } 
+     }
     });
 
-    expect(result).to.deep.equal({'message': 'Category has been deleted successfully!'});
+    expect(result).to.deep.equal({ message: 'Category has been deleted successfully!', statusCode: 201, ok: true });
     expect(categoryStub.calledOnce).to.be.true;
     expect(categoryStub.calledWith(category._id)).to.be.true;
   });
@@ -38,13 +59,17 @@ describe('deleteCategory', function() {
 
     const categoryStub = stub(Category, 'findByIdAndDelete').resolves(null);
 
-    try {
-      await userMutationResolvers.deleteCategory(null, {
-        id: category._id,
-      });
-    } catch (error) {
-      expect(error.message).to.equal('Category not found');
-    }
+    const result = await userMutationResolvers.deleteCategory(null, {
+      id: category._id,
+      },
+      { req: {
+        headers: {
+        authorization: "fakeString"
+        } 
+      }
+      }
+    );
+    expect(result).to.deep.equal({ message: 'Category not found', statusCode: 404, ok: false});
     expect(categoryStub.calledOnce).to.be.true;
     expect(categoryStub.calledWith(category._id)).to.be.true;
   });
