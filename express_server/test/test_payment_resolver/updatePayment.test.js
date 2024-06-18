@@ -20,6 +20,7 @@ describe('updatePayment', function() {
     const paymentId = new Types.ObjectId();
     const status = 'paid';
 
+
     const payment = {
         _id: paymentId,
         orderId,
@@ -36,14 +37,27 @@ describe('updatePayment', function() {
         save: stub().resolves()
     };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+        ok: true,
+        json: stub().returns({
+          user: {
+            _id: order.sellerId.toString()
+           }
+        })
+      });
+
     stub(Payment, 'findById').resolves(payment)
     stub(Order, 'findById').resolves(order)
     
     const result = await paymentMutationResolver.updatePayment(
         null,
         { paymentId, status },
-        {
-            user: { id: order.sellerId.toString() }
+        { req: {
+            headers: {
+             authorization: "fakeString"
+            } 
+           }
         });
 
     expect(result).to.be.an('object');
@@ -58,13 +72,27 @@ describe('updatePayment', function() {
     const paymentId = new Types.ObjectId();
     const status = 'paid';
 
+    const userId = new Types.ObjectId().toString()
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
+
     stub(Payment, 'findById').resolves(null);
     
     const result = await paymentMutationResolver.updatePayment(
         null,
         { paymentId, status },
-        {
-            user: { id: new Types.ObjectId().toString() }
+        { req: {
+            headers: {
+             authorization: "fakeString"
+            } 
+           }
         });
 
     expect(result).to.be.an('object');
@@ -72,74 +100,110 @@ describe('updatePayment', function() {
   });
 
   it('should throw error if order not found', async function() {
+    const paymentId = new Types.ObjectId();
+    const status = 'paid';
+    const userId = new Types.ObjectId().toString()
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+        ok: true,
+        json: stub().returns({
+        user: {
+            _id: userId
+            }
+        })
+    });
+    const payment = {
+        _id: paymentId,
+        orderId: new Types.ObjectId(),
+        sellerPaymentStatus: 'paid',
+        dispatcherPaymentStatus: 'paid',
+        lastUpdateTime: new Date().toString(),
+        paymentDateTime: new Date().toString(),
+        save: stub().resolves()
+    };
+
+    stub(Payment, 'findById').resolves(payment)
+    stub(Order, 'findById').resolves(null)
     
-        const paymentId = new Types.ObjectId();
-        const status = 'paid';
-    
-        const payment = {
-            _id: paymentId,
-            orderId: new Types.ObjectId(),
-            sellerPaymentStatus: 'paid',
-            dispatcherPaymentStatus: 'paid',
-            lastUpdateTime: new Date().toString(),
-            paymentDateTime: new Date().toString(),
-            save: stub().resolves()
-        };
-    
-        stub(Payment, 'findById').resolves(payment)
-        stub(Order, 'findById').resolves(null)
-        
-        const result = await paymentMutationResolver.updatePayment(
-            null,
-            { paymentId, status },
-            {
-                user: { id: new Types.ObjectId().toString() }
-            });
-    
-        expect(result).to.be.an('object');
-        expect(result).to.have.property('message', 'Order not found');
+    const result = await paymentMutationResolver.updatePayment(
+        null,
+        { paymentId, status },
+        { req: {
+            headers: {
+              authorization: "fakeString"
+            } 
+            } 
+        });
+
+    expect(result).to.be.an('object');
+    expect(result).to.have.property('message', 'Order not found');
   });
 
   it('should throw error if seller is not user', async function() {
         
-            const orderId = new Types.ObjectId();
-            const paymentId = new Types.ObjectId();
-            const status = 'paid';
-        
-            const payment = {
-                _id: paymentId,
-                orderId,
-                sellerPaymentStatus: 'paid',
-                dispatcherPaymentStatus: 'paid',
-                lastUpdateTime: new Date().toString(),
-                paymentDateTime: new Date().toString(),
-                save: stub().resolves()
-            };
-            const order = {
-                _id: orderId,
-                sellerId: new Types.ObjectId(),
-                dispatcherId: new Types.ObjectId(),
-                save: stub().resolves()
-            };
-        
-            stub(Payment, 'findById').resolves(payment)
-            stub(Order, 'findById').resolves(order)
-            
-            const result = await paymentMutationResolver.updatePayment(
-                null,
-                { paymentId, status },
-                {
-                    user: { id: new Types.ObjectId().toString() }
-                });
-        
-            expect(result).to.be.an('object');
-            expect(result).to.have.property('message', 'Unauthorized');
+    const orderId = new Types.ObjectId();
+    const paymentId = new Types.ObjectId();
+    const status = 'paid';
+    const userId = new Types.ObjectId().toString();
+
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+    ok: true,
+    json: stub().returns({
+        user: {
+        _id: userId
+        }
+    })
+    });
+
+    const payment = {
+        _id: paymentId,
+        orderId,
+        sellerPaymentStatus: 'paid',
+        dispatcherPaymentStatus: 'paid',
+        lastUpdateTime: new Date().toString(),
+        paymentDateTime: new Date().toString(),
+        save: stub().resolves()
+    };
+
+    const order = {
+        _id: orderId,
+        sellerId: new Types.ObjectId(),
+        dispatcherId: new Types.ObjectId(),
+        save: stub().resolves()
+    };
+
+    stub(Payment, 'findById').resolves(payment)
+    stub(Order, 'findById').resolves(order)
+    
+    const result = await paymentMutationResolver.updatePayment(
+        null,
+        { paymentId, status },
+        { req: {
+            headers: {
+              authorization: "fakeString"
+            } 
+            } 
+    });
+
+    expect(result).to.be.an('object');
+    expect(result).to.have.property('message', 'Unauthorized');
   });
 
   it('should throw error if dispatcher is not user', async function() {
     const orderId = new Types.ObjectId();
     const paymentId = new Types.ObjectId();
     const status = 'paid';
+    const userId = new Types.ObjectId().toString()
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
 
     const payment = {
         _id: paymentId,
@@ -163,8 +227,11 @@ describe('updatePayment', function() {
     const result = await paymentMutationResolver.updatePayment(
         null,
         { paymentId, status },
-        {
-            user: { id: new Types.ObjectId().toString() }
+        { req: {
+            headers: {
+             authorization: "fakeString"
+            } 
+           } 
         });
 
     expect(result).to.be.an('object');
@@ -175,32 +242,45 @@ describe('updatePayment', function() {
     const orderId = new Types.ObjectId();
     const paymentId = new Types.ObjectId();
     const status = 'unpaid';
+    const userId = new Types.ObjectId().toString()
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
 
     const payment = {
-        _id: paymentId,
-        orderId,
-        sellerPaymentStatus: 'paid',
-        dispatcherPaymentStatus: 'paid',
-        lastUpdateTime: new Date().toString(),
-        paymentDateTime: new Date().toString(),
-        save: stub().resolves()
+      _id: paymentId,
+      orderId,
+      sellerPaymentStatus: 'paid',
+      dispatcherPaymentStatus: 'paid',
+      lastUpdateTime: new Date().toString(),
+      paymentDateTime: new Date().toString(),
+      save: stub().resolves()
     };
     const order = {
-        _id: orderId,
-        sellerId: new Types.ObjectId(),
-        dispatcherId: new Types.ObjectId(),
-        save: stub().resolves()
+      _id: orderId,
+      sellerId: userId,
+      dispatcherId: new Types.ObjectId(),
+      save: stub().resolves()
     };
 
     stub(Payment, 'findById').resolves(payment)
     stub(Order, 'findById').resolves(order)
     
-    await paymentMutationResolver.updatePayment(
+    const result = await paymentMutationResolver.updatePayment(
         null,
         { paymentId, status },
-        {
-            user: { id: order.sellerId.toString() }
-        });
+        { req: {
+            headers: {
+             authorization: "fakeString"
+            } 
+           }
+    });
     expect(order.status).to.equal('incomplete');
   });
   
@@ -208,6 +288,17 @@ describe('updatePayment', function() {
     const orderId = new Types.ObjectId();
     const paymentId = new Types.ObjectId();
     const status = 'paid';
+    const userId = new Types.ObjectId().toString()
+    
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
 
     const payment = {
         _id: paymentId,
@@ -220,7 +311,7 @@ describe('updatePayment', function() {
     };
     const order = {
         _id: orderId,
-        sellerId: new Types.ObjectId(),
+        sellerId: userId,
         dispatcherId: new Types.ObjectId(),
         save: stub().resolves()
     };
@@ -231,9 +322,12 @@ describe('updatePayment', function() {
     await paymentMutationResolver.updatePayment(
         null,
         { paymentId, status },
-        {
-            user: { id: order.sellerId.toString() }
-        });
+        { req: {
+            headers: {
+             authorization: "fakeString"
+            } 
+           }
+    });
     expect(order.status).to.equal('completed');
   })
 
@@ -241,6 +335,16 @@ describe('updatePayment', function() {
     const orderId = new Types.ObjectId();
     const paymentId = new Types.ObjectId();
     const status = 'paid';
+    const userId = new Types.ObjectId().toString()
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: userId
+         }
+      })
+    });
 
     const payment = {
         _id: paymentId,
@@ -253,7 +357,7 @@ describe('updatePayment', function() {
     };
     const order = {
         _id: orderId,
-        sellerId: new Types.ObjectId(),
+        sellerId: userId,
         dispatcherId: new Types.ObjectId(),
         save: stub().throws(new Error('An error occurred while processing payment'))
     };
@@ -265,8 +369,11 @@ describe('updatePayment', function() {
     const result = await paymentMutationResolver.updatePayment(
         null,
         { paymentId, status },
-        {
-            user: { id: order.sellerId.toString() }
+        { req: {
+            headers: {
+             authorization: "fakeString"
+            } 
+           }
         });
 
     expect(stubLogger.called).to.be.true;
