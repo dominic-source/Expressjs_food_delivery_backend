@@ -20,6 +20,16 @@ describe('deleteAnOrderItem', function() {
     const orderItemId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
+
     const order = {
       buyerId: user.id,
       sellerId: user.id,
@@ -33,7 +43,15 @@ describe('deleteAnOrderItem', function() {
     const myLoggerError = stub(myLogger, 'error');
     const findByIdAndDelete = stub(OrderItem, 'findByIdAndDelete').returns();
     const orderItemIdString = orderItemId.toString();
-    const result = await ordersMutationResolver.deleteAnOrderItem(null, { orderId, orderItemId: orderItemIdString }, { user });
+    const result = await ordersMutationResolver.deleteAnOrderItem(
+      null, 
+      { orderId, orderItemId: orderItemIdString },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'Order item was deleted successfully!');
     expect(findByIdAndDelete.calledOnce).to.be.true;
@@ -49,11 +67,29 @@ describe('deleteAnOrderItem', function() {
     const orderItemId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
+
     const orderFindById = stub(Order, 'findById').returns({
         populate: stub().resolves(null),
     });
 
-    const result = await ordersMutationResolver.deleteAnOrderItem(null, { orderId, orderItemId }, { user });
+    const result = await ordersMutationResolver.deleteAnOrderItem(
+      null,
+      { orderId, orderItemId },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'Order does not exist!');
     expect(orderFindById.calledOnce).to.be.true;
@@ -64,6 +100,16 @@ describe('deleteAnOrderItem', function() {
     const orderItemId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
+  
     const order = {
       buyerId: new Types.ObjectId(),
       sellerId: new Types.ObjectId(),
@@ -74,16 +120,34 @@ describe('deleteAnOrderItem', function() {
     };
 
     const orderFindById = stub(Order, 'findById').returns(order);
-    const result = await ordersMutationResolver.deleteAnOrderItem(null, { orderId, orderItemId }, { user });
+    const result = await ordersMutationResolver.deleteAnOrderItem(
+      null,
+      { orderId, orderItemId },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'You are not authorized to delete this order item!');
     expect(orderFindById.calledOnce).to.be.true;
   });
 
-  it('should return an error message if order status is inprocess and lastupdate time is more less than 1hr', async function() {
+  it('should return an error message if order status is inprocess and lastupdate time is not less than 1hr', async function() {
     const orderId = new Types.ObjectId();
     const orderItemId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
+
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
 
     const order = {
       buyerId: user.id,
@@ -99,7 +163,15 @@ describe('deleteAnOrderItem', function() {
       populate: stub().resolves(order) 
     });
 
-    const result = await ordersMutationResolver.deleteAnOrderItem(null, { orderId, orderItemId }, { user });
+    const result = await ordersMutationResolver.deleteAnOrderItem(
+      null,
+      { orderId, orderItemId },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'You cannot delete an order item that is in process!');
     expect(orderFindById.calledOnce).to.be.true;
@@ -110,6 +182,15 @@ describe('deleteAnOrderItem', function() {
     const orderItemId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
     const order = {
       buyerId: user.id,
       sellerId: user.id,
@@ -126,7 +207,15 @@ describe('deleteAnOrderItem', function() {
     });
     const findByIdAndDelete = stub(OrderItem, 'findByIdAndDelete').returns();
     const orderItemIdString = orderItemId.toString();
-    const result = await ordersMutationResolver.deleteAnOrderItem(null, { orderId, orderItemId: orderItemIdString }, { user });
+    const result = await ordersMutationResolver.deleteAnOrderItem(
+      null,
+      { orderId, orderItemId: orderItemIdString },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'Order item was deleted successfully!');
     expect(orderFindById.calledOnce).to.be.true;
@@ -136,6 +225,16 @@ describe('deleteAnOrderItem', function() {
   it('should return an error message if order item does not exist', async function() {
     const orderId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
+
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
 
     const order = {
       buyerId: user.id,
@@ -147,7 +246,15 @@ describe('deleteAnOrderItem', function() {
     const orderFindById = stub(Order, 'findById').returns({
       populate: stub().resolves(order),
     });
-    const result = await ordersMutationResolver.deleteAnOrderItem(null, { orderId, orderItemId: order.orderItems }, { user });
+    const result = await ordersMutationResolver.deleteAnOrderItem(
+      null,
+      { orderId, orderItemId: order.orderItems },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'Order item does not exist!');
     expect(orderFindById.calledOnce).to.be.true;
@@ -158,8 +265,26 @@ describe('deleteAnOrderItem', function() {
     const orderItemId = new Types.ObjectId();
     const user = { id: new Types.ObjectId() };
 
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: user.id
+         }
+      })
+    });
+
     const orderFindById = stub(Order, 'findById').throws();
-    const result = await ordersMutationResolver.deleteAnOrderItem(null, { orderId, orderItemId }, { user });
+    const result = await ordersMutationResolver.deleteAnOrderItem(
+      null,
+      { orderId, orderItemId },
+      { req: {
+        headers: {
+         authorization: "fakeString"
+        } 
+       }
+      });
 
     expect(result).to.have.property('message', 'An error occurred!');
     expect(orderFindById.calledOnce).to.be.true;
