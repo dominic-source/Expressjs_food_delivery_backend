@@ -10,6 +10,20 @@ const expect = chai.expect;
 const { stub, restore } = sinon;
 
 describe('deleteProduct', function() {
+  beforeEach(function() {
+    // stud authRequest
+    stub(fetch, 'default').resolves({
+      ok: true,
+      json: stub().returns({
+        user: {
+          _id: new Types.ObjectId(),
+        },
+        isAdmin: true
+      }),
+      status: 200
+    });
+  });
+
   afterEach(function() {
     restore();
   });
@@ -37,10 +51,13 @@ describe('deleteProduct', function() {
         {
             id: productId.toString()
         },
-        {
-            user 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
         });
-    expect(result).to.deep.equal({'message': 'Successfully deleted!'});
+    expect(result).to.deep.equal({ 'message': 'Successfully deleted!', statusCode: 200, ok: true });
     expect(findByIdStub.calledOnce).to.be.true;
     expect(findByIdProductStub.calledOnce).to.be.true;
   });
@@ -59,10 +76,13 @@ describe('deleteProduct', function() {
         {
             id: productId.toString()
         },
-        {
-            user 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
         });
-    expect(result).to.deep.equal({'message': 'This Product does not exist for this user!'});
+    expect(result).to.deep.equal({ 'message': 'This Product does not exist for this user!', statusCode: 404, ok: false });
     expect(findByIdStub.calledOnce).to.be.true;
   });
 
@@ -81,10 +101,13 @@ describe('deleteProduct', function() {
         {
             id: productId.toString()
         },
-        {
-            user 
-        });
-    expect(result).to.deep.equal({'message': 'An error occured!'});
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
+    });
+    expect(result).to.deep.equal({ 'message': 'Could not delete product!', statusCode: 401, ok: false });
     expect(findByIdStub.calledOnce).to.be.true;
     expect(findByIdProductStub.calledOnce).to.be.true;
   });
@@ -103,11 +126,13 @@ describe('deleteProduct', function() {
         {
             id: productId.toString()
         },
-        {
-            user 
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
         });
-    expect(result).to.deep.equal({'message': 'An error occured!'});
+    expect(result).to.deep.equal({ 'message': 'An error occurred!', statusCode: 500, ok: false });
     expect(findByIdStub.calledOnce).to.be.true;
   });
-
 });
