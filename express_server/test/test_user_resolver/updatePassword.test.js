@@ -10,14 +10,14 @@ describe('updatePassword', () => {
   let genSaltStub;
   let hashStub;
 
-  beforeEach(() => {
+  beforeEach(function() {
     findStub = stub(User, 'find');
     findByIdAndUpdateStub = stub(User, 'findByIdAndUpdate');
     genSaltStub = stub(bcrypt, 'genSalt');
     hashStub = stub(bcrypt, 'hash');
   });
 
-  afterEach(() => {
+  afterEach(function() {
     findStub.restore();
     findByIdAndUpdateStub.restore();
     genSaltStub.restore();
@@ -28,7 +28,7 @@ describe('updatePassword', () => {
     const email = 'test@example.com';
     const password = 'password123';
     const token = 'validtoken';
-    const expectedResponse = { message: 'Password updated successfully' };
+    const expectedResponse = {'message': 'Password updated successfully', statusCode: 200, ok: true };
     const currentDate = new Date();
     findStub.resolves([{ id: '1234567890', resetPasswordToken: token + ' ' + new Date(currentDate.getTime() + 3600000).toISOString() }]);
     genSaltStub.resolves('salt');
@@ -53,7 +53,7 @@ describe('updatePassword', () => {
     const email = 'test@example.com';
     const password = 'password123';
     const token = 'validtoken';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = {'message': 'An error occurred!', statusCode: 401, ok: false };
 
     findStub.resolves([]);
 
@@ -71,7 +71,7 @@ describe('updatePassword', () => {
     const email = 'test@example.com';
     const password = 'password123';
     const token = 'invalidtoken';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = {'message': 'An error occurred!', statusCode: 401, ok: false };
 
     findStub.resolves([{ id: '1234567890', resetPasswordToken: 'validtoken ' + new Date().toISOString() }]);
 
@@ -89,7 +89,7 @@ describe('updatePassword', () => {
     const email = 'test@example.com';
     const password = 'password123';
     const token = 'validtoken';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = { 'message': 'An error occurred!', statusCode: 401, ok: false };
 
     findStub.resolves([{ id: '1234567890', resetPasswordToken: token + ' ' + new Date(Date.now() - 1000 * 60 * 60).toISOString() }]);
 
@@ -107,7 +107,7 @@ describe('updatePassword', () => {
     const email = 'test@example.com';
     const password = 'password123';
     const token = 'validtoken';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = { 'message': 'An error occurred!', statusCode: 500, ok: false };
     const currentDate = new Date();
     findStub.resolves([{ id: '1234567890', resetPasswordToken: token + ' ' + new Date(currentDate.getTime() + 3600000).toISOString() }]);
     genSaltStub.resolves('salt');
@@ -131,7 +131,7 @@ describe('updatePassword', () => {
     const email = 'test@example.com';
     const password = 'password123';
     const token = 'validtoken';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = { 'message': 'An error occurred!', statusCode: 500, ok: false };
     const currentDate = new Date();
     findStub.resolves([{ id: '1234567890', resetPasswordToken: token + ' ' + new Date(currentDate.getTime() + 3600000).toISOString() }]);
     genSaltStub.rejects(new Error('GenSalt error'));
@@ -149,7 +149,7 @@ describe('updatePassword', () => {
     const email = 'test@example.com';
     const password = 'password123';
     const token = 'validtoken';
-    const expectedResponse = { message: 'An error occurred!' };
+    const expectedResponse = { 'message': 'An error occurred!', statusCode: 500, ok: false };
     const currentDate = new Date();
     findStub.resolves([{ id: '1234567890', resetPasswordToken: token + ' ' + new Date(currentDate.getTime() + 3600000).toISOString() }]);
     genSaltStub.resolves('salt');
