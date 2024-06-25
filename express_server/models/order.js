@@ -1,4 +1,4 @@
-import mongoose from  "mongoose";
+import mongoose from "mongoose";
 import { Product } from "./product";
 import { OrderItem } from "./orderItem";
 
@@ -9,7 +9,10 @@ const orderSchema = new Schema({
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   dispatcherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  orderDateTime: { type: Date, default: new Date().toString()},
+  orderDateTime: { type: Date, default: new Date().toString() },
+  timeOfDelivery: { type: Date },
+  recievedByBuyer: { type: Boolean, default: false },
+  deliveredByDispatcher: { type: Boolean, default: false },
   deliveryAddress: String,
   currency: String,
   totalAmount: Number,
@@ -18,7 +21,7 @@ const orderSchema = new Schema({
   payment: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' }],
 });
 
-orderSchema.pre('save', async function(next) {
+orderSchema.pre('save', async function (next) {
   // this.totalAmount =
   const items = this.orderItems;
   let totalAmount = 0
