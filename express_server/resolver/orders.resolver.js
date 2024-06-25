@@ -22,7 +22,7 @@ export const ordersQueryResolver = {
       return { ordersData, statusCode: 200, ok: true };
     } catch (error) {
       myLogger.error('Error getting all orders: ' + error.message);
-      return { message: 'An error occurred!', statusCode: 500, ok: false};
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
@@ -57,7 +57,7 @@ export const ordersQueryResolver = {
     }
 
     const { user } = await response.json();
-    
+
     // This endpoint will get all the order items of the users order
     // In this endpoint, we are find a single order with id = orderId where the user is 
     // either a seller, buyer or dispatcher.
@@ -91,7 +91,7 @@ export const ordersQueryResolver = {
 
     // This endpoint retrieves a sellers order
     try {
-      const ordersData =  await Order.find({
+      const ordersData = await Order.find({
         sellerId: user._id,
       });
       return { ordersData, statusCode: 200, ok: true };
@@ -111,7 +111,7 @@ export const ordersQueryResolver = {
     }
 
     const { user } = await response.json();
-    
+
     // This endpoint retrieves a dispatchers order
     try {
       const ordersData = await Order.find({
@@ -147,7 +147,7 @@ export const ordersMutationResolver = {
       if (!(order.buyerId.toString() == user.id)) return { 'message': 'You are not authorized to update this order item!', statusCode: 401, ok: false };
       if (order.payment && order.payment[0].sellerPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!', statusCode: 401, ok: false };
       if (order.payment && order.payment[0].dispatcherPaymentStatus === 'paid') return { 'message': 'You cannot update a paid orders item!', statusCode: 401, ok: false };
-      if(!orderItems) return { 'message': 'Order items must be provided!', statusCode: 400, ok: false };
+      if (!orderItems) return { 'message': 'Order items must be provided!', statusCode: 400, ok: false };
       if (!Array.isArray(orderItems)) return { 'message': 'Order items must be an array!', statusCode: 400, ok: false };
       for (const item of orderItems) {
         const orderItem = await OrderItem.findById(item.id);
@@ -167,55 +167,55 @@ export const ordersMutationResolver = {
   },
 
   deleteAnOrderItem: async (_parent, { orderId, orderItemId }, { req }) => {
-      // authenticate user
-      const response = await authRequest(req.headers.authorization);
-      if (!response.ok) {
-        const message = await response.json();
-        return { statusCode: response.status, message: message.message, ok: response.ok };
-      }
-      const { user } = await response.json();
-  
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
+
     try {
       const order = await Order.findById(orderId).populate('payment');
-      if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false  };
+      if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false };
       if (!(order.buyerId == user._id || order.sellerId == user._id)) return { 'message': 'You are not authorized to delete this order item!', statusCode: 401, ok: false };
-      if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid orders item!', statusCode: 401, ok: false  };
+      if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid orders item!', statusCode: 401, ok: false };
       if (order.payment && (order.payment[0].sellerPaymentStatus === 'inprocess' || order.payment[0].dispatcherPaymentStatus === 'inprocess')) {
         const lastUpdateTime = new Date(order.payment[0].lastUpdateTime);
         const currentTime = new Date();
         const oneHourAgo = new Date(currentTime.getTime() - 3600000);
         const diff = oneHourAgo < lastUpdateTime;
-        if (diff) return { 'message': 'You cannot delete an order item that is in process!', statusCode: 401, ok: false  };
+        if (diff) return { 'message': 'You cannot delete an order item that is in process!', statusCode: 401, ok: false };
       }
       const index = order.orderItems.map(item => item.toString()).indexOf(orderItemId);
-      if (index == -1) return { 'message': 'Order item does not exist!', statusCode: 404, ok: false  };
+      if (index == -1) return { 'message': 'Order item does not exist!', statusCode: 404, ok: false };
       order.orderItems.splice(index, 1);
       // Delete the order item
       await OrderItem.findByIdAndDelete(orderItemId);
       // This save must be called to update the total Amount in the order
       await order.save();
 
-      return { 'message': 'Order item was deleted successfully!', statusCode: 200, ok: true  };
+      return { 'message': 'Order item was deleted successfully!', statusCode: 200, ok: true };
     } catch (error) {
       myLogger.error('Error deleting order items: ' + error.message);
-      return { 'message': 'An error occurred!', statusCode: 500, ok: false  };
+      return { 'message': 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
   deleteOrder: async (_parent, { orderId }, { req }) => {
     // This endpoint will delete a order
 
-     // authenticate user
-     const response = await authRequest(req.headers.authorization);
-     if (!response.ok) {
-       const message = await response.json();
-       return { statusCode: response.status, message: message.message, ok: response.ok };
-     }
-     const { user } = await response.json();
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
 
     try {
       const order = await Order.findById(orderId);
-      if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false   };
+      if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false };
       if (!(order.buyerId == user._id || order.sellerId == user._id)) return { 'message': 'You are not authorized to delete this order!', statusCode: 401, ok: false };
       if (order.payment && (order.payment[0].sellerPaymentStatus === 'paid' || order.payment[0].dispatcherPaymentStatus === 'paid')) return { 'message': 'You cannot delete a paid order!', statusCode: 401, ok: false };
       if (order.payment && (order.payment[0].sellerPaymentStatus === 'inprocess' || order.payment[0].dispatcherPaymentStatus === 'inprocess')) {
@@ -241,35 +241,68 @@ export const ordersMutationResolver = {
     }
   },
 
-  updateOrderAddress: async (_parent, { orderId, deliveryAddress }, { req }) => {
+  updateOrder: async (_parent, { orderId, deliveryAddress, recievedByBuyer, deliveredByDispatcher }, { req }) => {
     // This endpoint will update a order
     // Only the buyer should be able to update the delivery address
-
-     // authenticate user
-     const response = await authRequest(req.headers.authorization);
-     if (!response.ok) {
-       const message = await response.json();
-       return { statusCode: response.status, message: message.message, ok: response.ok };
-     }
-     const { user } = await response.json();
+    // NO TEST WAS WRITTEN FOR THIS METHOD
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
+    const { user } = await response.json();
 
     const order = await Order.findById(orderId);
     if (!order) return { 'message': 'Order does not exist!', statusCode: 404, ok: false };
-    if (order.buyerId != user._id) return { 'message': 'You are not authorized to update this order!', statusCode: 401, ok: false };
-    order.deliveryAddress = _.trim(deliveryAddress);
-    await order.save();
-    return { 'message': 'Order address was updated successfully!', 'id': orderId, statusCode: 200, ok: true };
+    if (!(order.buyerId == user._id || order.dispatcherId == user._id)) {
+      return {
+        'message': 'You are not authorized to update this order!',
+        statusCode: 401,
+        ok: false
+      };
+    }
+
+    if (deliveryAddress) {
+      order.deliveryAddress = _.trim(deliveryAddress);
+    } else if (recievedByBuyer && order.buyerId == user._id) {
+      order.recievedByBuyer = true;
+    } else if (deliveredByDispatcher && order.dispatcherId == user._id) {
+      order.deliveredByDispatcher = true;
+    } else {
+      return {
+        message: 'An error occurred in you input',
+        statusCode: 400,
+        ok: false
+      }
+    }
+    try {
+      await order.save();
+    } catch (error) {
+      myLogger.error('An error occurred while updating order: ' + error.message);
+      return {
+        message: 'An error occurred in you input',
+        statusCode: 400,
+        ok: false
+      }
+    }
+    return {
+      'message': 'Order was updated successfully!',
+      'id': orderId,
+      statusCode: 200,
+      ok: true
+    };
   },
 
   deleteOrderItemsNow: async (_parent, { ids }, { req }) => {
     // This is an admin route or endpoint
 
-     // authenticate user
-     const response = await authRequest(req.headers.authorization);
-     if (!response.ok) {
-       const message = await response.json();
-       return { statusCode: response.status, message: message.message, ok: response.ok };
-     }
+    // authenticate user
+    const response = await authRequest(req.headers.authorization);
+    if (!response.ok) {
+      const message = await response.json();
+      return { statusCode: response.status, message: message.message, ok: response.ok };
+    }
     deleteOrderItems(ids);
     return { 'message': 'Order items may have been deleted successfully!', statusCode: 200, ok: true };
   },
@@ -312,14 +345,14 @@ export const ordersMutationResolver = {
         const product = await Product.findById(data.productId);
         if (!product) {
           deleteOrderItems(createdItems);
-          return { 'message': 'Product does not exist!', statusCode: 404, ok: false  };
+          return { 'message': 'Product does not exist!', statusCode: 404, ok: false };
         }
         // get currency
         currency = product.currency;
         // calculate total amount
         if (!data.quantity) data.quantity = 1;
         totalAmount += product.price * data.quantity;
-        
+
         const item = new OrderItem(data);
         await item.save();
         createdItems.push(item._id);
