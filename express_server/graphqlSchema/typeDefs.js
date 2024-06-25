@@ -132,6 +132,7 @@ type Order {
   buyerId: ID!
   dispatcherId: ID
   orderDateTime: String!
+  timeOfDelivery: String
   deliveryAddress: String!
   currency: String!
   totalAmount: Int!
