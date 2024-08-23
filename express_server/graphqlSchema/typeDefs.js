@@ -103,6 +103,7 @@ type Mutation {
   forgotPassword(email: String!): Message!
   login(email: String!, password: String!): Message!
   logout: Message!
+  updateOrder(orderId: ID!, status: String!): Message!
   updateOrderAddress(orderId: ID!, deliveryAddress: String!): Message!
   updateOrderItems(orderId: ID!, orderItems: [OrderItem2]!): Message!
   updatePassword(email: String!, token: String!, password: String!): Message! 
@@ -110,7 +111,11 @@ type Mutation {
     paymentId: ID!
     status: String!
   ): Message!
-  updateProduct(id: ID!, product: updateProduct, categoryId: ID!): Message!
+  updateProduct(
+    orderId: ID!,
+    deliveryAddress: String!,
+    recievedByBuyer: Boolean,
+    deliveredByDispatcher: Boolean): Message!
   updateUser(
     firstName: String
     lastName: String
