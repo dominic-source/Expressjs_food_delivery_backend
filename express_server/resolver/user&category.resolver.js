@@ -23,7 +23,7 @@ export const userQueryResolvers = {
       return { usersData, statusCode: 200, ok: true };
     } catch (error) {
       myLogger.error('Error fetching users: ' + error.message);
-      return { message: 'An error occurred!', statusCode: 500, ok: false};
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
@@ -98,21 +98,21 @@ export const userMutationResolvers = {
 
       // Validate category format
       if (!categoryFormat.test(name)) {
-        return { message: 'Invalid category format', statusCode: 400, ok: false};
+        return { message: 'Invalid category format', statusCode: 400, ok: false };
       }
 
       // Validate input
       const mainName = categoryFormat.exec(name)[1];
       if (!listCategories.includes(mainName)) {
-        return { message: 'Invalid category name', statusCode: 400, ok: false};
+        return { message: 'Invalid category name', statusCode: 400, ok: false };
       }
-  
+
       // Check if category already exists
       const existingCategory = await Category.findOne({ name });
       if (existingCategory) {
-        return { message: 'Category already exists', statusCode: 400, ok: false};
+        return { message: 'Category already exists', statusCode: 400, ok: false };
       }
-  
+
       // Create and save new category
       const category = new Category({ name });
       const categoryData = await category.save();
@@ -120,7 +120,7 @@ export const userMutationResolvers = {
 
     } catch (error) {
       myLogger.error('Error creating category: ' + error.message);
-      return { message: 'An error occurred!', statusCode: 500, ok: false};
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
@@ -143,7 +143,7 @@ export const userMutationResolvers = {
     for (let singleName of name) {
       try {
         const listCategories = ['Consumable Products', 'Non-Consumable Products'];
-  
+
         // Define the category format regex
         const categoryFormat = /^([\w\s]+)\|[\w\s]+\|[\w\s]+$/;
 
@@ -152,19 +152,19 @@ export const userMutationResolvers = {
 
         // Validate category format
         if (!categoryFormat.test(singleName)) {
-          return { message: 'Invalid category format', statusCode: 400, ok: false};
+          return { message: 'Invalid category format', statusCode: 400, ok: false };
         }
-  
+
         // Validate input
         const mainName = categoryFormat.exec(singleName)[1];
         if (!listCategories.includes(mainName)) {
-          return { message: 'Invalid category name', statusCode: 400, ok: false};
+          return { message: 'Invalid category name', statusCode: 400, ok: false };
         }
 
         // Check if category already exists
         const existingCategory = await Category.findOne({ name: singleName });
         if (existingCategory) {
-          return { message: 'Category already exists', statusCode: 400, ok: false};
+          return { message: 'Category already exists', statusCode: 400, ok: false };
         }
 
         // Create and save new category
@@ -172,7 +172,7 @@ export const userMutationResolvers = {
         await category.save();
       } catch (error) {
         myLogger.error('Error creating category: ' + error.message);
-        return { message: 'An error occurred!', statusCode: 500, ok: false};
+        return { message: 'An error occurred!', statusCode: 500, ok: false };
       }
     }
     return { 'message': 'Many categories have been created successfully!', ok: true, statusCode: 201 };
@@ -191,11 +191,11 @@ export const userMutationResolvers = {
     try {
       const category = await Category.findByIdAndDelete(id);
       if (!category) {
-        return { message: 'Category not found', statusCode: 404, ok: false};
+        return { message: 'Category not found', statusCode: 404, ok: false };
 
       }
       return { message: 'Category has been deleted successfully!', statusCode: 201, ok: true };
-    } catch(error) {
+    } catch (error) {
       myLogger.error('Error deleting category: ' + error.message);
       return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
@@ -203,7 +203,7 @@ export const userMutationResolvers = {
 
   createUser: async (_parent, args) => {
     try {
-      const { 
+      const {
         username,
         email,
         passwordHash,
@@ -212,9 +212,9 @@ export const userMutationResolvers = {
         status,
         firstName,
         lastName,
-        lgaId, 
+        lgaId,
         vehicleNumber,
-        } = args;
+      } = args;
 
       const newUser = new User({
         firstName: _.trim(firstName),
@@ -225,17 +225,17 @@ export const userMutationResolvers = {
         phoneNumber: _.trim(phoneNumber),
         userType: _.trim(userType),
         status: _.trim(status),
-        lgaId, 
+        lgaId,
         vehicleNumber,
-        });
-      const userData = await newUser.save(); 
+      });
+      const userData = await newUser.save();
       return { userData, statusCode: 201, ok: true };
     } catch (error) {
       myLogger.error('Error creating user: ' + error.message)
       return { message: 'An error occurred while creating user', statusCode: 500, ok: false };
     }
   },
-  
+
   login: async (_parent, args) => {
     const { email, password } = args;
     // Login logic using the RESTful API (already implemented)
@@ -248,7 +248,7 @@ export const userMutationResolvers = {
     const loginData = await loginResponse.json();
     const token = loginData.token;
 
-    return { message : 'User logged in successfully', token, statusCode: 200, ok: true };
+    return { message: 'User logged in successfully', token, statusCode: 200, ok: true };
   },
 
   logout: async (_parent, _, { req }) => {
@@ -262,8 +262,8 @@ export const userMutationResolvers = {
     try {
       // Update the user information to be logged out
       const updated = await User.findByIdAndUpdate(user._id, { isLoggedIn: false });
-      if (updated) return {'message': 'Logged out successfully', statusCode: 200, ok: true};
-      else return {'message': 'Unable to logout user!', statusCode: 400, ok: false };
+      if (updated) return { 'message': 'Logged out successfully', statusCode: 200, ok: true };
+      else return { 'message': 'Unable to logout user!', statusCode: 400, ok: false };
     } catch (error) {
       myLogger.error('Error logging out: ' + error.message)
       return { message: 'An error occurred!', statusCode: 500, ok: false };
@@ -317,7 +317,7 @@ export const userMutationResolvers = {
       const updated = await User.findByIdAndUpdate(user._id, filteredArgs);
       if (updated) return { message: 'Updated successfully', statusCode: 200, ok: true };
       else return { message: 'An error occurred!', statusCode: 500, ok: false };
-    } catch(error) {
+    } catch (error) {
       myLogger.error('Error updating user: ' + error.message)
       return { message: 'An error occurred!', statusCode: 500, ok: false };
     }
@@ -327,7 +327,7 @@ export const userMutationResolvers = {
     try {
       email = _.trim(email);
       const user = await User.find({ email });
-      if (!user[0]) return {'message': 'User was not found!', statusCode: 404, ok: true };
+      if (!user[0]) return { 'message': 'User was not found!', statusCode: 404, ok: true };
       const expiryDate = new Date();
       const duration = expiryDate.getHours() + 1;
       expiryDate.setHours(duration);
@@ -344,10 +344,10 @@ export const userMutationResolvers = {
       const queue = new Bull('user_data_queue');
       // Add data to the queue
       await queue.add(user_data);
-      return {'message': 'Get the reset token from your email', statusCode: 200, ok: true };
-    } catch(error) {
+      return { 'message': 'Get the reset token from your email', statusCode: 200, ok: true };
+    } catch (error) {
       myLogger.error('Error changing password: ' + error.message);
-      return {'message': 'An error occurred!', statusCode: 500, ok: true };
+      return { 'message': 'An error occurred!', statusCode: 500, ok: true };
     }
   },
 
@@ -355,19 +355,19 @@ export const userMutationResolvers = {
     try {
       email = _.trim(email);
       const user = await User.find({ email });
-      if (!user || user.length === 0) return {'message': 'An error occurred!', statusCode: 401, ok: false };
+      if (!user || user.length === 0) return { 'message': 'An error occurred!', statusCode: 401, ok: false };
       const resetPasswordToken = user[0].resetPasswordToken.split(' ')[0];
       const expiryDate = new Date(user[0].resetPasswordToken.split(' ')[1]);
       const presentDate = new Date();
-      if (expiryDate <= presentDate) return {'message': 'An error occurred!', statusCode: 401, ok: false };
-      if (token != resetPasswordToken) return {'message': 'An error occurred!', statusCode: 401, ok: false };
+      if (expiryDate <= presentDate) return { 'message': 'An error occurred!', statusCode: 401, ok: false };
+      if (token != resetPasswordToken) return { 'message': 'An error occurred!', statusCode: 401, ok: false };
       const salt = await bcrypt.genSalt();
       const passwordHash = await bcrypt.hash(password, salt);
       await User.findByIdAndUpdate(user[0].id, { passwordHash });
-      return {'message': 'Password updated successfully', statusCode: 200, ok: true };
-    } catch(error) {
+      return { 'message': 'Password updated successfully', statusCode: 200, ok: true };
+    } catch (error) {
       myLogger.error('Error updating password: ' + error.message);
-      return {'message': 'An error occurred!', statusCode: 500, ok: false }; 
+      return { 'message': 'An error occurred!', statusCode: 500, ok: false };
     }
   },
 
@@ -382,10 +382,10 @@ export const userMutationResolvers = {
     user.id = user._id.toString();
     try {
       const delUser = await User.findByIdAndUpdate(user.id, { isDeleted: true });
-      if(!delUser) return { message: 'Could not delete user!', statusCode: 500, ok: false }
-    } catch(error) {
+      if (!delUser) return { message: 'Could not delete user!', statusCode: 500, ok: false }
+    } catch (error) {
       myLogger.error('Error deleting user: ' + error.message);
-      return {'message': 'An error occurred!', statusCode: 500, ok: false };
+      return { 'message': 'An error occurred!', statusCode: 500, ok: false };
     }
     return { message: 'User deleted successfully!', statusCode: 200, ok: true };
   },

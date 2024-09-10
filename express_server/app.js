@@ -23,25 +23,19 @@ const app = express();
 dotenv.config();
 
 // get environment variable
-const { DELIVER_MONGODB_DB,
-  DELIVER_MONGODB_USER,
-  DELIVER_MONGODB_PWD,
-  DELIVER_MONGODB_HOST,
-  DELIVER_MONGODB_PORT
-} = process.env;
+const { DELIVER_MONGODB_URL } = process.env;
 
 // Setup mongodb server
-const uri = `mongodb://${DELIVER_MONGODB_USER}:${DELIVER_MONGODB_PWD}@${DELIVER_MONGODB_HOST}:${DELIVER_MONGODB_PORT}/${DELIVER_MONGODB_DB}?directConnection=true&serverSelectionTimeoutMS=2000&authSource=admin&appName=mongosh+2.2.2`
-mongoose.connect(uri)
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('Error connecting to MongoDB:', err));
+mongoose.connect(DELIVER_MONGODB_URL)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Error connecting to MongoDB:', err));
 
 // Configure CORS
 const corsOptions = {
   origin: 'https://studio.apollographql.com',
   optionsSuccessStatus: 200,
   methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
-}
+};
 
 // create rate limit rule
 const rateLimitRule = createRateLimitRule({
@@ -50,14 +44,14 @@ const rateLimitRule = createRateLimitRule({
   window: '15m'
 });
 
-// create permissions for some resolvers
-const permissions = shield({
-  Mutation: {
-    createUser: rateLimitRule,
-    updateUser: rateLimitRule,
-    deleteUser: rateLimitRule,
-  },
-});
+// // create permissions for some resolvers
+// const permissions = shield({
+//   Mutation: {
+//     createUser: rateLimitRule,
+//     updateUser: rateLimitRule,
+//     deleteUser: rateLimitRule,
+//   },
+// });
 
 // Create executable schema with permissions middleware
 const schema = applyMiddleware(
@@ -65,7 +59,7 @@ const schema = applyMiddleware(
     typeDefs,
     resolvers,
   }),
-  permissions
+  // permissions
 );
 
 // Parse incoming request bodies
@@ -81,13 +75,14 @@ app.use(cors(corsOptions));
 // Create an instance of express-rate-limit
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 20000,
   message: "Too many requests from this IP, please try again after 15 minutes"
-})
+});
+
 // Apply the rate limiting middleware to all requests
 app.use(limiter);
 
-app.use('/api', router)
+app.use('/api', router);
 
 // Start Apollo server
 const server = new ApolloServer({
@@ -96,19 +91,17 @@ const server = new ApolloServer({
   cache: 'bounded',
 });
 
-
 server.start()
   .then(() => {
     // apply middleware for graphql endpoint
     app.use('/graphql', expressMiddleware(server, {
-      context: async ({ req, res }) =>  { req, res }
+      context: async ({ req, res }) => ({ req, res })
     }));
     console.log('Graphql server has started!')
   })
   .catch(error => {
     console.error('Error starting Apollo Server:', error);
   });
-
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
