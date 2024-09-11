@@ -43,6 +43,7 @@ type Message {
   id: ID
   userData: User
   usersData: [Users]
+  foodsData: [Restaurant]
   orderData: Order
   ordersData: [Order]
   productData: Product
@@ -79,7 +80,7 @@ type Mutation {
     description: String!,
     price: Int!,
     currency: String!,
-    categoryId: String!): Message!
+    categoryId: ID!): Message!
   createUser(
     firstName: String!
     lastName: String!
@@ -93,6 +94,7 @@ type Mutation {
     dispatcherStatus: String
     lgaId: String
     vehicleNumber: String
+    businessDescription: String
   ): Message!
   deleteAnOrderItem(orderId: ID!, orderItemId: ID!): Message!
   deleteCategory(id: ID!): Message!
@@ -192,6 +194,7 @@ type Product {
 type Query {
   category(id: ID!): Message!
   categories: Message!
+  findFoods(productName: String!): Message!
   getAllOrders: Message!
   getAllProducts: Message!
   getAllProductsOfUsersByCategory(categoryId: ID!): Message!
@@ -203,8 +206,26 @@ type Query {
   getTheOrderAsDispatcher: Message!
   getTheOrderAsSeller: Message!
   getUserProducts: Message!
+  findRestaurants(username: String): Message!
   user: Message!
   users: Message!
+}
+
+type Restaurant {
+  id: ID!
+  name: String!
+  description: String
+  price: Float
+  currency: String
+  userId: ID!
+  username: String!
+  businessDescription: String
+  products: [String]!
+  phoneNumber: String
+  email: String!
+  createdAt: String!
+  photo: String
+  addressSeller: [Location]
 }
 
 type User {
@@ -225,9 +246,10 @@ type User {
   sellerStatus: String
   dispatcherStatus: String
   photo: String
-  address_seller: [Location]
-  address_buyer: [Location]
-  address_dispatcher: [Location]
+  addressSeller: [Location]
+  addressBuyer: [Location]
+  addressDispatcher: [Location]
+  businessDescription: String
   products: [String]!
 }
 
