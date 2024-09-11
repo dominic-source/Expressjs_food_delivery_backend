@@ -25,9 +25,10 @@ const userschema = new Schema({
   buyerStatus: { type: String, enum: ['available', 'busy', 'null'], default: 'null' },
   photo: String,
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-  address_seller: locationSchema,
-  address_buyer: locationSchema,
-  address_dispatcher: locationSchema
+  addressSeller: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
+  addressBuyer: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
+  addressDispatcher: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
+  businessDescription: { type: String, maxlength: 300 },
 });
 
 

@@ -1,4 +1,4 @@
-import mongoose from  "mongoose";
+import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
@@ -21,7 +21,6 @@ const countrySchema = new Schema({
   name: String,
   state: [stateSchema]
 });
-
 
 export const locationSchema = locationschema;
 export const address = mongoose.model('Location', locationschema);
