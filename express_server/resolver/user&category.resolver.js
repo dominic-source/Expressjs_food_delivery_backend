@@ -1,11 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { User } from '../models/user';
+import { Product } from '../models/product';
 import Category from '../models/category';
 import Bull from 'bull';
 import { myLogger } from '../utils/mylogger';
 import { authRequest, loginMe } from '../utils/managedata/sendrequest';
-import _ from 'lodash';
+import _, { rest } from 'lodash';
 
 
 export const userQueryResolvers = {
@@ -27,6 +28,51 @@ export const userQueryResolvers = {
     }
   },
 
+  findFoods: async (_parent, { productName }, { req }) => {
+    try {
+      // find the product by their name
+      // use the userId in the product model to find the user information
+      // return the user information and the product information
+      const productsData = await Product.find({ name: _.trim(productName) });
+      if (!productsData) return { message: 'No product was found!', statusCode: 404, ok: false }
+      // let foodsData = [];
+      const foodsData = productsData.map(async (data) => {
+        const user = await User.findById(data.userId);
+        return {
+          id: data._id,
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          currency: data.currency,
+          userId: data.userId,
+          username: user.username,
+          businessDescription: user.businessDescription,
+          products: user.products,
+          phoneNumber: user.phoneNumber,
+          email: user.email,
+          createdAt: data.createdAt,
+          photo: data.photo,
+          addressSeller: user.addressSeller,
+        };
+      });
+      return { foodsData, statusCode: 200, ok: true };
+    } catch (error) {
+      myLogger.error('Error fetching users: ' + error.message);
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
+    }
+  },
+
+  findRestaurants: async (_parent, { }, { req }) => {
+    // data: name, image, id, altText, businessDescription
+    try {
+      const usersData = await User.find();
+
+      return { usersData, statusCode: 200, ok: true };
+    } catch (error) {
+      myLogger.error('Error fetching users: ' + error.message);
+      return { message: 'An error occurred!', statusCode: 500, ok: false };
+    }
+  },
   user: async (_parent, _, { req }) => {
     // authenticate user
     const response = await authRequest(req.headers.authorization);
