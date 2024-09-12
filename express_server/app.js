@@ -23,7 +23,7 @@ const app = express();
 dotenv.config();
 
 // get environment variable
-const { DELIVER_MONGODB_URL } = process.env;
+const { DELIVER_MONGODB_URL, FRONTEND_URL } = process.env;
 
 // Setup mongodb server
 mongoose.connect(DELIVER_MONGODB_URL)
@@ -31,8 +31,15 @@ mongoose.connect(DELIVER_MONGODB_URL)
   .catch(err => console.error('Error connecting to MongoDB:', err));
 
 // Configure CORS
+const allowedIps = ['https://studio.apollographql.com', FRONTEND_URL];
 const corsOptions = {
-  origin: 'https://studio.apollographql.com',
+  origin: (origin, callback) => {
+    if (allowedIps.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
   optionsSuccessStatus: 200,
   methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
 };
