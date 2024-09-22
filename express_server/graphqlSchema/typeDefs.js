@@ -195,6 +195,7 @@ type Query {
   category(id: ID!): Message!
   categories: Message!
   findFoods(productName: String!): Message!
+  findRestaurants(username: String): Message!
   getAllOrders: Message!
   getAllProducts: Message!
   getAllProductsOfUsersByCategory(categoryId: ID!): Message!
@@ -206,7 +207,6 @@ type Query {
   getTheOrderAsDispatcher: Message!
   getTheOrderAsSeller: Message!
   getUserProducts: Message!
-  findRestaurants(username: String): Message!
   user: Message!
   users: Message!
 }
