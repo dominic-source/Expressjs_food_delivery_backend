@@ -1,0 +1,14 @@
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server
+    env_file:
+      - ./express_server/.env
+    environment:
+      - MONGODB_INITDB_ROOT_USERNAME=${DELIVER_MONGODB_USER}
+      - MONGODB_INITDB_ROOT_PASSWORD=${DELIVER_MONGODB_PWD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - type: bind
+        source: ./database_mongo
+        target: /data/db
