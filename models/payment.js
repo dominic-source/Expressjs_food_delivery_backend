@@ -1,5 +1,5 @@
 import mongoose from  "mongoose";
-import { paymentStatus, paymentMethods, currency } from '../../configPayment.json'
+import { paymentStatus, paymentMethods, currency } from '../configPayment.json'
 
 const { Schema } = mongoose;
 

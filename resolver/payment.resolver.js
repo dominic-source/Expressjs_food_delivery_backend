@@ -1,7 +1,7 @@
 import { myLogger } from '../utils/mylogger';
 import { Payment } from '../models/payment';
 import Order from '../models/order';
-import { paymentMethods, currency } from '../../configPayment.json'
+import { paymentMethods, currency } from '../configPayment.json'
 import { authRequest } from '../utils/managedata/sendrequest';
 
 const availableCurrency = currency;

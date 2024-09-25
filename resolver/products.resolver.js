@@ -89,9 +89,11 @@ export const productMutationResolver = {
 
       // Get the category information, return error message if false
       const category = await Category.findById(categoryId);
+
       if (!category) return { 'message': 'The product category ID must be specified!', statusCode: 400, ok: false };
       // check if product name already exist for the user
       const userMe = await User.findById(user._id).populate('products');
+
       if (userMe.products) {
         if (userMe.products.find((obj) => obj.name === name)) return { 'message': 'product name already exist', statusCode: 400, ok: false }
       }

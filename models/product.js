@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { currency } from '../../configPayment.json'
+import { currency } from '../configPayment.json'
 const { Schema } = mongoose;
 
 const productschema = new Schema({

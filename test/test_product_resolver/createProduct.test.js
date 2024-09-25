@@ -32,9 +32,9 @@ describe('createProduct', function() {
 
   it('should create a product', async function() {
     const user = {
-      id: new Types.ObjectId(),
+      _id: new Types.ObjectId(),
       products: [],
-      save: stub().resolves()
+      save: stub().resolves(),
     };
     const category = {
       _id: new Types.ObjectId()
@@ -46,7 +46,9 @@ describe('createProduct', function() {
       currency: 'Dollar',
       categoryId: category._id
     };
-    const findByIdStub = stub(User, 'findById').resolves(user);
+    const findByIdStub = stub(User, 'findById').returns({
+      populate: stub().resolves(user)
+    });
     const findByIdCategoryStub = stub(Category, 'findById').resolves(category);
     const saveStub = stub(Product.prototype, 'save').resolves(product);
     const result = await productMutationResolver.createProduct(
@@ -64,7 +66,6 @@ describe('createProduct', function() {
         } 
        }
       });
-
     expect(result.statusCode).to.be.equal(200);
     expect(result.ok).to.be.true;
     expect(findByIdStub.calledOnce).to.be.true;
@@ -126,9 +127,53 @@ describe('createProduct', function() {
       currency: 'Dollar',
       categoryId: category._id
     };
-    const findByIdStub = stub(User, 'findById').throws(new Error('Error occurred'));
+    const findByIdStub = stub(User, 'findById').returns({
+      populate: stub().throws(new Error('Error occurred'))
+    });
     const findByIdCategoryStub = stub(Category, 'findById').resolves(category);
     const saveStub = stub(Product.prototype, 'save').resolves(product);
+    const result = await productMutationResolver.createProduct(
+        null, 
+        {
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            currency: product.currency,
+            categoryId: category._id.toString() 
+        },
+        { req: {
+          headers: {
+           authorization: "fakeString"
+          } 
+         }
+        });
+    expect(result).to.deep.equal({ message: 'An error occurred!', statusCode: 500, ok: false });
+    expect(findByIdStub.calledOnce).to.be.true;
+    expect(findByIdCategoryStub.calledOnce).to.be.true;
+    expect(saveStub.called).to.be.false;
+  });
+
+  it('should return null if an error occurs when saving the product', async function() {
+    const user = {
+      id: new Types.ObjectId(),
+      products: [],
+      save: stub().resolves()
+    };
+    const category = {
+      _id: new Types.ObjectId()
+    };
+    const product = {
+      name: 'Product 1',
+      description: 'Product 1 description',
+      price: 100,
+      currency: 'Dollar',
+      categoryId: category._id
+    };
+    const findByIdStub = stub(User, 'findById').returns({
+      populate: stub().resolves(user)
+    });
+    const findByIdCategoryStub = stub(Category, 'findById').resolves(category);
+    const saveStub = stub(Product.prototype, 'save').throws(new Error('Error occurred'));
     const result = await productMutationResolver.createProduct(
         null, 
         {
@@ -150,46 +195,6 @@ describe('createProduct', function() {
     expect(saveStub.called).to.be.true;
   });
 
-  it('should return null if an error occurs when saving the product', async function() {
-    const user = {
-      id: new Types.ObjectId(),
-      products: [],
-      save: stub().resolves()
-    };
-    const category = {
-      _id: new Types.ObjectId()
-    };
-    const product = {
-      name: 'Product 1',
-      description: 'Product 1 description',
-      price: 100,
-      currency: 'Dollar',
-      categoryId: category._id
-    };
-    const findByIdStub = stub(User, 'findById').resolves(user);
-    const findByIdCategoryStub = stub(Category, 'findById').resolves(category);
-    const saveStub = stub(Product.prototype, 'save').throws(new Error('Error occurred'));
-    const result = await productMutationResolver.createProduct(
-        null, 
-        {
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            currency: product.currency,
-            categoryId: category._id.toString() 
-        },
-        { req: {
-          headers: {
-           authorization: "fakeString"
-          } 
-         }
-        });
-    expect(result).to.deep.equal({ message: 'An error occurred!', statusCode: 500, ok: false });
-    expect(findByIdStub.calledOnce).to.be.false;
-    expect(findByIdCategoryStub.calledOnce).to.be.true;
-    expect(saveStub.called).to.be.true;
-  });
-
   it('should verify that the user has the product', async function() {
     const user = {
       id: new Types.ObjectId(),
@@ -207,7 +212,9 @@ describe('createProduct', function() {
       currency: 'Dollar',
       categoryId: category._id
     };
-    const findByIdStub = stub(User, 'findById').resolves(user);
+    const findByIdStub = stub(User, 'findById').returns({
+      populate: stub().resolves(user),
+    });
     const findByIdCategoryStub = stub(Category, 'findById').resolves(category);
     const saveStub = stub(Product.prototype, 'save').resolves(product);
     const result = await productMutationResolver.createProduct(

@@ -106,7 +106,6 @@ type Mutation {
   login(email: String!, password: String!): Message!
   logout: Message!
   updateOrder(orderId: ID!, status: String!): Message!
-  updateOrderAddress(orderId: ID!, deliveryAddress: String!): Message!
   updateOrderItems(orderId: ID!, orderItems: [OrderItem2]!): Message!
   updatePassword(email: String!, token: String!, password: String!): Message! 
   updatePayment(

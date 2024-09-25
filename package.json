@@ -1,7 +1,7 @@
 {
   "name": "express_server",
   "version": "1.0.0",
-  "description": "Express server for helium health",
+  "description": "Express server",
   "main": "app.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint",
@@ -39,16 +39,17 @@
     "mongodb": "^6.5.0",
     "mongoose": "^8.3.1",
     "multer": "^1.4.5-lts.1",
+    "node-fetch": "^2.7.0",
     "nodemailer": "^6.9.13",
     "redis": "^4.6.13",
     "winston": "^3.13.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.1",
-    "@babel/core": "^7.24.1",
+    "@babel/core": "^7.25.2",
     "@babel/node": "^7.23.9",
-    "@babel/preset-env": "^7.24.1",
-    "@babel/register": "^7.23.7",
+    "@babel/preset-env": "^7.25.4",
+    "@babel/register": "^7.24.6",
     "chai": "^4.2.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
